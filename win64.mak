@@ -155,7 +155,13 @@ SRC_STD_7= \
 	std\json.d \
 	std\parallelism.d \
 	std\mathspecial.d \
-	std\process.d
+	std\process.d \
+	std\logger\core.d \
+	std\logger\filelogger.d \
+	std\logger\stdiologger.d \
+	std\logger\nulllogger.d \
+	std\logger\templatelogger.d \
+	std\logger\multilogger.d
 
 SRC_STD_ALL= $(SRC_STD_1_HEAVY) $(SRC_STD_2_HEAVY) $(SRC_STD_2a_HEAVY) \
 	$(SRC_STD_math) \
@@ -172,7 +178,8 @@ SRC_STD_ALL= $(SRC_STD_1_HEAVY) $(SRC_STD_2_HEAVY) $(SRC_STD_2a_HEAVY) \
 	$(SRC_STD_6i) \
 	$(SRC_STD_6j) \
 	$(SRC_STD_6k) \
-	$(SRC_STD_7)
+	$(SRC_STD_7) \
+	$(SRC_STD_LOGGER)
 
 SRC=	unittest.d index.d
 
@@ -196,6 +203,8 @@ SRC_STD= std\zlib.d std\zip.d std\stdint.d std\conv.d std\utf.d std\uri.d \
 	std\exception.d std\ascii.d
 
 SRC_STD_NET= std\net\isemail.d std\net\curl.d
+
+SRC_STD_LOGGER= std\logger\core.d std\logger\stdiologger.d std\logger\filelogger.d std\logger\templatelogger.d std\logger\mulitlogger.d std\logger\nulllogger.
 
 SRC_STD_C= std\c\process.d std\c\stdlib.d std\c\time.d std\c\stdio.d \
 	std\c\math.d std\c\stdarg.d std\c\stddef.d std\c\fenv.d std\c\string.d \
@@ -369,6 +378,12 @@ DOCS=	$(DOC)\object.html \
 	$(DOC)\std_zlib.html \
 	$(DOC)\std_net_isemail.html \
 	$(DOC)\std_net_curl.html \
+	$(DOC)\std_logger_filelogger.html \
+	$(DOC)\std_logger_stdiologger.html \
+	$(DOC)\std_logger_multilogger.html \
+	$(DOC)\std_logger_nulllogger.html \
+	$(DOC)\std_logger_templatelogger.html \
+	$(DOC)\std_logger_core.html \
 	$(DOC)\std_windows_charset.html \
 	$(DOC)\std_windows_registry.html \
 	$(DOC)\std_c_fenv.html \
@@ -705,6 +720,21 @@ $(DOC)\std_net_isemail.html : $(STDDOC) std\net\isemail.d
 $(DOC)\std_net_curl.html : $(STDDOC) std\net\curl.d
 	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_net_curl.html $(STDDOC) std\net\curl.d
 
+$(DOC)\std_logger_core.html : $(STDDOC) std\logger\core.d
+	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_logger_core.html $(STDDOC) std\logger\core.d
+
+$(DOC)\std_logger_multilogger.html : $(STDDOC) std\logger\multilogger.d
+	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_logger_multilogger.html $(STDDOC) std\logger\multilogger.d
+
+$(DOC)\std_logger_stdiologger.html : $(STDDOC) std\logger\stdiologger.d
+	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_logger_stdiologger.html $(STDDOC) std\logger\stdiologger.d
+
+$(DOC)\std_logger_filelogger.html : $(STDDOC) std\logger\filelogger.d
+	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_logger_filelogger.html $(STDDOC) std\logger\filelogger.d
+
+$(DOC)\std_logger_nulllogger.html : $(STDDOC) std\logger\nulllogger.d
+	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_logger_nulllogger.html $(STDDOC) std\logger\nulllogger.d
+
 $(DOC)\std_digest_crc.html : $(STDDOC) std\digest\crc.d
 	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_digest_crc.html $(STDDOC) std\digest\crc.d
 
@@ -776,7 +806,7 @@ zip : win32.mak win64.mak posix.mak $(STDDOC) $(SRC) \
 	$(SRC_STD_C_WIN) $(SRC_STD_C_LINUX) $(SRC_STD_C_OSX) $(SRC_STD_C_FREEBSD) \
 	$(SRC_ETC) $(SRC_ETC_C) $(SRC_ZLIB) $(SRC_STD_NET) $(SRC_STD_DIGEST) $(SRC_STD_CONTAINER) \
 	$(SRC_STD_INTERNAL) $(SRC_STD_INTERNAL_DIGEST) $(SRC_STD_INTERNAL_MATH) \
-	$(SRC_STD_INTERNAL_WINDOWS)
+	$(SRC_STD_INTERNAL_WINDOWS) $(SRC_STD_LOGGER)
 	del phobos.zip
 	zip32 -u phobos win32.mak win64.mak posix.mak $(STDDOC)
 	zip32 -u phobos $(SRC)
