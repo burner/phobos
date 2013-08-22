@@ -224,13 +224,13 @@ jQuery(document).ready(listanchors);
 Implements logging facilities.
 <p></p>
 Message logging is a common approach to expose runtime information of a
-program. Logging should be easy but also flexible and powerful, therefore <span class="d_inlinecode">D</span> provides a standard interface for logging.
+program. Logging should be easy, but also flexible and powerful, therefore <span class="d_inlinecode">D</span> provides a standard interface for logging.
 <p></p>
 
-The easiest way to create a logging message is to write <span class="d_inlinecode">import std.<a name="logger"></a><span class="ddoc_psymbol">logger</span>;
+The easiest way to create a log message is to write <span class="d_inlinecode">import std.<a name="logger"></a><span class="ddoc_psymbol">logger</span>;
 Log("I am here");</span> this will print a message to the stdio device.  The message
 will contain the filename, the linenumber, the name of the surrounding
-function and the message. Fiva additional functions exists, that will log
+function and the message. Five additional functions exists, that will log
 messages to the  with the corresponding <span class="d_inlinecode">LogLevel</span>. These
 functions are called <span class="d_inlinecode">Info, Warning, Error, Critical and Fatel</span>. All log
 functions work with all <span class="d_inlinecode">Logger</span> classes.
@@ -262,7 +262,7 @@ be changed by assigning the <span class="d_inlinecode">globalLogLevel</span> pro
 <p></p>
 
 To customize the <a name="logger"></a><span class="ddoc_psymbol">logger</span> behaviour, create a new <span class="d_inlinecode">class</span> that inherits from
-the <span class="d_inlinecode">Logger</span> <span class="d_inlinecode">class</span> and implement the <span class="d_inlinecode">writeLogMsg</span> method.
+the <span class="d_inlinecode">Logger</span> <span class="d_inlinecode">class</span> and implements the <span class="d_inlinecode">writeLogMsg</span> method.
 <p></p>
 <b>Example:</b><br>
 <pre class="d_code"><span class="d_keyword">class</span> MyCustomLogger : Logger {
@@ -279,16 +279,13 @@ the <span class="d_inlinecode">Logger</span> <span class="d_inlinecode">class</s
 </pre>
 <p></p>
 
-In order to disable logging pass <span class="d_inlinecode">DisableLogger</span> as a version
-argument to your <span class="d_inlinecode">D</span> compiler.<p></p>
+In order to disable logging, pass <span class="d_inlinecode">DisableLogger</span> as a version
+argument to the <span class="d_inlinecode">D</span> compiler.<p></p>
 
 <dl><dt class="d_decl"><a name=".LogLevel"></a>enum <a name="LogLevel"></a><span class="ddoc_psymbol">LogLevel</span>: int;
 </dt>
 <dd>There are five usable logging level. These level are <i>Info</i>, <i>Warning</i>,
-<i>Error</i>, <i>Critical</i> and <i>Fatel</i>. Ever log message has a <a name="LogLevel"></a><span class="ddoc_psymbol">LogLevel</span>
-associated with it so does ever Logger. Only if the <span class="d_inlinecode"><a name="LogLevel"></a><span class="ddoc_psymbol">LogLevel</span></span> of the
-message is equal or greater as the <span class="d_inlinecode"><a name="LogLevel"></a><span class="ddoc_psymbol">LogLevel</span></span> of the used Logger and the
-global <span class="d_inlinecode"><a name="LogLevel"></a><span class="ddoc_psymbol">LogLevel</span></span> the message will be displayed.<p></p>
+<i>Error</i>, <i>Critical</i> and <i>Fatel</i>. Ever log message and every <span class="d_inlinecode">Logger</span> has a <a name="LogLevel"></a><span class="ddoc_psymbol">LogLevel</span> associated with it.<p></p>
 
 <dl><dt class="d_decl"><a name=".LogLevel.Default"></a><a name="Default"></a><span class="ddoc_psymbol">Default</span></dt>
 <dd>If no <span class="d_inlinecode">LogLevel</span> is passed to the log function this
@@ -307,7 +304,7 @@ global <span class="d_inlinecode"><a name="LogLevel"></a><span class="ddoc_psymb
 
 </dd>
 <dt class="d_decl"><a name=".LogLevel.Error"></a><a name="Error"></a><span class="ddoc_psymbol">Error</span></dt>
-<dd>Information about error should be logged with this level.<p></p>
+<dd>Information about errors should be logged with this level.<p></p>
 
 </dd>
 <dt class="d_decl"><a name=".LogLevel.Critical"></a><a name="Critical"></a><span class="ddoc_psymbol">Critical</span></dt>
@@ -330,9 +327,9 @@ logger a derivating class needs to implementation the method <span class="d_inli
 <dl><dt class="d_decl"><a name=".Logger.this"></a> this(LogLevel <i>lv</i> = LogLevel.Info);
 </dt>
 <dd>The constructor of the abstract logger has one arguments. The argument
-defines the <span class="d_inlinecode">LogLevel</span> of the <span class="d_inlinecode">Logger</span>. By default the <span class="d_inlinecode">LogLevel</span> is
-set to <span class="d_inlinecode">Info</span>. If a custom constructor is needed the selected <span class="d_inlinecode">LogLevel</span>
-needs to be passed to the super constructor.<p></p>
+	defines the <span class="d_inlinecode">LogLevel</span> of the <span class="d_inlinecode">Logger</span>. By default the <span class="d_inlinecode">LogLevel</span> is
+	set to <span class="d_inlinecode">Info</span>. If a custom constructor is needed the selected <span class="d_inlinecode">LogLevel</span>
+	needs to be passed to the super constructor.<p></p>
 
 </dd>
 <dt class="d_decl"><a name=".Logger.logMessage"></a>void <a name="logMessage"></a><span class="ddoc_psymbol">logMessage</span>(const string <i>fn</i>, const int <i>l</i>, const string <i>fun</i>, const string <i>prettyFun</i>, const LogLevel <i>lvl</i>, const string <i>msg</i>);
