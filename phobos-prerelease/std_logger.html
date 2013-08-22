@@ -232,7 +232,7 @@ Log("I am here");</span> this will print a message to the stdio device.  The mes
 will contain the filename, the linenumber, the name of the surrounding
 function and the message. Five additional functions exists, that will log
 messages to the  with the corresponding <span class="d_inlinecode">LogLevel</span>. These
-functions are called <span class="d_inlinecode">Info, Warning, Error, Critical and Fatel</span>. All log
+functions are called <span class="d_inlinecode">Info, Warning, Error, Critical and Fatal</span>. All log
 functions work with all <span class="d_inlinecode">Logger</span> classes.
 
 <p></p>
@@ -242,7 +242,7 @@ Info(<span class="d_string">"Logging to the defaultLogger with its Info LogLevel
 Warning(<span class="d_string">"Logging to the defaultLogger with its Warning LogLevel"</span>);
 Error(<span class="d_string">"Logging to the defaultLogger with its Error LogLevel"</span>);
 Critical(<span class="d_string">"Logging to the defaultLogger with its Critical LogLevel"</span>);
-Fatel(<span class="d_string">"Logging to the defaultLogger with its Fatel LogLevel"</span>);
+Fatal(<span class="d_string">"Logging to the defaultLogger with its Fatal LogLevel"</span>);
 
 <span class="d_keyword">auto</span> fileLogger = <span class="d_keyword">new</span> FileLogger(<span class="d_string">"NameOfTheLogFile"</span>);
 fileLogger.Log(<span class="d_string">"Logging to the fileLogger with its default LogLevel"</span>);
@@ -250,7 +250,7 @@ fileLogger.Info(<span class="d_string">"Logging to the fileLogger with its Info 
 fileLogger.Warning(<span class="d_string">"Logging to the fileLogger with its Warning LogLevel"</span>);
 fileLogger.Error(<span class="d_string">"Logging to the fileLogger with its Error LogLevel"</span>);
 fileLogger.Critical(<span class="d_string">"Logging to the fileLogger with its Critical LogLevel"</span>);
-fileLogger.Fatel(<span class="d_string">"Logging to the fileLogger with its Fatel LogLevel"</span>);
+fileLogger.Fatal(<span class="d_string">"Logging to the fileLogger with its Fatal LogLevel"</span>);
 </pre>
 <p></p>
 
@@ -285,7 +285,7 @@ argument to the <span class="d_inlinecode">D</span> compiler.<p></p>
 <dl><dt class="d_decl"><a name=".LogLevel"></a>enum <a name="LogLevel"></a><span class="ddoc_psymbol">LogLevel</span>: int;
 </dt>
 <dd>There are five usable logging level. These level are <i>Info</i>, <i>Warning</i>,
-<i>Error</i>, <i>Critical</i> and <i>Fatel</i>. Ever log message and every <span class="d_inlinecode">Logger</span> has a <a name="LogLevel"></a><span class="ddoc_psymbol">LogLevel</span> associated with it.<p></p>
+<i>Error</i>, <i>Critical</i> and <i>Fatal</i>. Ever log message and every <span class="d_inlinecode">Logger</span> has a <a name="LogLevel"></a><span class="ddoc_psymbol">LogLevel</span> associated with it.<p></p>
 
 <dl><dt class="d_decl"><a name=".LogLevel.Default"></a><a name="Default"></a><span class="ddoc_psymbol">Default</span></dt>
 <dd>If no <span class="d_inlinecode">LogLevel</span> is passed to the log function this
@@ -312,7 +312,7 @@ argument to the <span class="d_inlinecode">D</span> compiler.<p></p>
 				  logged with this level. <p></p>
 
 </dd>
-<dt class="d_decl"><a name=".LogLevel.Fatel"></a><a name="Fatel"></a><span class="ddoc_psymbol">Fatel</span></dt>
+<dt class="d_decl"><a name=".LogLevel.Fatal"></a><a name="Fatal"></a><span class="ddoc_psymbol">Fatal</span></dt>
 <dd>Log messages that describe fatel errors should use this
 				  level. <p></p>
 
