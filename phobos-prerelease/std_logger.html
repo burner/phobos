@@ -228,30 +228,34 @@ program. Logging should be easy, but also flexible and powerful, therefore <span
 <p></p>
 
 The easiest way to create a log message is to write <span class="d_inlinecode">import std.<a name="logger"></a><span class="ddoc_psymbol">logger</span>;
-Log("I am here");</span> this will print a message to the stdio device.  The message
+log("I am here");</span> this will print a message to the stdio device.  The message
 will contain the filename, the linenumber, the name of the surrounding
 function and the message. Five additional functions exists, that will log
 messages to the  with the corresponding <span class="d_inlinecode">LogLevel</span>. These
-functions are called <span class="d_inlinecode">Info, Warning, Error, Critical and Fatal</span>. All log
+functions are called <span class="d_inlinecode">info, warning, error, critical and fatal</span>. All log
 functions work with all <span class="d_inlinecode">Logger</span> classes.
 
 <p></p>
 <b>Example:</b><br>
-<pre class="d_code">Log(<span class="d_string">"Logging to the defaultLogger with its default LogLevel"</span>);
-Info(<span class="d_string">"Logging to the defaultLogger with its Info LogLevel"</span>);
-Warning(<span class="d_string">"Logging to the defaultLogger with its Warning LogLevel"</span>);
-Error(<span class="d_string">"Logging to the defaultLogger with its Error LogLevel"</span>);
-Critical(<span class="d_string">"Logging to the defaultLogger with its Critical LogLevel"</span>);
-Fatal(<span class="d_string">"Logging to the defaultLogger with its Fatal LogLevel"</span>);
+<pre class="d_code">log(<span class="d_string">"Logging to the defaultLogger with its default LogLevel"</span>);
+log.info(<span class="d_string">"Logging to the defaultLogger with its Info LogLevel"</span>);
+log.warning(<span class="d_string">"Logging to the defaultLogger with its Warning LogLevel"</span>);
+log.error(<span class="d_string">"Logging to the defaultLogger with its Error LogLevel"</span>);
+log.critical(<span class="d_string">"Logging to the defaultLogger with its Critical LogLevel"</span>);
+log.fatal(<span class="d_string">"Logging to the defaultLogger with its Fatal LogLevel"</span>);
 
 <span class="d_keyword">auto</span> fileLogger = <span class="d_keyword">new</span> FileLogger(<span class="d_string">"NameOfTheLogFile"</span>);
-fileLogger.Log(<span class="d_string">"Logging to the fileLogger with its default LogLevel"</span>);
-fileLogger.Info(<span class="d_string">"Logging to the fileLogger with its Info LogLevel"</span>);
-fileLogger.Warning(<span class="d_string">"Logging to the fileLogger with its Warning LogLevel"</span>);
-fileLogger.Error(<span class="d_string">"Logging to the fileLogger with its Error LogLevel"</span>);
-fileLogger.Critical(<span class="d_string">"Logging to the fileLogger with its Critical LogLevel"</span>);
-fileLogger.Fatal(<span class="d_string">"Logging to the fileLogger with its Fatal LogLevel"</span>);
+fileLogger(<span class="d_string">"Logging to the fileLogger with its default LogLevel"</span>);
+fileLogger.info(<span class="d_string">"Logging to the fileLogger with its Info LogLevel"</span>);
+fileLogger.warning(<span class="d_string">"Logging to the fileLogger with its Warning LogLevel"</span>);
+fileLogger.error(<span class="d_string">"Logging to the fileLogger with its Error LogLevel"</span>);
+fileLogger.critical(<span class="d_string">"Logging to the fileLogger with its Critical LogLevel"</span>);
+fileLogger.fatal(<span class="d_string">"Logging to the fileLogger with its Fatal LogLevel"</span>);
 </pre>
+<p></p>
+
+For conditional logging pass a boolean to one of the log functions. Only if
+the condition pass is <b>true</b> the message will be logged.
 <p></p>
 
 Messages are logged if the <span class="d_inlinecode">LogLevel</span> of the log message is greater equal
@@ -275,7 +279,7 @@ the <span class="d_inlinecode">Logger</span> <span class="d_inlinecode">class</s
 }
 
 <span class="d_keyword">auto</span> <span class="d_psymbol">logger</span> = <span class="d_keyword">new</span> MyCustomLogger();
-<span class="d_psymbol">logger</span>.Info(<span class="d_string">"Awesome log message"</span>);
+<span class="d_psymbol">logger</span>.info(<span class="d_string">"Awesome log message"</span>);
 </pre>
 <p></p>
 
@@ -332,7 +336,7 @@ logger a derivating class needs to implementation the method <span class="d_inli
 	needs to be passed to the super constructor.<p></p>
 
 </dd>
-<dt class="d_decl"><a name=".Logger.logMessage"></a>void <a name="logMessage"></a><span class="ddoc_psymbol">logMessage</span>(const string <i>fn</i>, const int <i>l</i>, const string <i>fun</i>, const string <i>prettyFun</i>, const LogLevel <i>lvl</i>, const string <i>msg</i>);
+<dt class="d_decl"><a name=".Logger.logMessage"></a>void <a name="logMessage"></a><span class="ddoc_psymbol">logMessage</span>(const string <i>fn</i>, const int <i>l</i>, const string <i>fun</i>, const string <i>prettyFun</i>, const LogLevel <i>lvl</i>, bool <i>cond</i>, const string <i>msg</i>);
 </dt>
 <dd>This method is the entry point into each logger. It compares the given
 	<span class="d_inlinecode">LogLevel</span> with the <span class="d_inlinecode">LogLevel</span> of the <span class="d_inlinecode">Logger</span> and the global
@@ -387,19 +391,9 @@ which is used if no logger is manually selected. Additionally the
 <span class="d_inlinecode"><a name="LogManager"></a><span class="ddoc_psymbol">LogManager</span></span> also allows to retrieve <span class="d_inlinecode">Logger</span> by there name.
 An <span class="d_inlinecode">StdIOLogger</span> is assigned to be the default <span class="d_inlinecode">Logger</span>.<p></p>
 
-<dl><dt class="d_decl"><a name=".LogManager.defaultLogger"></a>static @property Logger <a name="defaultLogger"></a><span class="ddoc_psymbol">defaultLogger</span>();
+<dl><dt class="d_decl"><a name=".LogManager.defaultLogger"></a>static @property ref Logger <a name="defaultLogger"></a><span class="ddoc_psymbol">defaultLogger</span>();
 </dt>
 <dd>This method returns the default <span class="d_inlinecode">Logger</span>. <p></p>
-
-</dd>
-<dt class="d_decl"><a name=".LogManager.defaultLogger"></a>static @property void <a name="defaultLogger"></a><span class="ddoc_psymbol">defaultLogger</span>(Logger <i>log</i>);
-</dt>
-<dd>This method sets the default <span class="d_inlinecode">Logger</span>.
-	Example
-<pre class="d_code">LogManager.<span class="d_psymbol">defaultLogger</span> = <span class="d_keyword">new</span> StdIOLogger();
-Log(<span class="d_string">"A message from the defaultLogger"</span>);
-</pre>
-<p></p>
 
 </dd>
 <dt class="d_decl"><a name=".LogManager.globalLogLevel"></a>static @property LogLevel <a name="globalLogLevel"></a><span class="ddoc_psymbol">globalLogLevel</span>();
