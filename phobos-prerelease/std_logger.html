@@ -596,6 +596,22 @@ is already present new log messages will be append at its end.<p></p>
 </dd>
 </dl>
 </dd>
+<dt class="d_decl"><a name=".MultiLogger"></a>class <a name="MultiLogger"></a><span class="ddoc_psymbol">MultiLogger</span>: std.logger.Logger;
+</dt>
+<dd><a name="MultiLogger"></a><span class="ddoc_psymbol">MultiLogger</span> logs to multiple logger.<p></p>
+
+<dl><dt class="d_decl"><a name=".MultiLogger.insertLogger"></a>void <a name="insertLogger"></a><span class="ddoc_psymbol">insertLogger</span>(Logger <i>newLogger</i>);
+</dt>
+<dd>Insert a new Logger into the Multilogger.<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".MultiLogger.removeLogger"></a>Logger <a name="removeLogger"></a><span class="ddoc_psymbol">removeLogger</span>(string <i>loggerName</i>);
+</dt>
+<dd>Remove a Logger from the Multilogger.<p></p>
+
+</dd>
+</dl>
+</dd>
 <dt class="d_decl"><a name=".LogManager"></a>class <a name="LogManager"></a><span class="ddoc_psymbol">LogManager</span>;
 </dt>
 <dd>The static <span class="d_inlinecode"><a name="LogManager"></a><span class="ddoc_psymbol">LogManager</span></span> handles the creation and the release of
