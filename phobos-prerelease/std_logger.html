@@ -328,7 +328,55 @@ version argument to the <span class="d_inlinecode">D</span> compiler.<p></p>
 <dd>This class is the base of every logger. In order to create a new kind of
 logger a derivating class needs to implementation the method <span class="d_inlinecode">writeLogMsg</span>.<p></p>
 
-<dl><dt class="d_decl"><a name=".Logger.this"></a> this(LogLevel <i>lv</i> = LogLevel.info);
+<dl><dt class="d_decl"><a name=".Logger.LoggerPayload"></a>struct <a name="LoggerPayload"></a><span class="ddoc_psymbol">LoggerPayload</span>;
+</dt>
+<dd><a name="LoggerPayload"></a><span class="ddoc_psymbol">LoggerPayload</span> is a aggregation combining all information associated
+    with a log message. This aggregation will be passed to the method
+    writeLogMsg.<p></p>
+
+<dl><dt class="d_decl"><a name=".Logger.LoggerPayload.file"></a>string <a name="file"></a><span class="ddoc_psymbol">file</span>;
+</dt>
+<dd>the filename the log function was called from<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".Logger.LoggerPayload.line"></a>int <a name="line"></a><span class="ddoc_psymbol">line</span>;
+</dt>
+<dd>the <a name="line"></a><span class="ddoc_psymbol">line</span> number the log function was called from<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".Logger.LoggerPayload.funcName"></a>string <a name="funcName"></a><span class="ddoc_psymbol">funcName</span>;
+</dt>
+<dd>the name of the function the log function was called from<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".Logger.LoggerPayload.prettyFuncName"></a>string <a name="prettyFuncName"></a><span class="ddoc_psymbol">prettyFuncName</span>;
+</dt>
+<dd>the pretty formatted name of the function the log function was called from<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".Logger.LoggerPayload.logLevel"></a>LogLevel <a name="logLevel"></a><span class="ddoc_psymbol">logLevel</span>;
+</dt>
+<dd>the <span class="d_inlinecode">LogLevel</span> associated with the log message<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".Logger.LoggerPayload.timestamp"></a>SysTime <a name="timestamp"></a><span class="ddoc_psymbol">timestamp</span>;
+</dt>
+<dd>the time the message was logged.<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".Logger.LoggerPayload.threadId"></a>Tid <a name="threadId"></a><span class="ddoc_psymbol">threadId</span>;
+</dt>
+<dd>thread id<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".Logger.LoggerPayload.msg"></a>string <a name="msg"></a><span class="ddoc_psymbol">msg</span>;
+</dt>
+<dd>the message<p></p>
+
+</dd>
+</dl>
+</dd>
+<dt class="d_decl"><a name=".Logger.this"></a> this(LogLevel <i>lv</i> = LogLevel.info);
 </dt>
 <dd>This constructor of the abstract logger has one arguments. The argument
     defines the <span class="d_inlinecode">LogLevel</span> of the <span class="d_inlinecode">Logger</span>. By default the <span class="d_inlinecode">LogLevel</span> is
