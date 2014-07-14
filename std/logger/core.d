@@ -197,6 +197,7 @@ import std.logger.multilogger;
 import std.logger.filelogger;
 import std.logger.nulllogger;
 
+/+
 private pure string logLevelToParameterString(const LogLevel lv)
 {
     switch(lv)
@@ -368,6 +369,7 @@ private string genDocComment(const bool asMemberFunction,
 
     return ret ~ " */\n";
 }
++/
 
 //pragma(msg, genDocComment(false, false, false, LogLevel.unspecific, true));
 //pragma(msg, buildLogFunction(false, false, false, LogLevel.unspecific));
@@ -1998,6 +2000,7 @@ unittest
 unittest
 {
     import std.file;
+    import core.memory;
     string name = randomString(32);
     string filename = randomString(32) ~ ".tempLogFile";
     auto oldunspecificLogger = LogManager.defaultLogger;
@@ -2019,6 +2022,7 @@ unittest
     loglc(LogLevel.critical, false, notWritten);
     loglc(LogLevel.fatal, true, written);
     l.file.flush();
+	GC.free(cast(void*)l);
 
     auto file = File(filename, "r");
     auto readLine = file.readln();
