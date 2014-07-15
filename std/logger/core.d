@@ -1689,7 +1689,6 @@ abstract class Logger
 	
 	Params:
 	logLevel = The $(D LogLevel) used for logging the message.
-	A
 	msg = The $(D string) that is used to format the additional data.
 	args = The data that should be logged.
 	
