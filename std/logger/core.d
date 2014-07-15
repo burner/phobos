@@ -1689,6 +1689,7 @@ abstract class Logger
 	
 	Params:
 	logLevel = The $(D LogLevel) used for logging the message.
+	A
 	msg = The $(D string) that is used to format the additional data.
 	args = The data that should be logged.
 	
@@ -1717,6 +1718,28 @@ abstract class Logger
 		return this;
 	}
 
+	/** This method logs data in a printf style manner depending on a $(D
+	LogLevel) and a $(D condition) passed explicitly
+	
+	This method takes a $(D LogLevel) as first argument. This function takes a
+	$(D bool) as second argument. In order for the data to be processed the 
+	$(D bool) must be $(D true) and the $(D LogLevel) of the Logger must be
+	greater equal to the global $(D LogLevel).
+	
+	Params:
+	logLevel = The $(D LogLevel) used for logging the message.
+	cond = Only if this $(D bool) is $(D true) will the data be logged.
+	msg = The $(D string) that is used to format the additional data.
+	args = The data that should be logged.
+	
+	Returns: The logger used by the logging method as reference. 
+	
+	Examples:
+	--------------------
+	auto l = new StdIOLogger();
+	l.loglcf(LogLevel.trace, false, "%d %s", 1337, "is number");
+	--------------------
+	*/
 	public ref Logger loglcf(int line = __LINE__, string file = __FILE__, 
 		string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__,
 		string moduleName = __MODULE__, A...)(const LogLevel logLevel, const bool cond, 
@@ -1734,6 +1757,33 @@ abstract class Logger
 		return this;
 	}
 
+	/** This method logs data with $(D LogLevel) $(D trace).
+	
+	In order for the data to be processed the $(D LogLevel) of the defaultLogger
+	must be smaller equal to $(D LogLevel.trace) and the global $(D LogLevel) must
+	also be smaller equal to $(D LogLevel.trace).
+	
+	Params:
+	args = The data that should be logged.
+	
+	Returns: The logger used by the logging method as reference. 
+	
+	Examples:
+	--------------------
+	auto l = new StdIOLogger();
+	l.trace(1337, "is number");
+	--------------------
+	
+	Additionally, to $(D tracecf) there are the method.
+	$(LI $(D info))
+	$(LI $(D warning))
+	$(LI $(D error))
+	$(LI $(D critical))
+	$(LI $(D fatal))
+	
+	These method behave exactly like $(D tracecf) with the exception of a
+	different $(D LogLevel) used for logging the data.
+	*/
 	public ref Logger trace(int line = __LINE__, string file = __FILE__, 
 		string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__,
 		string moduleName = __MODULE__, A...)(lazy A args) @trusted 
@@ -1750,6 +1800,37 @@ abstract class Logger
 		return this;
 	}
 
+	/** This method logs data in a printf style manner with $(D LogLevel) 
+	$(D trace), a $(D condition) is passed explicitly.
+	
+	This method takes a $(D bool) as first argument. In order for the data to
+	be processed the $(D bool) must be $(D true), the $(D LogLevel) of the
+	Logger must be smaller equal to $(D LogLevel.trace) and the global
+	$(D LogLevel) must also be smaller equal to $(D LogLevel.trace).
+	
+	Params:
+	cond = Only if this $(D bool) is $(D true) will the data be logged.
+	msg = The $(D string) that is used to format the additional data.
+	args = The data that should be logged.
+	
+	Returns: The logger used by the logging method as reference. 
+	
+	Examples:
+	--------------------
+	auto l = new StdIOLogger();
+	l.tracecf(false, "%d %s", 1337, "is number");
+	--------------------
+	
+	Additionally, to $(D tracecf) there are the method.
+	$(LI $(D infocf))
+	$(LI $(D warningcf))
+	$(LI $(D errorcf))
+	$(LI $(D criticalcf))
+	$(LI $(D fatalcf))
+	
+	These method behave exactly like $(D tracecf) with the exception of a
+	different $(D LogLevel) used for logging the data.
+	*/
 	public ref Logger tracec(int line = __LINE__, string file = __FILE__, 
 		string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__,
 		string moduleName = __MODULE__, A...)(const bool cond, lazy A args) @trusted 
@@ -1765,6 +1846,36 @@ abstract class Logger
 		return this;
 	}
 
+	/** This method logs data in a printf style manner with $(D LogLevel) 
+	$(D trace).
+	
+	In order for the data to be processed the $(D bool) must be $(D true), the
+	$(D LogLevel) of the Logger must be smaller equal to $(D LogLevel.trace)
+	and the global $(D LogLevel) must also be smaller equal to $(D
+	LogLevel.trace).
+	
+	Params:
+	msg = The $(D string) that is used to format the additional data.
+	args = The data that should be logged.
+	
+	Returns: The logger used by the logging function as reference. 
+	
+	Examples:
+	--------------------
+	auto l = new StdIOLogger();
+	l.tracef("%d %s", 1337, "is number");
+	--------------------
+	
+	Additionally, to $(D tracecf) there are the method.
+	$(LI $(D infof))
+	$(LI $(D warningf))
+	$(LI $(D errorf))
+	$(LI $(D criticalf))
+	$(LI $(D fatalf))
+	
+	These function behave exactly like $(D tracef) with the exception of a
+	different $(D LogLevel) used for logging the data.
+	*/
 	public ref Logger tracef(int line = __LINE__, string file = __FILE__, 
 		string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__,
 		string moduleName = __MODULE__, A...)(string msg, lazy A args) @trusted 
@@ -1781,6 +1892,37 @@ abstract class Logger
 		return this;
 	}
 
+	/** This method logs data in a printf style manner with $(D LogLevel) 
+	$(D trace), a $(D condition) is passed explicitly.
+	
+	This method takes a $(D bool) as first argument. In order for the data to be processed the 
+	$(D bool) must be $(D true), the $(D LogLevel) of the Logger must be
+	smaller equal to $(D LogLevel.trace) and the global $(D LogLevel) must also be
+	smaller equal to $(D LogLevel.trace).
+	
+	Params:
+	cond = Only if this $(D bool) is $(D true) will the data be logged.
+	msg = The $(D string) that is used to format the additional data.
+	args = The data that should be logged.
+	
+	Returns: The logger used by the logging function as reference. 
+	
+	Examples:
+	--------------------
+	auto l = new StdIOLogger();
+	l.tracecf(false, "%d %s", 1337, "is number");
+	--------------------
+	
+	Additionally, to $(D tracecf) there are the function.
+	$(LI $(D infocf))
+	$(LI $(D warningcf))
+	$(LI $(D errorcf))
+	$(LI $(D criticalcf))
+	$(LI $(D fatalcf))
+	
+	These function behave exactly like $(D tracecf) with the exception of a
+	different $(D LogLevel) used for logging the data.
+	*/
 	public ref Logger tracecf(int line = __LINE__, string file = __FILE__, 
 		string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__,
 		string moduleName = __MODULE__, A...)(const bool cond, string msg, lazy A args)
