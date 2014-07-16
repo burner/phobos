@@ -87,7 +87,7 @@ DOCSRC = ../dlang.org
 WEBSITE_DIR = ../web
 DOC_OUTPUT_DIR = $(WEBSITE_DIR)/phobos-prerelease
 BIGDOC_OUTPUT_DIR = /tmp
-SRC_DOCUMENTABLES = index.d $(addsuffix .d,$(STD_MODULES) $(STD_NET_MODULES) $(STD_DIGEST_MODULES) $(STD_CONTAINER_MODULES) $(EXTRA_DOCUMENTABLES)) $(STD_LOGGER_MODULES))
+SRC_DOCUMENTABLES = index.d $(addsuffix .d,$(STD_MODULES) $(STD_NET_MODULES) $(STD_DIGEST_MODULES) $(STD_CONTAINER_MODULES) $(EXTRA_DOCUMENTABLES) $(STD_LOGGER_MODULES))
 STDDOC = $(DOCSRC)/std.ddoc
 BIGSTDDOC = $(DOCSRC)/std_consolidated.ddoc
 # Set DDOC, the documentation generator
@@ -185,7 +185,9 @@ STD_MODULES = $(addprefix std/, algorithm array ascii base64 bigint \
         typecons typetuple uni uri utf uuid variant xml zip zlib)
 
 STD_NET_MODULES = $(addprefix std/net/, isemail curl)
-STD_LOGGER_MODULES = $(addprefix std/logger/, core filelogger stdiologger templatelogger nulllogger multilogger)
+
+STD_LOGGER_MODULES = $(addprefix std/logger/, package core filelogger \
+        stdiologger templatelogger nulllogger multilogger)
 
 STD_DIGEST_MODULES = $(addprefix std/digest/, digest crc md ripemd sha)
 
@@ -417,6 +419,9 @@ $(DOC_OUTPUT_DIR)/%.html : %.d $(STDDOC)
 	$(DDOC) project.ddoc $(STDDOC) -Df$@ $<
 
 html : $(DOC_OUTPUT_DIR)/. $(HTMLS) $(STYLECSS_TGT)
+
+allmod :
+	echo $(SRC_DOCUMENTABLES)
 
 rsync-prerelease : html
 	rsync -avz $(DOC_OUTPUT_DIR)/ d-programming@digitalmars.com:data/phobos-prerelease/
