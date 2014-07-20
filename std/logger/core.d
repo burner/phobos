@@ -1757,7 +1757,9 @@ unittest
     import core.memory;
     string name = randomString(32);
     string filename = randomString(32) ~ ".tempLogFile";
+    auto l = new FileLogger(filename);
     auto oldunspecificLogger = defaultLogger;
+    defaultLogger = l;
 
     scope(exit)
     {
@@ -1769,8 +1771,6 @@ unittest
     string notWritten = "this should not be written to file";
     string written = "this should be written to file";
 
-    auto l = new FileLogger(filename);
-    defaultLogger = l;
     log.logLevel = LogLevel.fatal;
 
     loglc(LogLevel.critical, false, notWritten);
@@ -2187,4 +2187,15 @@ unittest
     import std.exception : assertThrown;
     auto tl = new TestLogger();
     assertThrown!Throwable(tl.fatal("fatal"));
+
+    auto oldunspecificLogger = defaultLogger;
+
+	defaultLogger = tl;
+
+    scope(exit)
+    {
+        defaultLogger = oldunspecificLogger;
+        globalLogLevel = LogLevel.all;
+    }
+    assertThrown!Throwable(fatal("fatal"));
 }
