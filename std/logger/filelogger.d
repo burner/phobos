@@ -94,8 +94,8 @@ unittest
     l.logLevel = LogLevel.critical;
     l.logl(LogLevel.warning, notWritten);
     l.logl(LogLevel.critical, written);
+	destroy(l);
 
-    l.file.flush();
     auto file = File(filename, "r");
     string readLine = file.readln();
     assert(readLine.indexOf(written) != -1, readLine);
