@@ -36,7 +36,6 @@ abstract class TemplateLogger(Sink, alias Formatter, alias Filter) : Logger
     /** A constructor for the TemplateLogger.
 
     Params:
-        sink = The Sink used to pass the output of the Formatter to.
         lv = The $(D LogLevel) used by the logger.
     */
     public this(const LogLevel lv = LogLevel.info)
@@ -47,7 +46,6 @@ abstract class TemplateLogger(Sink, alias Formatter, alias Filter) : Logger
     /** A constructor for the TemplateLogger.
 
     Params:
-        sink = The Sink used to pass the output of the Formatter to.
         name = The name of the $(D Logger).
         lv = The $(D LogLevel) used by the logger.
     */

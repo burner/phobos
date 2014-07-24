@@ -32,7 +32,7 @@ other words stdout is locked for writing.
 class StdIOLogger : TemplateLogger!(StdioOutputRange, defaultFormatter,
     (a) => true)
 {
-    static @trusted this()
+    @trusted this()
     {
         this("", LogLevel.info);
     }
