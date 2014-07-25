@@ -90,6 +90,11 @@ the abstract $(D Logger) $(D class), and implements the $(D writeLogMsg)
 method.
 -------------
 class MyCustomLogger : Logger {
+    this(string newName, LogLevel lv) @safe
+	{
+		super(newName, lv);
+	}
+
     override void writeLogMsg(ref LoggerPayload payload))
     {
         // log message in my custom way
