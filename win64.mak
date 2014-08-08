@@ -200,7 +200,7 @@ SRC_STD_REGEX= std\regex\internal\ir.d std\regex\package.d std\regex\internal\pa
 
 SRC_STD_NET= std\net\isemail.d std\net\curl.d
 
-SRC_STD_LOGGER= std\experimental\logger\core.d std\experimental\logger\stdiologger.d std\experimental\logger\filelogger.d std\experimental\logger\templatelogger.d std\experimental\logger\mulitlogger.d std\experimental\logger\nulllogger.
+SRC_STD_LOGGER= std\experimental\logger\core.d std\experimental\logger\filelogger.d std\experimental\logger\mulitlogger.d std\experimental\logger\nulllogger.d
 
 SRC_STD_C= std\c\process.d std\c\stdlib.d std\c\time.d std\c\stdio.d \
 	std\c\math.d std\c\stdarg.d std\c\stddef.d std\c\fenv.d std\c\string.d \
@@ -376,10 +376,8 @@ DOCS=	$(DOC)\object.html \
 	$(DOC)\std_net_isemail.html \
 	$(DOC)\std_net_curl.html \
 	$(DOC)\std_experimental_logger_filelogger.html \
-	$(DOC)\std_experimental_logger_stdiologger.html \
 	$(DOC)\std_experimental_logger_multilogger.html \
 	$(DOC)\std_experimental_logger_nulllogger.html \
-	$(DOC)\std_experimental_logger_templatelogger.html \
 	$(DOC)\std_experimental_logger_core.html \
 	$(DOC)\std_windows_charset.html \
 	$(DOC)\std_windows_registry.html \
@@ -720,9 +718,6 @@ $(DOC)\std_experimental_logger_core.html : $(STDDOC) std\experimental\logger\cor
 
 $(DOC)\std_experimental_logger_multilogger.html : $(STDDOC) std\experimental\logger\multilogger.d
 	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_experimental_logger_multilogger.html $(STDDOC) std\experimental\logger\multilogger.d
-
-$(DOC)\std_experimental_logger_stdiologger.html : $(STDDOC) std\experimental\logger\stdiologger.d
-	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_experimental_logger_stdiologger.html $(STDDOC) std\experimental\logger\stdiologger.d
 
 $(DOC)\std_experimental_logger_filelogger.html : $(STDDOC) std\experimental\logger\filelogger.d
 	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_experimental_logger_filelogger.html $(STDDOC) std\experimental\logger\filelogger.d
