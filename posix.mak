@@ -187,7 +187,7 @@ STD_MODULES = $(addprefix std/, algorithm array ascii base64 bigint \
 STD_NET_MODULES = $(addprefix std/net/, isemail curl)
 
 STD_LOGGER_MODULES = $(addprefix std/logger/, package core filelogger \
-        stdiologger templatelogger nulllogger multilogger)
+        nulllogger multilogger)
 
 STD_REGEX_MODULES = $(addprefix std/regex/, package $(addprefix internal/, \
 	generator ir parser backtracking kickstart tests thompson))
