@@ -179,6 +179,7 @@ unittest
     assert(readLine.indexOf(written) != -1, readLine);
     readLine = file.readln();
     assert(readLine.indexOf(notWritten) == -1, readLine);
+	file.close();
 }
 
 unittest
