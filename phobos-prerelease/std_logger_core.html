@@ -228,64 +228,70 @@ jQuery(document).ready(listanchors);
 Implements logging facilities.
 <p></p>
 Message logging is a common approach to expose runtime information of a
-program. Logging should be easy, but also flexible and powerful, therefore <span class="d_inlinecode">D</span>
-provides a standard interface for logging.
+program. Logging should be easy, but also flexible and powerful, therefore
+<span class="d_inlinecode">D</span> provides a standard interface for logging.
 <p></p>
 
 The easiest way to create a log message is to write
 <span class="d_inlinecode">import std.logger; log("I am here");</span> this will print a message to the
-stdio device.  The message will contain the filename, the linenumber, the name
-of the surrounding function, and the message.
+<span class="d_inlinecode">stdout</span> device.  The message will contain the filename, the linenumber, the
+name of the surrounding function, the time and the message.
 
 <p></p>
 <b>License:</b><br><a href="http://www.boost.org/LICENSE_1_0.txt">Boost License 1.0</a>.
 <p></p>
-<b>Authors:</b><br>   <a href="http://http://www.svs.informatik.uni-oldenburg.de/60865.html">Robert burner Schadek</a>
+<b>Authors:</b><br> <a href="http://http://www.svs.informatik.uni-oldenburg.de/60865.html">Robert burner Schadek</a>
 <p></p>
 
-<pre class="d_code">log(<span class="d_string">"Logging to the defaultLogger with its default LogLevel"</span>);
-loglcf(LogLevel.info, 5 &lt; 6, <span class="d_string">"%s to the defaultLogger with its LogLevel.info"</span>, <span class="d_string">"Logging"</span>);
-info(<span class="d_string">"Logging to the defaultLogger with its info LogLevel"</span>);
-warningc(5 &lt; 6, <span class="d_string">"Logging to the defaultLogger with its LogLevel.warning if 5 is less than 6"</span>);
-error(<span class="d_string">"Logging to the defaultLogger with its error LogLevel"</span>);
-errorf(<span class="d_string">"Logging %s the defaultLogger %s its error LogLevel"</span>, <span class="d_string">"to"</span>, <span class="d_string">"with"</span>);
-critical(<span class="d_string">"Logging to the"</span>,<span class="d_string">" defaultLogger with its error LogLevel"</span>);
-fatal(<span class="d_string">"Logging to the defaultLogger with its fatal LogLevel"</span>);
+<pre class="d_code">log(<span class="d_string">"Logging to the stdlog with its default LogLevel"</span>);
+logf(LogLevel.info, 5 &lt; 6, <span class="d_string">"%s to the stdlog with its LogLevel.info"</span>, <span class="d_string">"Logging"</span>);
+info(<span class="d_string">"Logging to the stdlog with its info LogLevel"</span>);
+warning(5 &lt; 6, <span class="d_string">"Logging to the stdlog with its LogLevel.warning if 5 is less than 6"</span>);
+error(<span class="d_string">"Logging to the stdlog with its error LogLevel"</span>);
+errorf(<span class="d_string">"Logging %s the stdlog %s its error LogLevel"</span>, <span class="d_string">"to"</span>, <span class="d_string">"with"</span>);
+critical(<span class="d_string">"Logging to the"</span>,<span class="d_string">" stdlog with its error LogLevel"</span>);
+fatal(<span class="d_string">"Logging to the stdlog with its fatal LogLevel"</span>);
 
 <span class="d_keyword">auto</span> fLogger = <span class="d_keyword">new</span> FileLogger(<span class="d_string">"NameOfTheLogFile"</span>);
 fLogger.log(<span class="d_string">"Logging to the fileLogger with its default LogLevel"</span>);
 fLogger.info(<span class="d_string">"Logging to the fileLogger with its default LogLevel"</span>);
-fLogger.warningc(5 &lt; 6, <span class="d_string">"Logging to the fileLogger with its LogLevel.warning if 5 is less than 6"</span>);
-fLogger.warningcf(5 &lt; 6, <span class="d_string">"Logging to the fileLogger with its LogLevel.warning if %s is %s than 6"</span>, 5, <span class="d_string">"less"</span>);
+fLogger.warning(5 &lt; 6, <span class="d_string">"Logging to the fileLogger with its LogLevel.warning if 5 is less than 6"</span>);
+fLogger.warningf(5 &lt; 6, <span class="d_string">"Logging to the fileLogger with its LogLevel.warning if %s is %s than 6"</span>, 5, <span class="d_string">"less"</span>);
 fLogger.critical(<span class="d_string">"Logging to the fileLogger with its info LogLevel"</span>);
-fLogger.loglc(LogLevel.trace, 5 &lt; 6, <span class="d_string">"Logging to the fileLogger"</span>,<span class="d_string">" with its default LogLevel if 5 is less than 6"</span>);
+fLogger.log(LogLevel.trace, 5 &lt; 6, <span class="d_string">"Logging to the fileLogger"</span>,<span class="d_string">" with its default LogLevel if 5 is less than 6"</span>);
 fLogger.fatal(<span class="d_string">"Logging to the fileLogger with its warning LogLevel"</span>);
 </pre>
 <p></p>
 
-By default only one <span class="d_inlinecode">Logger</span> exists, this is the defaultLogger. In order to
-use this <span class="d_inlinecode">Logger</span> simply call the free standing log functions like:
+Top-level calls to logging-related functions go to the default <span class="d_inlinecode">Logger</span>
+object called <span class="d_inlinecode">stdlog</span>.
 <li><span class="d_inlinecode">log</span></li>
 <li><span class="d_inlinecode">trace</span></li>
 <li><span class="d_inlinecode">info</span></li>
 <li><span class="d_inlinecode">warning</span></li>
 <li><span class="d_inlinecode">critical</span></li>
 <li><span class="d_inlinecode">fatal</span></li>
-The defaultLogger will log to stdout and has a default <span class="d_inlinecode">LogLevel</span> of
-<span class="d_inlinecode">LogLevel.all</span>.
+The default <span class="d_inlinecode">Logger</span> will by default log to <span class="d_inlinecode">stdout</span> and has a default
+<span class="d_inlinecode">LogLevel</span> of <span class="d_inlinecode">LogLevel.all</span>. The default Logger can be accessed by
+using a property call <span class="d_inlinecode">stdlog</span>. This property a reference to the
+current default <span class="d_inlinecode">Logger</span>. This reference can be used to assign a new
+default <span class="d_inlinecode">Logger</span>.
+<pre class="d_code">stdlog = <span class="d_keyword">new</span> FileLogger(<span class="d_string">"New_Default_Log_File.log"</span>);
+</pre>
 <p></p>
 
 Additional <span class="d_inlinecode">Logger</span> can be created by creating a new instance of the
 required <span class="d_inlinecode">Logger</span>. These <span class="d_inlinecode">Logger</span> have the same methodes as the
-defaultLogger.
+<span class="d_inlinecode">stdlog</span>.
 <p></p>
 
-The <span class="d_inlinecode">LogLevel</span> of an log call can be defined in two was. The first is by
+The <span class="d_inlinecode">LogLevel</span> of an log call can be defined in two ways. The first is by
 calling <span class="d_inlinecode">logl</span> and passing the <span class="d_inlinecode">LogLevel</span> explicit. Notice the
 additional <b>l</b> after log. The <span class="d_inlinecode">LogLevel</span> is to be passed as first
-argument to the function. The second way, of setting the <span class="d_inlinecode">LogLevel</span> of a
-log call, is be call either <span class="d_inlinecode">trace</span>, <span class="d_inlinecode">info</span>, <span class="d_inlinecode">warning</span>, <span class="d_inlinecode">critical</span>
-or <span class="d_inlinecode">fatal</span>. The log call will than have the respective <span class="d_inlinecode">LogLevel</span>.
+argument to the function. The second way of setting the <span class="d_inlinecode">LogLevel</span> of a
+log call, is by calling either <span class="d_inlinecode">trace</span>, <span class="d_inlinecode">info</span>, <span class="d_inlinecode">warning</span>,
+<span class="d_inlinecode">critical</span>, or <span class="d_inlinecode">fatal</span>. The log call will than have the respective
+<span class="d_inlinecode">LogLevel</span>.
 <p></p>
 
 Conditional logging can be achived be appending a <b>c</b> to the function
@@ -299,28 +305,31 @@ call the function or method <span class="d_inlinecode">loglc</span>. The first r
 call then becomes the <span class="d_inlinecode">LogLevel</span> and the second argument is the <span class="d_inlinecode">bool</span>.
 <p></p>
 
-Messages are logged if the <span class="d_inlinecode">LogLevel</span> of the log message is greater equal
-than the <span class="d_inlinecode">LogLevel</span> of the used <span class="d_inlinecode">Logger</span> and additionally if the
+Messages are logged if the <span class="d_inlinecode">LogLevel</span> of the log message is greater than or
+equal to than the <span class="d_inlinecode">LogLevel</span> of the used <span class="d_inlinecode">Logger</span> and additionally if the
 <span class="d_inlinecode">LogLevel</span> of the log message is greater equal to the global <span class="d_inlinecode">LogLevel</span>.
-The global <span class="d_inlinecode">LogLevel</span> is accessible by using <span class="d_inlinecode">LogManager.globalLogLevel</span>.
+The global <span class="d_inlinecode">LogLevel</span> is accessible by using <span class="d_inlinecode">globalLogLevel</span>.
 To assign the <span class="d_inlinecode">LogLevel</span> of a <span class="d_inlinecode">Logger</span> use the <span class="d_inlinecode">logLevel</span> property of
 the logger.
 <p></p>
 
-If printf style logging is required add a <b>f</b> to the logging call, like
-<p></p>
-<b>such:</b><br>
+If <span class="d_inlinecode">printf</span>-style logging is needed add a <b>f</b> to the logging call, such as
 <span class="d_inlinecode">myLogger.infof("Hello %s", "world");</span> or 
-The additional <b>f</b> enables printf style logging for call combinations of
+The additional <b>f</b> enables <span class="d_inlinecode">printf</span>-style logging for call combinations of
 explicit <span class="d_inlinecode">LogLevel</span> and conditional logging functions and methods. The
 <b>f</b> is always to be placed last.
 <p></p>
 
-To customize the logger behaviour, create a new <span class="d_inlinecode">class</span> that inherits from
+To customize the logger behavior, create a new <span class="d_inlinecode">class</span> that inherits from
 the abstract <span class="d_inlinecode">Logger</span> <span class="d_inlinecode">class</span>, and implements the <span class="d_inlinecode">writeLogMsg</span>
 method.
 <pre class="d_code"><span class="d_keyword">class</span> MyCustomLogger : Logger {
-    <span class="d_keyword">override</span> <span class="d_keyword">void</span> writeLogMsg(<span class="d_keyword">ref</span> LoggerPayload payload))
+    <span class="d_keyword">this</span>(string newName, LogLevel lv) @safe
+    {
+        <span class="d_keyword">super</span>(newName, lv);
+    }
+
+    <span class="d_keyword">override</span> <span class="d_keyword">void</span> writeLogMsg(<span class="d_keyword">ref</span> LogEntry payload)
     {
         <span class="d_comment">// log message in my custom way
 </span>    }
@@ -331,332 +340,287 @@ logger.log(<span class="d_string">"Awesome log message"</span>);
 </pre>
 <p></p>
 
-In order to disable logging at compile time, pass <span class="d_inlinecode">DisableLogger</span> as a
+Even though the idea behind this logging module is to provide a common
+interface and easy extensibility certain specific Logger are already
+implemented.
+<p></p>
+
+<li>StdioLogger = This <span class="d_inlinecode">Logger</span> logs data to <span class="d_inlinecode">stdout</span>.</li>
+<li>FileLogger = This <span class="d_inlinecode">Logger</span> logs data to files.</li>
+<li>MulitLogger = This <span class="d_inlinecode">Logger</span> logs data to multiple <span class="d_inlinecode">Logger</span>.</li>
+<li>NullLogger = This <span class="d_inlinecode">Logger</span> will never do anything.</li>
+<li>TemplateLogger = This <span class="d_inlinecode">Logger</span> can be used to create simple custom
+<span class="d_inlinecode">Logger</span>.</li>
+<p></p>
+
+In order to disable logging at compile time, pass <span class="d_inlinecode">DisableLogging</span> as a
 version argument to the <span class="d_inlinecode">D</span> compiler.<p></p>
 
-<dl><dt class="d_decl"><a name=".log"></a>ref @trusted Logger <a name="log"></a><span class="ddoc_psymbol">log</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A <i>args</i>);
+<dl><dt class="d_decl"><a name=".log"></a>void <a name="log"></a><span class="ddoc_psymbol">log</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const LogLevel <i>ll</i>, lazy bool <i>condition</i>, lazy A <i>args</i>);
 </dt>
 <dd>This function logs data.
 <p></p>
-In order for the data to be processed the <span class="d_inlinecode">LogLevel</span> of the defaultLogger
-must be greater equal to the global <span class="d_inlinecode">LogLevel</span>.
+In order for the data to be processed the <span class="d_inlinecode">LogLevel</span> of the <a name="log"></a><span class="ddoc_psymbol">log</span> call must
+be greater or equal to the <span class="d_inlinecode">LogLevel</span> of the <span class="d_inlinecode">stdlog</span> and the
+<span class="d_inlinecode">defaultLogLevel</span> additionally the condition passed must be <span class="d_inlinecode"><b>true</b></span>.
+
+<p></p>
+<b>Parameters:</b><table class=parms><tr><td valign=top>LogLevel ll</td>
+<td valign=top>The <span class="d_inlinecode">LogLevel</span> used by this <a name="log"></a><span class="ddoc_psymbol">log</span> call.</td></tr>
+<tr><td valign=top>bool condition</td>
+<td valign=top>The condition must be <span class="d_inlinecode"><b>true</b></span> for the data to be logged.</td></tr>
+<tr><td valign=top>A args</td>
+<td valign=top>The data that should be logged.</td></tr>
+</table><p></p>
+<b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">log</span>(LogLevel.warning, <span class="d_keyword">true</span>, <span class="d_string">"Hello World"</span>, 3.1415);
+</pre>
+<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".log"></a>@trusted void <a name="log"></a><span class="ddoc_psymbol">log</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const LogLevel <i>ll</i>, lazy A <i>args</i>) if (<i>args</i>.length == 0 || <i>args</i>.length &gt; 0 &amp;&amp; !is(Unqual!(A[0]) : bool));
+</dt>
+<dd>This function logs data.
+<p></p>
+In order for the data to be processed the <span class="d_inlinecode">LogLevel</span> of the <a name="log"></a><span class="ddoc_psymbol">log</span> call must
+be greater or equal to the <span class="d_inlinecode">LogLevel</span> of the <span class="d_inlinecode">stdlog</span>.
+
+<p></p>
+<b>Parameters:</b><table class=parms><tr><td valign=top>LogLevel ll</td>
+<td valign=top>The <span class="d_inlinecode">LogLevel</span> used by this <a name="log"></a><span class="ddoc_psymbol">log</span> call.</td></tr>
+<tr><td valign=top>A args</td>
+<td valign=top>The data that should be logged.</td></tr>
+</table><p></p>
+<b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">log</span>(LogLevel.warning, <span class="d_string">"Hello World"</span>, 3.1415);
+</pre>
+<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".log"></a>@trusted void <a name="log"></a><span class="ddoc_psymbol">log</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy bool <i>condition</i>, lazy A <i>args</i>);
+</dt>
+<dd>This function logs data.
+<p></p>
+In order for the data to be processed the <span class="d_inlinecode">LogLevel</span> of the
+<span class="d_inlinecode">stdlog</span> must be greater or equal to the <span class="d_inlinecode">defaultLogLevel</span>
+add the condition passed must be <span class="d_inlinecode"><b>true</b></span>.
+
+<p></p>
+<b>Parameters:</b><table class=parms><tr><td valign=top>bool condition</td>
+<td valign=top>The condition must be <span class="d_inlinecode"><b>true</b></span> for the data to be logged.</td></tr>
+<tr><td valign=top>A args</td>
+<td valign=top>The data that should be logged.</td></tr>
+</table><p></p>
+<b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">log</span>(<span class="d_keyword">true</span>, <span class="d_string">"Hello World"</span>, 3.1415);
+</pre>
+<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".log"></a>@trusted void <a name="log"></a><span class="ddoc_psymbol">log</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A <i>args</i>) if (<i>args</i>.length == 0 || <i>args</i>.length &gt; 0 &amp;&amp; !is(Unqual!(A[0]) : bool) &amp;&amp; !is(Unqual!(A[0]) == LogLevel));
+</dt>
+<dd>This function logs data.
+<p></p>
+In order for the data to be processed the <span class="d_inlinecode">LogLevel</span> of the
+<span class="d_inlinecode">stdlog</span> must be greater or equal to the <span class="d_inlinecode">defaultLogLevel</span>.
 
 <p></p>
 <b>Parameters:</b><table class=parms><tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
 <b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">log</span>(<span class="d_string">"Hello World"</span>, 3.1415);
 </pre>
 <p></p>
 
 </dd>
-<dt class="d_decl"><a name=".logl"></a>ref @trusted Logger <a name="logl"></a><span class="ddoc_psymbol">logl</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const LogLevel <i>logLevel</i>, lazy A <i>args</i>);
+<dt class="d_decl"><a name=".logf"></a>void <a name="logf"></a><span class="ddoc_psymbol">logf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const LogLevel <i>ll</i>, lazy bool <i>condition</i>, lazy string <i>msg</i>, lazy A <i>args</i>);
 </dt>
-<dd>This function logs data depending on a <span class="d_inlinecode">LogLevel</span> passed
-explicitly.
+<dd>This function logs data in a <span class="d_inlinecode">printf</span>-style manner.
 <p></p>
-This function takes a <span class="d_inlinecode">LogLevel</span> as first argument. In order for the
-data to be processed the <span class="d_inlinecode">LogLevel</span> must be greater equal to the
-<span class="d_inlinecode">LogLevel</span> of the used logger, and the global <span class="d_inlinecode">LogLevel</span>.
+In order for the data to be processed the <span class="d_inlinecode">LogLevel</span> of the log call must
+be greater or equal to the <span class="d_inlinecode">LogLevel</span> of the <span class="d_inlinecode">stdlog</span> and the
+<span class="d_inlinecode">defaultLogLevel</span> additionally the condition passed must be <span class="d_inlinecode"><b>true</b></span>.
 
 <p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>LogLevel logLevel</td>
-<td valign=top>The <span class="d_inlinecode">LogLevel</span> used for logging the message.</td></tr>
+<b>Parameters:</b><table class=parms><tr><td valign=top>LogLevel ll</td>
+<td valign=top>The <span class="d_inlinecode">LogLevel</span> used by this log call.</td></tr>
+<tr><td valign=top>bool condition</td>
+<td valign=top>The condition must be <span class="d_inlinecode"><b>true</b></span> for the data to be logged.</td></tr>
+<tr><td valign=top>string msg</td>
+<td valign=top>The <span class="d_inlinecode">printf</span>-style string.</td></tr>
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">logl</span>(LogLevel.error, <span class="d_string">"Hello World"</span>);
+<b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">logf</span>(LogLevel.warning, <span class="d_keyword">true</span>, <span class="d_string">"Hello World %f"</span>, 3.1415);
 </pre>
 <p></p>
 
 </dd>
-<dt class="d_decl"><a name=".logc"></a>ref @trusted Logger <a name="logc"></a><span class="ddoc_psymbol">logc</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const bool <i>cond</i>, lazy A <i>args</i>);
+<dt class="d_decl"><a name=".logf"></a>@trusted void <a name="logf"></a><span class="ddoc_psymbol">logf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const LogLevel <i>ll</i>, lazy string <i>msg</i>, lazy A <i>args</i>) if (<i>args</i>.length == 0 || <i>args</i>.length &gt; 0 &amp;&amp; !is(Unqual!(A[0]) : bool));
 </dt>
-<dd>This function logs data depending on a <span class="d_inlinecode">condition</span> passed
-explicitly.
+<dd>This function logs data in a <span class="d_inlinecode">printf</span>-style manner.
 <p></p>
-This function takes a <span class="d_inlinecode">bool</span> as first argument. In order for the
-data to be processed the <span class="d_inlinecode">bool</span> must be <span class="d_inlinecode"><b>true</b></span> and the <span class="d_inlinecode">LogLevel</span> of
-the defaultLogger must be greater equal to the global <span class="d_inlinecode">LogLevel</span>.
+In order for the data to be processed the <span class="d_inlinecode">LogLevel</span> of the log call must
+be greater or equal to the <span class="d_inlinecode">LogLevel</span> of the <span class="d_inlinecode">stdlog</span> and the
+<span class="d_inlinecode">defaultLogLevel</span>.
 
 <p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>bool cond</td>
-<td valign=top>Only if this <span class="d_inlinecode">bool</span> is <span class="d_inlinecode"><b>true</b></span> will the data be logged.</td></tr>
+<b>Parameters:</b><table class=parms><tr><td valign=top>LogLevel ll</td>
+<td valign=top>The <span class="d_inlinecode">LogLevel</span> used by this log call.</td></tr>
+<tr><td valign=top>string msg</td>
+<td valign=top>The <span class="d_inlinecode">printf</span>-style string.</td></tr>
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">logc</span>(<span class="d_keyword">false</span>, 1337);
+<b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">logf</span>(LogLevel.warning, <span class="d_keyword">true</span>, <span class="d_string">"Hello World %f"</span>, 3.1415);
 </pre>
 <p></p>
 
 </dd>
-<dt class="d_decl"><a name=".loglc"></a>ref @trusted Logger <a name="loglc"></a><span class="ddoc_psymbol">loglc</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const LogLevel <i>logLevel</i>, const bool <i>cond</i>, lazy A <i>args</i>);
+<dt class="d_decl"><a name=".logf"></a>@trusted void <a name="logf"></a><span class="ddoc_psymbol">logf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy bool <i>condition</i>, lazy string <i>msg</i>, lazy A <i>args</i>);
 </dt>
-<dd>This function logs data depending on a <span class="d_inlinecode">condition</span> and a <span class="d_inlinecode">LogLevel</span>
-passed explicitly.
+<dd>This function logs data in a <span class="d_inlinecode">printf</span>-style manner.
 <p></p>
-This function takes a <span class="d_inlinecode">bool</span> as first argument and a <span class="d_inlinecode">bool</span> as second
-argument. In order for the
-data to be processed the <span class="d_inlinecode">bool</span> must be <span class="d_inlinecode"><b>true</b></span> and the <span class="d_inlinecode">LogLevel</span> of
-the defaultLogger must be greater equal to the global <span class="d_inlinecode">LogLevel</span>.
+In order for the data to be processed the <span class="d_inlinecode">LogLevel</span> of the log call must
+be greater or equal to the <span class="d_inlinecode">defaultLogLevel</span> additionally the condition
+passed must be <span class="d_inlinecode"><b>true</b></span>.
 
 <p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>LogLevel logLevel</td>
-<td valign=top>The <span class="d_inlinecode">LogLevel</span> used for logging the message.</td></tr>
-<tr><td valign=top>bool cond</td>
-<td valign=top>Only if this <span class="d_inlinecode">bool</span> is <span class="d_inlinecode"><b>true</b></span> will the data be logged.</td></tr>
+<b>Parameters:</b><table class=parms><tr><td valign=top>bool condition</td>
+<td valign=top>The condition must be <span class="d_inlinecode"><b>true</b></span> for the data to be logged.</td></tr>
+<tr><td valign=top>string msg</td>
+<td valign=top>The <span class="d_inlinecode">printf</span>-style string.</td></tr>
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">loglc</span>(LogLevel.info, someCondition, 13, 37, <span class="d_string">"Hello World"</span>);
+<b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">logf</span>(<span class="d_keyword">true</span>, <span class="d_string">"Hello World %f"</span>, 3.1415);
 </pre>
 <p></p>
 
 </dd>
-<dt class="d_decl"><a name=".logf"></a>ref @trusted Logger <a name="logf"></a><span class="ddoc_psymbol">logf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(string <i>msg</i>, lazy A <i>args</i>);
+<dt class="d_decl"><a name=".logf"></a>@trusted void <a name="logf"></a><span class="ddoc_psymbol">logf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy string <i>msg</i>, lazy A <i>args</i>);
 </dt>
-<dd>This function logs data in a printf style manner.
+<dd>This function logs data in a <span class="d_inlinecode">printf</span>-style manner.
 <p></p>
-In order for the data to be processed the <span class="d_inlinecode">LogLevel</span> of the defaultLogger
-must be greater equal to the global <span class="d_inlinecode">LogLevel</span>.
+In order for the data to be processed the <span class="d_inlinecode">LogLevel</span> of the log call must
+be greater or equal to the <span class="d_inlinecode">defaultLogLevel</span>.
 
 <p></p>
 <b>Parameters:</b><table class=parms><tr><td valign=top>string msg</td>
-<td valign=top>The <span class="d_inlinecode">string</span> that is used to format the additional data.</td></tr>
+<td valign=top>The <span class="d_inlinecode">printf</span>-style string.</td></tr>
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
 <b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">logf</span>(<span class="d_string">"Hello World %f"</span>, 3.1415);
 </pre>
 <p></p>
 
 </dd>
-<dt class="d_decl"><a name=".loglf"></a>ref @trusted Logger <a name="loglf"></a><span class="ddoc_psymbol">loglf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const LogLevel <i>logLevel</i>, string <i>msg</i>, lazy A <i>args</i>);
+<dt class="d_decl"><a name=".defaultLogFunction"></a>template <a name="defaultLogFunction"></a><span class="ddoc_psymbol">defaultLogFunction</span>(LogLevel ll)</dt>
+<dd><p></p>
+<dl><dt class="d_decl"><a name=".defaultLogFunction"></a>@trusted void <a name="defaultLogFunction"></a><span class="ddoc_psymbol">defaultLogFunction</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A <i>args</i>) if (<i>args</i>.length &gt; 0 &amp;&amp; !is(Unqual!(A[0]) : bool));
 </dt>
-<dd>This function logs data in a printf style manner depending on a
-<span class="d_inlinecode">condition</span> and a <span class="d_inlinecode">LogLevel</span> passed explicitly.
+<dd>This function logs data to the <span class="d_inlinecode">stdlog</span>.
 <p></p>
-This function takes a <span class="d_inlinecode">LogLevel</span> as first argument. In order for the
-data to be processed the <span class="d_inlinecode">LogLevel</span> must be greater equal to the
-<span class="d_inlinecode">LogLevel</span> of the used Logger and the global <span class="d_inlinecode">LogLevel</span>.
-
-<p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>LogLevel logLevel</td>
-<td valign=top>The <span class="d_inlinecode">LogLevel</span> used for logging the message.</td></tr>
-<tr><td valign=top>string msg</td>
-<td valign=top>The <span class="d_inlinecode">string</span> that is used to format the additional data.</td></tr>
-<tr><td valign=top>A args</td>
-<td valign=top>The data that should be logged.</td></tr>
-</table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">loglf</span>(LogLevel.critical, <span class="d_string">"%d"</span>, 1337);
-</pre>
-<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".logcf"></a>ref @trusted Logger <a name="logcf"></a><span class="ddoc_psymbol">logcf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const bool <i>cond</i>, string <i>msg</i>, lazy A <i>args</i>);
-</dt>
-<dd>This function logs data in a printf style manner depending on a
-<span class="d_inlinecode">condition</span> passed explicitly
-<p></p>
-This function takes a <span class="d_inlinecode">bool</span> as first argument. In order for the
-data to be processed the <span class="d_inlinecode">bool</span> must be <span class="d_inlinecode"><b>true</b></span> and the <span class="d_inlinecode">LogLevel</span> of
-the defaultLogger must be greater equal to the global <span class="d_inlinecode">LogLevel</span>.
-
-<p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>bool cond</td>
-<td valign=top>Only if this <span class="d_inlinecode">bool</span> is <span class="d_inlinecode"><b>true</b></span> will the data be logged.</td></tr>
-<tr><td valign=top>string msg</td>
-<td valign=top>The <span class="d_inlinecode">string</span> that is used to format the additional data.</td></tr>
-<tr><td valign=top>A args</td>
-<td valign=top>The data that should be logged.</td></tr>
-</table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">logcf</span>(<span class="d_keyword">false</span>, <span class="d_string">"%d"</span>, 1337);
-</pre>
-<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".loglcf"></a>ref @trusted Logger <a name="loglcf"></a><span class="ddoc_psymbol">loglcf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const LogLevel <i>logLevel</i>, bool <i>cond</i>, string <i>msg</i>, lazy A <i>args</i>);
-</dt>
-<dd>This function logs data in a printf style manner depending on a <span class="d_inlinecode">LogLevel</span> and a <span class="d_inlinecode">condition</span> passed explicitly
-<p></p>
-This function takes a <span class="d_inlinecode">LogLevel</span> as first argument This function takes a
-<span class="d_inlinecode">bool</span> as second argument. In order for the data to be processed the
-<span class="d_inlinecode">bool</span> must be <span class="d_inlinecode"><b>true</b></span> and the <span class="d_inlinecode">LogLevel</span> of the defaultLogger must be
-greater equal to the global <span class="d_inlinecode">LogLevel</span>.
-
-<p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>LogLevel logLevel</td>
-<td valign=top>The <span class="d_inlinecode">LogLevel</span> used for logging the message.</td></tr>
-<tr><td valign=top>bool cond</td>
-<td valign=top>Only if this <span class="d_inlinecode">bool</span> is <span class="d_inlinecode"><b>true</b></span> will the data be logged.</td></tr>
-<tr><td valign=top>string msg</td>
-<td valign=top>The <span class="d_inlinecode">string</span> that is used to format the additional data.</td></tr>
-<tr><td valign=top>A args</td>
-<td valign=top>The data that should be logged.</td></tr>
-</table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">loglcf</span>(LogLevel.trace, <span class="d_keyword">false</span>, <span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
-</pre>
-<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".trace"></a>ref @trusted Logger <a name="trace"></a><span class="ddoc_psymbol">trace</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A <i>args</i>);
-</dt>
-<dd>This function logs data with <span class="d_inlinecode">LogLevel</span> <span class="d_inlinecode"><a name="trace"></a><span class="ddoc_psymbol">trace</span></span>.
-<p></p>
-In order for the data to be processed the <span class="d_inlinecode">LogLevel</span> of the defaultLogger
-must be smaller equal to <span class="d_inlinecode">LogLevel.<a name="trace"></a><span class="ddoc_psymbol">trace</span></span> and the global <span class="d_inlinecode">LogLevel</span> must
-also be smaller equal to <span class="d_inlinecode">LogLevel.<a name="trace"></a><span class="ddoc_psymbol">trace</span></span>.
+In order for the resulting log message to be logged the <span class="d_inlinecode">LogLevel</span> must
+    be greater or equal than the <span class="d_inlinecode">LogLevel</span> of the <span class="d_inlinecode">stdlog</span> and
+    must be greater or equal than the global <span class="d_inlinecode">LogLevel</span>.
 
 <p></p>
 <b>Parameters:</b><table class=parms><tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">trace</span>(1337, <span class="d_string">"is number"</span>);
+<b>Examples:</b><br><pre class="d_code">trace(1337, <span class="d_string">"is number"</span>);
+info(1337, <span class="d_string">"is number"</span>);
+error(1337, <span class="d_string">"is number"</span>);
+critical(1337, <span class="d_string">"is number"</span>);
+fatal(1337, <span class="d_string">"is number"</span>);
 </pre>
 <p></p>
 
-Additionally, to <span class="d_inlinecode">tracecf</span> there are the function.
-<li><span class="d_inlinecode">info</span></li>
-<li><span class="d_inlinecode">warning</span></li>
-<li><span class="d_inlinecode">error</span></li>
-<li><span class="d_inlinecode">critical</span></li>
-<li><span class="d_inlinecode">fatal</span></li>
-<p></p>
-
-These function behave exactly like <span class="d_inlinecode">tracecf</span> with the exception of a
-different <span class="d_inlinecode">LogLevel</span> used for logging the data.<p></p>
-
 </dd>
-<dt class="d_decl"><a name=".tracec"></a>ref @trusted Logger <a name="tracec"></a><span class="ddoc_psymbol">tracec</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const bool <i>cond</i>, lazy A <i>args</i>);
+<dt class="d_decl"><a name=".defaultLogFunction.defaultLogFunction"></a>@trusted void <a name="defaultLogFunction"></a><span class="ddoc_psymbol">defaultLogFunction</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy bool <i>condition</i>, lazy A <i>args</i>);
 </dt>
-<dd>This method logs data with <span class="d_inlinecode">LogLevel</span> <span class="d_inlinecode">trace</span>, a <span class="d_inlinecode">condition</span>
-is passed explicitly.
+<dd>This function logs data to the <span class="d_inlinecode">stdlog</span> depending on a condition.
 <p></p>
-In order for the data to be processed the <span class="d_inlinecode">LogLevel</span> of the defaultLogger
-must be smaller equal to <span class="d_inlinecode">LogLevel.trace</span> and the global <span class="d_inlinecode">LogLevel</span> must
-also be smaller equal to <span class="d_inlinecode">LogLevel.trace</span>.
+In order for the resulting log message to be logged the <span class="d_inlinecode">LogLevel</span> must
+    be greater or equal than the <span class="d_inlinecode">LogLevel</span> of the <span class="d_inlinecode">stdlog</span> and
+    must be greater or equal than the global <span class="d_inlinecode">LogLevel</span> additionally the
+    condition passed must be <span class="d_inlinecode"><b>true</b></span>.
 
 <p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>bool cond</td>
-<td valign=top>Only if this <span class="d_inlinecode">bool</span> is <span class="d_inlinecode"><b>true</b></span> will the data be logged.</td></tr>
+<b>Parameters:</b><table class=parms><tr><td valign=top>bool condition</td>
+<td valign=top>The condition must be <span class="d_inlinecode"><b>true</b></span> for the data to be logged.</td></tr>
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Returns:</b><br>The logger used by the logging method as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code">trace(1337, <span class="d_string">"is number"</span>);
+<b>Examples:</b><br><pre class="d_code">trace(<span class="d_keyword">true</span>, 1337, <span class="d_string">"is number"</span>);
+info(<span class="d_keyword">false</span>, 1337, <span class="d_string">"is number"</span>);
+error(<span class="d_keyword">true</span>, 1337, <span class="d_string">"is number"</span>);
+critical(<span class="d_keyword">false</span>, 1337, <span class="d_string">"is number"</span>);
+fatal(<span class="d_keyword">true</span>, 1337, <span class="d_string">"is number"</span>);
 </pre>
 <p></p>
 
-Additionally, to <span class="d_inlinecode">tracecf</span> there are the method.
-<li><span class="d_inlinecode">info</span></li>
-<li><span class="d_inlinecode">warning</span></li>
-<li><span class="d_inlinecode">error</span></li>
-<li><span class="d_inlinecode">critical</span></li>
-<li><span class="d_inlinecode">fatal</span></li>
-<p></p>
-
-These method behave exactly like <span class="d_inlinecode">tracecf</span> with the exception of a
-different <span class="d_inlinecode">LogLevel</span> used for logging the data.<p></p>
-
 </dd>
-<dt class="d_decl"><a name=".tracef"></a>ref @trusted Logger <a name="tracef"></a><span class="ddoc_psymbol">tracef</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(string <i>msg</i>, lazy A <i>args</i>);
+</dl>
+</dd>
+<dt class="d_decl"><a name=".defaultLogFunctionf"></a>template <a name="defaultLogFunctionf"></a><span class="ddoc_psymbol">defaultLogFunctionf</span>(LogLevel ll)<br><a name=".tracef"></a>alias <a name="tracef"></a><span class="ddoc_psymbol">tracef</span> = defaultLogFunctionf!cast(LogLevel)cast(ubyte)32u.defaultLogFunctionf(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy string msg, lazy A args);
+<br><a name=".infof"></a>alias <a name="infof"></a><span class="ddoc_psymbol">infof</span> = defaultLogFunctionf!cast(LogLevel)cast(ubyte)64u.defaultLogFunctionf(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy string msg, lazy A args);
+<br><a name=".warningf"></a>alias <a name="warningf"></a><span class="ddoc_psymbol">warningf</span> = defaultLogFunctionf!cast(LogLevel)cast(ubyte)96u.defaultLogFunctionf(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy string msg, lazy A args);
+<br><a name=".errorf"></a>alias <a name="errorf"></a><span class="ddoc_psymbol">errorf</span> = defaultLogFunctionf!cast(LogLevel)cast(ubyte)128u.defaultLogFunctionf(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy string msg, lazy A args);
+<br><a name=".criticalf"></a>alias <a name="criticalf"></a><span class="ddoc_psymbol">criticalf</span> = defaultLogFunctionf!cast(LogLevel)cast(ubyte)160u.defaultLogFunctionf(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy string msg, lazy A args);
+<br><a name=".fatalf"></a>alias <a name="fatalf"></a><span class="ddoc_psymbol">fatalf</span> = defaultLogFunctionf!cast(LogLevel)cast(ubyte)192u.defaultLogFunctionf(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy string msg, lazy A args);
 </dt>
-<dd>This function logs data in a printf style manner with <span class="d_inlinecode">LogLevel</span>
-<span class="d_inlinecode">LogLevel.trace</span>.
+<dd><p></p>
+<dl><dt class="d_decl"><a name=".defaultLogFunctionf"></a>@trusted void <a name="defaultLogFunctionf"></a><span class="ddoc_psymbol">defaultLogFunctionf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy string <i>msg</i>, lazy A <i>args</i>);
+</dt>
+<dd>This function logs data to the <span class="d_inlinecode">stdlog</span> in a <span class="d_inlinecode">printf</span>-style
+    manner.
 <p></p>
-In order for the data to be processed the <span class="d_inlinecode">bool</span> must be <span class="d_inlinecode"><b>true</b></span>, the <span class="d_inlinecode">LogLevel</span> of the defaultLogger must be smaller equal to <span class="d_inlinecode">LogLevel.trace</span>
-and the global <span class="d_inlinecode">LogLevel</span> must also be smaller equal to <span class="d_inlinecode">LogLevel.trace</span>.
+In order for the resulting log message to be logged the <span class="d_inlinecode">LogLevel</span> must
+    be greater or equal than the <span class="d_inlinecode">LogLevel</span> of the <span class="d_inlinecode">stdlog</span> and
+    must be greater or equal than the global <span class="d_inlinecode">LogLevel</span>.
 
 <p></p>
 <b>Parameters:</b><table class=parms><tr><td valign=top>string msg</td>
-<td valign=top>The <span class="d_inlinecode">string</span> that is used to format the additional data.</td></tr>
+<td valign=top>The <span class="d_inlinecode">printf</span>-style string.</td></tr>
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">tracef</span>(<span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
+<b>Examples:</b><br><pre class="d_code">trace(<span class="d_string">"is number %d"</span>, 1);
+info(<span class="d_string">"is number %d"</span>, 2);
+error(<span class="d_string">"is number %d"</span>, 3);
+critical(<span class="d_string">"is number %d"</span>, 4);
+fatal(<span class="d_string">"is number %d"</span>, 5);
 </pre>
 <p></p>
-
-Additionally, to <span class="d_inlinecode">tracecf</span> there are the function.
-<li><span class="d_inlinecode">infof</span></li>
-<li><span class="d_inlinecode">warningf</span></li>
-<li><span class="d_inlinecode">errorf</span></li>
-<li><span class="d_inlinecode">criticalf</span></li>
-<li><span class="d_inlinecode">fatalf</span></li>
-<p></p>
-
-These function behave exactly like <span class="d_inlinecode"><a name="tracef"></a><span class="ddoc_psymbol">tracef</span></span> with the exception of a
-different <span class="d_inlinecode">LogLevel</span> used for logging the data.<p></p>
 
 </dd>
-<dt class="d_decl"><a name=".tracecf"></a>ref @trusted Logger <a name="tracecf"></a><span class="ddoc_psymbol">tracecf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const bool <i>cond</i>, string <i>msg</i>, lazy A <i>args</i>);
+<dt class="d_decl"><a name=".defaultLogFunctionf.defaultLogFunctionf"></a>@trusted void <a name="defaultLogFunctionf"></a><span class="ddoc_psymbol">defaultLogFunctionf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy bool <i>condition</i>, lazy string <i>msg</i>, lazy A <i>args</i>);
 </dt>
-<dd>This function logs data in a printf style manner with <span class="d_inlinecode">LogLevel</span>
-<span class="d_inlinecode">trace</span>, a <span class="d_inlinecode">condition</span> is passed explicitly
+<dd>This function logs data to the <span class="d_inlinecode">stdlog</span> in a <span class="d_inlinecode">printf</span>-style
+    manner.
 <p></p>
-This function takes a <span class="d_inlinecode">bool</span> as first argument. In order for the data to be processed the
-<span class="d_inlinecode">bool</span> must be <span class="d_inlinecode"><b>true</b></span>, the <span class="d_inlinecode">LogLevel</span> of the defaultLogger must be
-smaller equal to <span class="d_inlinecode">LogLevel.trace</span> and the global <span class="d_inlinecode">LogLevel</span> must also be
-smaller equal to <span class="d_inlinecode">LogLevel.trace</span>.
+In order for the resulting log message to be logged the <span class="d_inlinecode">LogLevel</span> must
+    be greater or equal than the <span class="d_inlinecode">LogLevel</span> of the <span class="d_inlinecode">stdlog</span> and
+    must be greater or equal than the global <span class="d_inlinecode">LogLevel</span>.
 
 <p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>bool cond</td>
-<td valign=top>Only if this <span class="d_inlinecode">bool</span> is <span class="d_inlinecode"><b>true</b></span> will the data be logged.</td></tr>
+<b>Parameters:</b><table class=parms><tr><td valign=top>bool condition</td>
+<td valign=top>The condition must be <span class="d_inlinecode"><b>true</b></span> for the data to be logged.</td></tr>
 <tr><td valign=top>string msg</td>
-<td valign=top>The <span class="d_inlinecode">string</span> that is used to format the additional data.</td></tr>
+<td valign=top>The <span class="d_inlinecode">printf</span>-style string.</td></tr>
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_psymbol">tracecf</span>(<span class="d_keyword">false</span>, <span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
+<b>Examples:</b><br><pre class="d_code">trace(<span class="d_string">"is number %d"</span>, 1);
+info(<span class="d_string">"is number %d"</span>, 2);
+error(<span class="d_string">"is number %d"</span>, 3);
+critical(<span class="d_string">"is number %d"</span>, 4);
+fatal(<span class="d_string">"is number %d"</span>, 5);
 </pre>
 <p></p>
 
-Additionally, to <span class="d_inlinecode"><a name="tracecf"></a><span class="ddoc_psymbol">tracecf</span></span> there are the function.
-<li><span class="d_inlinecode">infocf</span></li>
-<li><span class="d_inlinecode">warningcf</span></li>
-<li><span class="d_inlinecode">errorcf</span></li>
-<li><span class="d_inlinecode">criticalcf</span></li>
-<li><span class="d_inlinecode">fatalcf</span></li>
-<p></p>
-
-These function behave exactly like <span class="d_inlinecode"><a name="tracecf"></a><span class="ddoc_psymbol">tracecf</span></span> with the exception of a
-different <span class="d_inlinecode">LogLevel</span> used for logging the data.<p></p>
-
+</dd>
+</dl>
 </dd>
 <dt class="d_decl"><a name=".LogLevel"></a>enum <a name="LogLevel"></a><span class="ddoc_psymbol">LogLevel</span>: ubyte;
 </dt>
@@ -665,13 +629,7 @@ different <span class="d_inlinecode">LogLevel</span> used for logging the data.<
 If a log function with <span class="d_inlinecode"><a name="LogLevel"></a><span class="ddoc_psymbol">LogLevel</span>.fatal</span> is called the shutdown handler of
 that logger is called.<p></p>
 
-<dl><dt class="d_decl"><a name=".LogLevel.unspecific"></a><a name="unspecific"></a><span class="ddoc_psymbol">unspecific</span></dt>
-<dd>If no <span class="d_inlinecode">LogLevel</span> is passed to the log function this
-                    level indicates that the current level of the <span class="d_inlinecode">Logger</span>
-                    is to be used for logging the message.<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".LogLevel.all"></a><a name="all"></a><span class="ddoc_psymbol">all</span></dt>
+<dl><dt class="d_decl"><a name=".LogLevel.all"></a><a name="all"></a><span class="ddoc_psymbol">all</span></dt>
 <dd>Lowest possible assignable <span class="d_inlinecode">LogLevel</span>.<p></p>
 
 </dd>
@@ -700,7 +658,7 @@ that logger is called.<p></p>
 
 </dd>
 <dt class="d_decl"><a name=".LogLevel.fatal"></a><a name="fatal"></a><span class="ddoc_psymbol">fatal</span></dt>
-<dd>Log messages that describe fatel errors should use this
+<dd>Log messages that describe <a name="fatal"></a><span class="ddoc_psymbol">fatal</span> errors should use this
                   level.<p></p>
 
 </dd>
@@ -715,62 +673,62 @@ that logger is called.<p></p>
 <dd>This class is the base of every logger. In order to create a new kind of
 logger a deriving class needs to implement the <span class="d_inlinecode">writeLogMsg</span> method.<p></p>
 
-<dl><dt class="d_decl"><a name=".Logger.LoggerPayload"></a>struct <a name="LoggerPayload"></a><span class="ddoc_psymbol">LoggerPayload</span>;
+<dl><dt class="d_decl"><a name=".Logger.LogEntry"></a>struct <a name="LogEntry"></a><span class="ddoc_psymbol">LogEntry</span>;
 </dt>
-<dd><a name="LoggerPayload"></a><span class="ddoc_psymbol">LoggerPayload</span> is a aggregation combining all information associated
+<dd><a name="LogEntry"></a><span class="ddoc_psymbol">LogEntry</span> is a aggregation combining all information associated
     with a log message. This aggregation will be passed to the method
     writeLogMsg.<p></p>
 
-<dl><dt class="d_decl"><a name=".Logger.LoggerPayload.file"></a>string <a name="file"></a><span class="ddoc_psymbol">file</span>;
+<dl><dt class="d_decl"><a name=".Logger.LogEntry.file"></a>string <a name="file"></a><span class="ddoc_psymbol">file</span>;
 </dt>
 <dd>the filename the log function was called from<p></p>
 
 </dd>
-<dt class="d_decl"><a name=".Logger.LoggerPayload.line"></a>int <a name="line"></a><span class="ddoc_psymbol">line</span>;
+<dt class="d_decl"><a name=".Logger.LogEntry.line"></a>int <a name="line"></a><span class="ddoc_psymbol">line</span>;
 </dt>
 <dd>the <a name="line"></a><span class="ddoc_psymbol">line</span> number the log function was called from<p></p>
 
 </dd>
-<dt class="d_decl"><a name=".Logger.LoggerPayload.funcName"></a>string <a name="funcName"></a><span class="ddoc_psymbol">funcName</span>;
+<dt class="d_decl"><a name=".Logger.LogEntry.funcName"></a>string <a name="funcName"></a><span class="ddoc_psymbol">funcName</span>;
 </dt>
 <dd>the name of the function the log function was called from<p></p>
 
 </dd>
-<dt class="d_decl"><a name=".Logger.LoggerPayload.prettyFuncName"></a>string <a name="prettyFuncName"></a><span class="ddoc_psymbol">prettyFuncName</span>;
+<dt class="d_decl"><a name=".Logger.LogEntry.prettyFuncName"></a>string <a name="prettyFuncName"></a><span class="ddoc_psymbol">prettyFuncName</span>;
 </dt>
 <dd>the pretty formatted name of the function the log function was
 <p></p>
 called from<p></p>
 
 </dd>
-<dt class="d_decl"><a name=".Logger.LoggerPayload.logLevel"></a>LogLevel <a name="logLevel"></a><span class="ddoc_psymbol">logLevel</span>;
+<dt class="d_decl"><a name=".Logger.LogEntry.moduleName"></a>string <a name="moduleName"></a><span class="ddoc_psymbol">moduleName</span>;
+</dt>
+<dd>the name of the module the log message is coming from<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".Logger.LogEntry.logLevel"></a>LogLevel <a name="logLevel"></a><span class="ddoc_psymbol">logLevel</span>;
 </dt>
 <dd>the <span class="d_inlinecode">LogLevel</span> associated with the log message<p></p>
 
 </dd>
-<dt class="d_decl"><a name=".Logger.LoggerPayload.timestamp"></a>SysTime <a name="timestamp"></a><span class="ddoc_psymbol">timestamp</span>;
+<dt class="d_decl"><a name=".Logger.LogEntry.threadId"></a>Tid <a name="threadId"></a><span class="ddoc_psymbol">threadId</span>;
+</dt>
+<dd>thread id of the log message<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".Logger.LogEntry.timestamp"></a>SysTime <a name="timestamp"></a><span class="ddoc_psymbol">timestamp</span>;
 </dt>
 <dd>the time the message was logged.<p></p>
 
 </dd>
-<dt class="d_decl"><a name=".Logger.LoggerPayload.moduleName"></a>string <a name="moduleName"></a><span class="ddoc_psymbol">moduleName</span>;
+<dt class="d_decl"><a name=".Logger.LogEntry.msg"></a>string <a name="msg"></a><span class="ddoc_psymbol">msg</span>;
 </dt>
-<dd>the name of the module<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".Logger.LoggerPayload.threadId"></a>Tid <a name="threadId"></a><span class="ddoc_psymbol">threadId</span>;
-</dt>
-<dd>thread id<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".Logger.LoggerPayload.msg"></a>string <a name="msg"></a><span class="ddoc_psymbol">msg</span>;
-</dt>
-<dd>the message<p></p>
+<dd>the message of the log message<p></p>
 
 </dd>
 </dl>
 </dd>
-<dt class="d_decl"><a name=".Logger.this"></a>@safe this(string <i>newName</i>, LogLevel <i>lv</i>);
+<dt class="d_decl"><a name=".Logger.this"></a>@safe this(LogLevel <i>lv</i>);
 </dt>
 <dd>This constructor takes a name of type <span class="d_inlinecode">string</span>, and a <span class="d_inlinecode">LogLevel</span>.
 <p></p>
@@ -780,429 +738,235 @@ Every subclass of <span class="d_inlinecode">Logger</span> has to call this cons
     log call is made with a <span class="d_inlinecode">LogLevel</span> <span class="d_inlinecode">LogLevel.fatal</span>.<p></p>
 
 </dd>
-<dt class="d_decl"><a name=".Logger.writeLogMsg"></a>void <a name="writeLogMsg"></a><span class="ddoc_psymbol">writeLogMsg</span>(ref LoggerPayload <i>payload</i>);
+<dt class="d_decl"><a name=".Logger.writeLogMsg"></a>void <a name="writeLogMsg"></a><span class="ddoc_psymbol">writeLogMsg</span>(ref LogEntry <i>payload</i>);
 </dt>
 <dd>A custom logger needs to implement this method.
 <p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>LoggerPayload <i>payload</i></td>
+<b>Parameters:</b><table class=parms><tr><td valign=top>LogEntry <i>payload</i></td>
 <td valign=top>All information associated with call to log function.</td></tr>
 </table><p></p>
 
 </dd>
-<dt class="d_decl"><a name=".Logger.logMessage"></a>@trusted void <a name="logMessage"></a><span class="ddoc_psymbol">logMessage</span>(string <i>file</i>, int <i>line</i>, string <i>funcName</i>, string <i>prettyFuncName</i>, string <i>moduleName</i>, LogLevel <i>logLevel</i>, bool <i>cond</i>, string <i>msg</i>);
+<dt class="d_decl"><a name=".Logger.logMsgPart"></a>protected void <a name="logMsgPart"></a><span class="ddoc_psymbol">logMsgPart</span>(const(char)[] <i>msg</i>);
 </dt>
-<dd>This method is the entry point into each logger. It compares the given
-    <span class="d_inlinecode">LogLevel</span> with the <span class="d_inlinecode">LogLevel</span> of the <span class="d_inlinecode">Logger</span>, and the global
-    . If the passed <span class="d_inlinecode">LogLevel</span> is greater or equal to both the
-    message, and all other parameter are passed to the abstract method
-    <span class="d_inlinecode">writeLogMsg</span>.<p></p>
+<dd>Logs a part of the log message.<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".Logger.finishLogMsg"></a>protected void <a name="finishLogMsg"></a><span class="ddoc_psymbol">finishLogMsg</span>();
+</dt>
+<dd>Signals that the message has been written and no more calls to
+    <span class="d_inlinecode">logMsgPart</span> follow.<p></p>
 
 </dd>
 <dt class="d_decl"><a name=".Logger.logLevel"></a>final const pure nothrow @property @safe LogLevel <a name="logLevel"></a><span class="ddoc_psymbol">logLevel</span>();
+<br><a name=".Logger.logLevel"></a>final pure nothrow @property @safe void <a name="logLevel"></a><span class="ddoc_psymbol">logLevel</span>(const LogLevel <i>lv</i>);
 </dt>
-<dd>Get the <span class="d_inlinecode">LogLevel</span> of the logger.<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".Logger.logLevel"></a>final pure nothrow @property @safe void <a name="logLevel"></a><span class="ddoc_psymbol">logLevel</span>(const LogLevel <i>lv</i>);
-</dt>
-<dd>Set the <span class="d_inlinecode">LogLevel</span> of the logger. The <span class="d_inlinecode">LogLevel</span> can not be set
-    to <span class="d_inlinecode">LogLevel.unspecific</span>.<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".Logger.name"></a>final const pure nothrow @property @safe string <a name="name"></a><span class="ddoc_psymbol">name</span>();
-</dt>
-<dd>Get the <span class="d_inlinecode"><a name="name"></a><span class="ddoc_psymbol">name</span></span> of the logger.<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".Logger.name"></a>final pure nothrow @property @safe void <a name="name"></a><span class="ddoc_psymbol">name</span>(string <i>newName</i>);
-</dt>
-<dd>Set the <a name="name"></a><span class="ddoc_psymbol">name</span> of the logger.<p></p>
+<dd>The <span class="d_inlinecode">LogLevel</span> determines if the log call are processed or dropped
+    by the <span class="d_inlinecode">Logger</span>. In order for the log call to be processed the
+    <span class="d_inlinecode">LogLevel</span> of the log call must be greater or equal to the <span class="d_inlinecode">LogLevel</span>
+    of the <span class="d_inlinecode">logger</span>.<p></p>
 
 </dd>
 <dt class="d_decl"><a name=".Logger.setFatalHandler"></a>final @safe void <a name="setFatalHandler"></a><span class="ddoc_psymbol">setFatalHandler</span>(void delegate() <i>dg</i>);
 </dt>
 <dd>This methods sets the <span class="d_inlinecode">delegate</span> called in case of a log message
-    with <span class="d_inlinecode">LogLevel.fatal</span>.
+    with <span class="d_inlinecode">LogLevel.fatal</span> gets logged.
 <p></p>
 By default an <span class="d_inlinecode">Error</span> will be thrown.<p></p>
 
 </dd>
-<dt class="d_decl"><a name=".Logger.log"></a>ref @trusted Logger <a name="log"></a><span class="ddoc_psymbol">log</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A <i>args</i>);
+<dt class="d_decl"><a name=".Logger.memLogFunctions"></a>template <a name="memLogFunctions"></a><span class="ddoc_psymbol">memLogFunctions</span>(LogLevel ll)<br><a name=".Logger.trace"></a>alias <a name="trace"></a><span class="ddoc_psymbol">trace</span> = .Logger.memLogFunctions!cast(LogLevel)cast(ubyte)32u.logImpl(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A args) if (args.length == 0 || args.length &gt; 0 &amp;&amp; !is(A[0] : bool));
+<br><a name=".Logger.tracef"></a>alias <a name="tracef"></a><span class="ddoc_psymbol">tracef</span> = .Logger.memLogFunctions!cast(LogLevel)cast(ubyte)32u.logImplf(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy bool condition, lazy string msg, lazy A args);
+<br><a name=".Logger.info"></a>alias <a name="info"></a><span class="ddoc_psymbol">info</span> = .Logger.memLogFunctions!cast(LogLevel)cast(ubyte)64u.logImpl(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A args) if (args.length == 0 || args.length &gt; 0 &amp;&amp; !is(A[0] : bool));
+<br><a name=".Logger.infof"></a>alias <a name="infof"></a><span class="ddoc_psymbol">infof</span> = .Logger.memLogFunctions!cast(LogLevel)cast(ubyte)64u.logImplf(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy bool condition, lazy string msg, lazy A args);
+<br><a name=".Logger.warning"></a>alias <a name="warning"></a><span class="ddoc_psymbol">warning</span> = .Logger.memLogFunctions!cast(LogLevel)cast(ubyte)96u.logImpl(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A args) if (args.length == 0 || args.length &gt; 0 &amp;&amp; !is(A[0] : bool));
+<br><a name=".Logger.warningf"></a>alias <a name="warningf"></a><span class="ddoc_psymbol">warningf</span> = .Logger.memLogFunctions!cast(LogLevel)cast(ubyte)96u.logImplf(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy bool condition, lazy string msg, lazy A args);
+<br><a name=".Logger.error"></a>alias <a name="error"></a><span class="ddoc_psymbol">error</span> = .Logger.memLogFunctions!cast(LogLevel)cast(ubyte)128u.logImpl(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A args) if (args.length == 0 || args.length &gt; 0 &amp;&amp; !is(A[0] : bool));
+<br><a name=".Logger.errorf"></a>alias <a name="errorf"></a><span class="ddoc_psymbol">errorf</span> = .Logger.memLogFunctions!cast(LogLevel)cast(ubyte)128u.logImplf(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy bool condition, lazy string msg, lazy A args);
+<br><a name=".Logger.critical"></a>alias <a name="critical"></a><span class="ddoc_psymbol">critical</span> = .Logger.memLogFunctions!cast(LogLevel)cast(ubyte)160u.logImpl(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A args) if (args.length == 0 || args.length &gt; 0 &amp;&amp; !is(A[0] : bool));
+<br><a name=".Logger.criticalf"></a>alias <a name="criticalf"></a><span class="ddoc_psymbol">criticalf</span> = .Logger.memLogFunctions!cast(LogLevel)cast(ubyte)160u.logImplf(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy bool condition, lazy string msg, lazy A args);
+<br><a name=".Logger.fatal"></a>alias <a name="fatal"></a><span class="ddoc_psymbol">fatal</span> = .Logger.memLogFunctions!cast(LogLevel)cast(ubyte)192u.logImpl(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A args) if (args.length == 0 || args.length &gt; 0 &amp;&amp; !is(A[0] : bool));
+<br><a name=".Logger.fatalf"></a>alias <a name="fatalf"></a><span class="ddoc_psymbol">fatalf</span> = .Logger.memLogFunctions!cast(LogLevel)cast(ubyte)192u.logImplf(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy bool condition, lazy string msg, lazy A args);
 </dt>
-<dd>This method logs data with the <span class="d_inlinecode">LogLevel</span> of the used <span class="d_inlinecode">Logger</span>.
+<dd><p></p>
+<dl><dt class="d_decl"><a name=".Logger.memLogFunctions.logImpl"></a>@trusted void <a name="logImpl"></a><span class="ddoc_psymbol">logImpl</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A <i>args</i>) if (<i>args</i>.length == 0 || <i>args</i>.length &gt; 0 &amp;&amp; !is(A[0] : bool));
+</dt>
+<dd>This function logs data to the used <span class="d_inlinecode">Logger</span>.
 <p></p>
-This method takes a <span class="d_inlinecode">bool</span> as first argument. In order for the
-	data to be processed the <span class="d_inlinecode">bool</span> must be <span class="d_inlinecode"><b>true</b></span> and the <span class="d_inlinecode">LogLevel</span> of
-	the Logger must be greater equal to the global <span class="d_inlinecode">LogLevel</span>.
+In order for the resulting log message to be logged the <span class="d_inlinecode">LogLevel</span>
+        must be greater or equal than the <span class="d_inlinecode">LogLevel</span> of the used <span class="d_inlinecode">Logger</span>
+        and must be greater or equal than the global <span class="d_inlinecode">LogLevel</span>.
 
 <p></p>
 <b>Parameters:</b><table class=parms><tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(stdout);
+s.trace(1337, <span class="d_string">"is number"</span>);
+s.info(1337, <span class="d_string">"is number"</span>);
+s.error(1337, <span class="d_string">"is number"</span>);
+s.critical(1337, <span class="d_string">"is number"</span>);
+s.fatal(1337, <span class="d_string">"is number"</span>);
+</pre>
+<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".Logger.memLogFunctions.logImpl"></a>@trusted void <a name="logImpl"></a><span class="ddoc_psymbol">logImpl</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy bool <i>condition</i>, lazy A <i>args</i>);
+</dt>
+<dd>This function logs data to the used <span class="d_inlinecode">Logger</span> depending on a
+        condition.
+<p></p>
+In order for the resulting log message to be logged the <span class="d_inlinecode">LogLevel</span> must
+        be greater or equal than the <span class="d_inlinecode">LogLevel</span> of the used <span class="d_inlinecode">Logger</span> and
+        must be greater or equal than the global <span class="d_inlinecode">LogLevel</span> additionally the
+        condition passed must be <span class="d_inlinecode"><b>true</b></span>.
+
+<p></p>
+<b>Parameters:</b><table class=parms><tr><td valign=top>bool condition</td>
+<td valign=top>The condition must be <span class="d_inlinecode"><b>true</b></span> for the data to be logged.</td></tr>
+<tr><td valign=top>A args</td>
+<td valign=top>The data that should be logged.</td></tr>
+</table><p></p>
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(stdout);
+s.trace(<span class="d_keyword">true</span>, 1337, <span class="d_string">"is number"</span>);
+s.info(<span class="d_keyword">false</span>, 1337, <span class="d_string">"is number"</span>);
+s.error(<span class="d_keyword">true</span>, 1337, <span class="d_string">"is number"</span>);
+s.critical(<span class="d_keyword">false</span>, 1337, <span class="d_string">"is number"</span>);
+s.fatal(<span class="d_keyword">true</span>, 1337, <span class="d_string">"is number"</span>);
+</pre>
+<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".Logger.memLogFunctions.logImplf"></a>@trusted void <a name="logImplf"></a><span class="ddoc_psymbol">logImplf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy bool <i>condition</i>, lazy string <i>msg</i>, lazy A <i>args</i>);
+</dt>
+<dd>This function logs data to the used <span class="d_inlinecode">Logger</span> in a
+        <span class="d_inlinecode">printf</span>-style manner.
+<p></p>
+In order for the resulting log message to be logged the <span class="d_inlinecode">LogLevel</span>
+        must be greater or equal than the <span class="d_inlinecode">LogLevel</span> of the used <span class="d_inlinecode">Logger</span>
+           and must be greater or equal than the global <span class="d_inlinecode">LogLevel</span>
+        additionally the passed condition must be <span class="d_inlinecode"><b>true</b></span>.
+
+<p></p>
+<b>Parameters:</b><table class=parms><tr><td valign=top>bool condition</td>
+<td valign=top>The condition must be <span class="d_inlinecode"><b>true</b></span> for the data to be logged.</td></tr>
+<tr><td valign=top>string msg</td>
+<td valign=top>The <span class="d_inlinecode">printf</span>-style string.</td></tr>
+<tr><td valign=top>A args</td>
+<td valign=top>The data that should be logged.</td></tr>
+</table><p></p>
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(stderr);
+s.trace(<span class="d_string">"is number %d"</span>, 1);
+s.info(<span class="d_string">"is number %d"</span>, 2);
+s.error(<span class="d_string">"is number %d"</span>, 3);
+s.critical(<span class="d_string">"is number %d"</span>, 4);
+s.fatal(<span class="d_string">"is number %d"</span>, 5);
+</pre>
+<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".Logger.memLogFunctions.logImplf"></a>@trusted void <a name="logImplf"></a><span class="ddoc_psymbol">logImplf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy string <i>msg</i>, lazy A <i>args</i>);
+</dt>
+<dd>This function logs data to the used <span class="d_inlinecode">Logger</span> in a
+        <span class="d_inlinecode">printf</span>-style manner.
+<p></p>
+In order for the resulting log message to be logged the <span class="d_inlinecode">LogLevel</span> must
+        be greater or equal than the <span class="d_inlinecode">LogLevel</span> of the used <span class="d_inlinecode">Logger</span> and
+        must be greater or equal than the global <span class="d_inlinecode">LogLevel</span>.
+
+<p></p>
+<b>Parameters:</b><table class=parms><tr><td valign=top>string msg</td>
+<td valign=top>The <span class="d_inlinecode">printf</span>-style string.</td></tr>
+<tr><td valign=top>A args</td>
+<td valign=top>The data that should be logged.</td></tr>
+</table><p></p>
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(stderr);
+s.trace(<span class="d_string">"is number %d"</span>, 1);
+s.info(<span class="d_string">"is number %d"</span>, 2);
+s.error(<span class="d_string">"is number %d"</span>, 3);
+s.critical(<span class="d_string">"is number %d"</span>, 4);
+s.fatal(<span class="d_string">"is number %d"</span>, 5);
+</pre>
+<p></p>
+
+</dd>
+</dl>
+</dd>
+<dt class="d_decl"><a name=".Logger.log"></a>@trusted void <a name="log"></a><span class="ddoc_psymbol">log</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const LogLevel <i>ll</i>, lazy bool <i>condition</i>, lazy A <i>args</i>);
+</dt>
+<dd>This method logs data with the <span class="d_inlinecode">LogLevel</span> of the used <span class="d_inlinecode">Logger</span>.
+<p></p>
+This method takes a <span class="d_inlinecode">bool</span> as first argument. In order for the
+    data to be processed the <span class="d_inlinecode">bool</span> must be <span class="d_inlinecode"><b>true</b></span> and the <span class="d_inlinecode">LogLevel</span>
+    of the Logger must be greater or equal to the global <span class="d_inlinecode">LogLevel</span>.
+
+<p></p>
+<b>Parameters:</b><table class=parms><tr><td valign=top>A args</td>
+<td valign=top>The data that should be logged.</td></tr>
+<tr><td valign=top>bool condition</td>
+<td valign=top>The condition must be <span class="d_inlinecode"><b>true</b></span> for the data to be logged.</td></tr>
+<tr><td valign=top>A args</td>
+<td valign=top>The data that is to be logged.</td></tr>
+</table><p></p>
 <b>Returns:</b><br>The logger used by the logging function as reference.
 
 <p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> l = <span class="d_keyword">new</span> StdIOLogger();
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> l = <span class="d_keyword">new</span> StdioLogger();
 l.<span class="d_psymbol">log</span>(1337);
 </pre>
 <p></p>
 
 </dd>
-<dt class="d_decl"><a name=".Logger.logc"></a>ref @trusted Logger <a name="logc"></a><span class="ddoc_psymbol">logc</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const bool <i>cond</i>, lazy A <i>args</i>);
+<dt class="d_decl"><a name=".Logger.logf"></a>@trusted void <a name="logf"></a><span class="ddoc_psymbol">logf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy string <i>msg</i>, lazy A <i>args</i>);
 </dt>
-<dd>This method logs data depending on a <span class="d_inlinecode">condition</span> passed
-	explicitly.
-<p></p>
-This method takes a <span class="d_inlinecode">bool</span> as first argument. In order for the
-	data to be processed the <span class="d_inlinecode">bool</span> must be <span class="d_inlinecode"><b>true</b></span> and the <span class="d_inlinecode">LogLevel</span> of
-	the Logger must be greater equal to the global <span class="d_inlinecode">LogLevel</span>.
-
-<p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>bool cond</td>
-<td valign=top>Only if this <span class="d_inlinecode">bool</span> is <span class="d_inlinecode"><b>true</b></span> will the data be logged.</td></tr>
-<tr><td valign=top>A args</td>
-<td valign=top>The data that should be logged.</td></tr>
-</table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> l = <span class="d_keyword">new</span> StdIOLogger();
-l.<span class="d_psymbol">logc</span>(<span class="d_keyword">false</span>, 1337);
-</pre>
-<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".Logger.logl"></a>ref @trusted Logger <a name="logl"></a><span class="ddoc_psymbol">logl</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const LogLevel <i>logLevel</i>, lazy A <i>args</i>);
-</dt>
-<dd>This method logs data depending on a <span class="d_inlinecode">LogLevel</span> passed
-	explicitly.
-<p></p>
-This method takes a <span class="d_inlinecode">LogLevel</span> as first argument. In order for the
-	data to be processed the <span class="d_inlinecode">LogLevel</span> must be greater equal to the
-	<span class="d_inlinecode">LogLevel</span> of the used Logger and the global <span class="d_inlinecode">LogLevel</span>.
-
-<p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>LogLevel logLevel</td>
-<td valign=top>The <span class="d_inlinecode">LogLevel</span> used for logging the message.</td></tr>
-<tr><td valign=top>A args</td>
-<td valign=top>The data that should be logged.</td></tr>
-</table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> l = <span class="d_keyword">new</span> StdIOLogger();
-l.<span class="d_psymbol">logl</span>(LogLevel.error, <span class="d_string">"Hello World"</span>);
-</pre>
-<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".Logger.loglc"></a>ref @trusted Logger <a name="loglc"></a><span class="ddoc_psymbol">loglc</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const LogLevel <i>logLevel</i>, const bool <i>cond</i>, lazy A <i>args</i>);
-</dt>
-<dd>This method logs data depending on a <span class="d_inlinecode">condition</span> and a <span class="d_inlinecode">LogLevel</span>
-	passed explicitly.
-<p></p>
-This method takes a <span class="d_inlinecode">bool</span> as first argument and a <span class="d_inlinecode">bool</span> as second
-	argument. In order for the data to be processed the <span class="d_inlinecode">bool</span> must be <span class="d_inlinecode">	<b>true</b></span> and the <span class="d_inlinecode">LogLevel</span> of the Logger must be greater equal to
-	the global <span class="d_inlinecode">LogLevel</span>.
-
-<p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>LogLevel logLevel</td>
-<td valign=top>The <span class="d_inlinecode">LogLevel</span> used for logging the message.</td></tr>
-<tr><td valign=top>bool cond</td>
-<td valign=top>Only if this <span class="d_inlinecode">bool</span> is <span class="d_inlinecode"><b>true</b></span> will the data be logged.</td></tr>
-<tr><td valign=top>A args</td>
-<td valign=top>The data that should be logged.</td></tr>
-</table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> l = <span class="d_keyword">new</span> StdIOLogger();
-l.<span class="d_psymbol">loglc</span>(LogLevel.info, someCondition, 13, 37, <span class="d_string">"Hello World"</span>);
-</pre>
-<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".Logger.logf"></a>ref @trusted Logger <a name="logf"></a><span class="ddoc_psymbol">logf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(string <i>msg</i>, lazy A <i>args</i>);
-</dt>
-<dd>This method logs data in a printf style manner.
+<dd>This method logs data in a <span class="d_inlinecode">printf</span>-style manner.
 <p></p>
 In order for the data to be processed the <span class="d_inlinecode">LogLevel</span> of the Logger
-	must be greater equal to the global <span class="d_inlinecode">LogLevel</span>.
+    must be greater or equal to the global <span class="d_inlinecode">LogLevel</span>.
 
 <p></p>
 <b>Parameters:</b><table class=parms><tr><td valign=top>string msg</td>
-<td valign=top>The <span class="d_inlinecode">string</span> that is used to format the additional data.</td></tr>
+<td valign=top>The format string used for this log call.</td></tr>
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
 <b>Returns:</b><br>The logger used by the logging function as reference.
 
 <p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> l = <span class="d_keyword">new</span> StdIOLogger();
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> l = <span class="d_keyword">new</span> FileLogger(stdout);
 l.<span class="d_psymbol">logf</span>(<span class="d_string">"Hello World %f"</span>, 3.1415);
 </pre>
 <p></p>
 
 </dd>
-<dt class="d_decl"><a name=".Logger.logcf"></a>ref @trusted Logger <a name="logcf"></a><span class="ddoc_psymbol">logcf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const bool <i>cond</i>, string <i>msg</i>, lazy A <i>args</i>);
-</dt>
-<dd>This function logs data in a printf style manner depending on a
-	<span class="d_inlinecode">condition</span> passed explicitly
-<p></p>
-This function takes a <span class="d_inlinecode">bool</span> as first argument. In order for the
-	data to be processed the <span class="d_inlinecode">bool</span> must be <span class="d_inlinecode"><b>true</b></span> and the <span class="d_inlinecode">LogLevel</span> of
-	the Logger must be greater equal to the global <span class="d_inlinecode">LogLevel</span>.
-
-<p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>bool cond</td>
-<td valign=top>Only if this <span class="d_inlinecode">bool</span> is <span class="d_inlinecode"><b>true</b></span> will the data be logged.</td></tr>
-<tr><td valign=top>string msg</td>
-<td valign=top>The <span class="d_inlinecode">string</span> that is used to format the additional data.</td></tr>
-<tr><td valign=top>A args</td>
-<td valign=top>The data that should be logged.</td></tr>
-</table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> l = <span class="d_keyword">new</span> StdIOLogger();
-l.<span class="d_psymbol">logcf</span>(<span class="d_keyword">false</span>, <span class="d_string">"%d"</span>, 1337);
-</pre>
-<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".Logger.loglf"></a>ref @trusted Logger <a name="loglf"></a><span class="ddoc_psymbol">loglf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const LogLevel <i>logLevel</i>, string <i>msg</i>, lazy A <i>args</i>);
-</dt>
-<dd>This function logs data in a printf style manner depending on a
-	<span class="d_inlinecode">condition</span>.
-<p></p>
-This function takes a <span class="d_inlinecode">LogLevel</span> as first argument. In order for the
-	data to be processed the <span class="d_inlinecode">LogLevel</span> must be greater equal to the
-	<span class="d_inlinecode">LogLevel</span> of the used Logger, and the global <span class="d_inlinecode">LogLevel</span>.
-
-<p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>LogLevel logLevel</td>
-<td valign=top>The <span class="d_inlinecode">LogLevel</span> used for logging the message.</td></tr>
-<tr><td valign=top>string msg</td>
-<td valign=top>The <span class="d_inlinecode">string</span> that is used to format the additional data.</td></tr>
-<tr><td valign=top>A args</td>
-<td valign=top>The data that should be logged.</td></tr>
-</table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> l = <span class="d_keyword">new</span> StdIOLogger();
-l.<span class="d_psymbol">loglf</span>(LogLevel.critical, <span class="d_string">"%d"</span>, 1337);
-</pre>
-<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".Logger.loglcf"></a>ref @trusted Logger <a name="loglcf"></a><span class="ddoc_psymbol">loglcf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const LogLevel <i>logLevel</i>, const bool <i>cond</i>, string <i>msg</i>, lazy A <i>args</i>);
-</dt>
-<dd>This method logs data in a printf style manner depending on a <span class="d_inlinecode">	LogLevel</span> and a <span class="d_inlinecode">condition</span> passed explicitly
-<p></p>
-This method takes a <span class="d_inlinecode">LogLevel</span> as first argument. This function takes a
-	<span class="d_inlinecode">bool</span> as second argument. In order for the data to be processed the
-	<span class="d_inlinecode">bool</span> must be <span class="d_inlinecode"><b>true</b></span> and the <span class="d_inlinecode">LogLevel</span> of the Logger must be
-	greater equal to the global <span class="d_inlinecode">LogLevel</span>.
-
-<p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>LogLevel logLevel</td>
-<td valign=top>The <span class="d_inlinecode">LogLevel</span> used for logging the message.</td></tr>
-<tr><td valign=top>bool cond</td>
-<td valign=top>Only if this <span class="d_inlinecode">bool</span> is <span class="d_inlinecode"><b>true</b></span> will the data be logged.</td></tr>
-<tr><td valign=top>string msg</td>
-<td valign=top>The <span class="d_inlinecode">string</span> that is used to format the additional data.</td></tr>
-<tr><td valign=top>A args</td>
-<td valign=top>The data that should be logged.</td></tr>
-</table><p></p>
-<b>Returns:</b><br>The logger used by the logging method as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> l = <span class="d_keyword">new</span> StdIOLogger();
-l.<span class="d_psymbol">loglcf</span>(LogLevel.trace, <span class="d_keyword">false</span>, <span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
-</pre>
-<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".Logger.trace"></a>ref @trusted Logger <a name="trace"></a><span class="ddoc_psymbol">trace</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A <i>args</i>);
-</dt>
-<dd>This method logs data with <span class="d_inlinecode">LogLevel</span> <span class="d_inlinecode"><a name="trace"></a><span class="ddoc_psymbol">trace</span></span>.
-<p></p>
-In order for the data to be processed the <span class="d_inlinecode">LogLevel</span> of the defaultLogger
-	must be smaller equal to <span class="d_inlinecode">LogLevel.<a name="trace"></a><span class="ddoc_psymbol">trace</span></span> and the global <span class="d_inlinecode">LogLevel</span> must
-	also be smaller equal to <span class="d_inlinecode">LogLevel.<a name="trace"></a><span class="ddoc_psymbol">trace</span></span>.
-
-<p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>A args</td>
-<td valign=top>The data that should be logged.</td></tr>
-</table><p></p>
-<b>Returns:</b><br>The logger used by the logging method as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> l = <span class="d_keyword">new</span> StdIOLogger();
-l.<span class="d_psymbol">trace</span>(1337, <span class="d_string">"is number"</span>);
-</pre>
-<p></p>
-
-	Additionally, to <span class="d_inlinecode">tracecf</span> there are the method.
-	<li><span class="d_inlinecode">info</span></li>
-	<li><span class="d_inlinecode">warning</span></li>
-	<li><span class="d_inlinecode">error</span></li>
-	<li><span class="d_inlinecode">critical</span></li>
-	<li><span class="d_inlinecode">fatal</span></li>
-<p></p>
-
-	These method behave exactly like <span class="d_inlinecode">tracecf</span> with the exception of a
-	different <span class="d_inlinecode">LogLevel</span> used for logging the data.<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".Logger.tracec"></a>ref @trusted Logger <a name="tracec"></a><span class="ddoc_psymbol">tracec</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const bool <i>cond</i>, lazy A <i>args</i>);
-</dt>
-<dd>This method logs data with <span class="d_inlinecode">LogLevel</span> <span class="d_inlinecode">trace</span>, a <span class="d_inlinecode">condition</span>
-	is passed explicitly.
-<p></p>
-This method takes a <span class="d_inlinecode">bool</span> as first argument. In order for the data to
-	be processed the <span class="d_inlinecode">bool</span> must be <span class="d_inlinecode"><b>true</b></span>, the <span class="d_inlinecode">LogLevel</span> of the
-	Logger must be smaller equal to <span class="d_inlinecode">LogLevel.trace</span> and the global
-	<span class="d_inlinecode">LogLevel</span> must also be smaller equal to <span class="d_inlinecode">LogLevel.trace</span>.
-
-<p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>bool cond</td>
-<td valign=top>Only if this <span class="d_inlinecode">bool</span> is <span class="d_inlinecode"><b>true</b></span> will the data be logged.</td></tr>
-<tr><td valign=top>A args</td>
-<td valign=top>The data that should be logged.</td></tr>
-</table><p></p>
-<b>Returns:</b><br>The logger used by the logging method as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> l = <span class="d_keyword">new</span> StdIOLogger();
-l.<span class="d_psymbol">tracec</span>(<span class="d_keyword">false</span>, 1337, <span class="d_string">"is number"</span>);
-</pre>
-<p></p>
-
-	Additionally, to <span class="d_inlinecode">tracecf</span> there are the method.
-	<li><span class="d_inlinecode">infocf</span></li>
-	<li><span class="d_inlinecode">warningcf</span></li>
-	<li><span class="d_inlinecode">errorcf</span></li>
-	<li><span class="d_inlinecode">criticalcf</span></li>
-	<li><span class="d_inlinecode">fatalcf</span></li>
-<p></p>
-
-	These method behave exactly like <span class="d_inlinecode">tracecf</span> with the exception of a
-	different <span class="d_inlinecode">LogLevel</span> used for logging the data.<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".Logger.tracef"></a>ref @trusted Logger <a name="tracef"></a><span class="ddoc_psymbol">tracef</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(string <i>msg</i>, lazy A <i>args</i>);
-</dt>
-<dd>This method logs data in a printf style manner with <span class="d_inlinecode">LogLevel</span>
-	<span class="d_inlinecode">trace</span>.
-<p></p>
-In order for the data to be processed the <span class="d_inlinecode">bool</span> must be <span class="d_inlinecode"><b>true</b></span>, the
-	<span class="d_inlinecode">LogLevel</span> of the Logger must be smaller equal to <span class="d_inlinecode">LogLevel.trace</span>
-	and the global <span class="d_inlinecode">LogLevel</span> must also be smaller equal to <span class="d_inlinecode">	LogLevel.trace</span>.
-
-<p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>string msg</td>
-<td valign=top>The <span class="d_inlinecode">string</span> that is used to format the additional data.</td></tr>
-<tr><td valign=top>A args</td>
-<td valign=top>The data that should be logged.</td></tr>
-</table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> l = <span class="d_keyword">new</span> StdIOLogger();
-l.<span class="d_psymbol">tracef</span>(<span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
-</pre>
-<p></p>
-
-	Additionally, to <span class="d_inlinecode">tracecf</span> there are the method.
-	<li><span class="d_inlinecode">infof</span></li>
-	<li><span class="d_inlinecode">warningf</span></li>
-	<li><span class="d_inlinecode">errorf</span></li>
-	<li><span class="d_inlinecode">criticalf</span></li>
-	<li><span class="d_inlinecode">fatalf</span></li>
-<p></p>
-
-	These function behave exactly like <span class="d_inlinecode"><a name="tracef"></a><span class="ddoc_psymbol">tracef</span></span> with the exception of a
-	different <span class="d_inlinecode">LogLevel</span> used for logging the data.<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".Logger.tracecf"></a>ref @trusted Logger <a name="tracecf"></a><span class="ddoc_psymbol">tracecf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const bool <i>cond</i>, string <i>msg</i>, lazy A <i>args</i>);
-</dt>
-<dd>This method logs data in a printf style manner with <span class="d_inlinecode">LogLevel</span>
-	<span class="d_inlinecode">trace</span>, a <span class="d_inlinecode">condition</span> is passed explicitly.
-<p></p>
-This method takes a <span class="d_inlinecode">bool</span> as first argument. In order for the data to be processed the
-	<span class="d_inlinecode">bool</span> must be <span class="d_inlinecode"><b>true</b></span>, the <span class="d_inlinecode">LogLevel</span> of the Logger must be
-	smaller equal to <span class="d_inlinecode">LogLevel.trace</span> and the global <span class="d_inlinecode">LogLevel</span> must also be
-	smaller equal to <span class="d_inlinecode">LogLevel.trace</span>.
-
-<p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>bool cond</td>
-<td valign=top>Only if this <span class="d_inlinecode">bool</span> is <span class="d_inlinecode"><b>true</b></span> will the data be logged.</td></tr>
-<tr><td valign=top>string msg</td>
-<td valign=top>The <span class="d_inlinecode">string</span> that is used to format the additional data.</td></tr>
-<tr><td valign=top>A args</td>
-<td valign=top>The data that should be logged.</td></tr>
-</table><p></p>
-<b>Returns:</b><br>The logger used by the logging function as reference.
-
-<p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> l = <span class="d_keyword">new</span> StdIOLogger();
-l.<span class="d_psymbol">tracecf</span>(<span class="d_keyword">false</span>, <span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
-</pre>
-<p></p>
-
-	Additionally, to <span class="d_inlinecode"><a name="tracecf"></a><span class="ddoc_psymbol">tracecf</span></span> there are the function.
-	<li><span class="d_inlinecode">infocf</span></li>
-	<li><span class="d_inlinecode">warningcf</span></li>
-	<li><span class="d_inlinecode">errorcf</span></li>
-	<li><span class="d_inlinecode">criticalcf</span></li>
-	<li><span class="d_inlinecode">fatalcf</span></li>
-<p></p>
-
-	These function behave exactly like <span class="d_inlinecode"><a name="tracecf"></a><span class="ddoc_psymbol">tracecf</span></span> with the exception of a
-	different <span class="d_inlinecode">LogLevel</span> used for logging the data.<p></p>
-
-</dd>
 </dl>
 </dd>
-<dt class="d_decl"><a name=".LogManager"></a>class <a name="LogManager"></a><span class="ddoc_psymbol">LogManager</span>;
-</dt>
-<dd>The static <span class="d_inlinecode"><a name="LogManager"></a><span class="ddoc_psymbol">LogManager</span></span> handles the creation, and the release of
-instances of the <span class="d_inlinecode">Logger</span> class. It also handles the <i>defaultLogger</i>
-which is used if no logger is manually selected. Additionally the
-<span class="d_inlinecode"><a name="LogManager"></a><span class="ddoc_psymbol">LogManager</span></span> also allows to retrieve <span class="d_inlinecode">Logger</span>s by their names.
-An <span class="d_inlinecode">StdIOLogger</span> is assigned to be the default <span class="d_inlinecode">Logger</span>.<p></p>
-
-<dl><dt class="d_decl"><a name=".LogManager.defaultLogger"></a>static @property ref @trusted Logger <a name="defaultLogger"></a><span class="ddoc_psymbol">defaultLogger</span>();
+<dt class="d_decl"><a name=".stdlog"></a>@property ref @trusted Logger <a name="stdlog"></a><span class="ddoc_psymbol">stdlog</span>();
 </dt>
 <dd>This method returns the default <span class="d_inlinecode">Logger</span>.
 <p></p>
-The Logger is returned as a reference. This means it can be rassigned,
-    thus changing the <a name="defaultLogger"></a><span class="ddoc_psymbol">defaultLogger</span>.
+The Logger is returned as a reference. This means it can be reassigned,
+thus changing the <span class="d_inlinecode"><a name="stdlog"></a><span class="ddoc_psymbol">stdlog</span></span>.
 
 <p></p>
 <b>Example:</b><br>
-<pre class="d_code">LogManager.<span class="d_psymbol">defaultLogger</span> = <span class="d_keyword">new</span> StdIOLogger;
+<pre class="d_code"><span class="d_psymbol">stdlog</span> = <span class="d_keyword">new</span> StdioLogger;
 </pre>
-    The example sets a new <span class="d_inlinecode">StdIOLogger</span> as new <a name="defaultLogger"></a><span class="ddoc_psymbol">defaultLogger</span>.<p></p>
+The example sets a new <span class="d_inlinecode">StdioLogger</span> as new <span class="d_inlinecode"><a name="stdlog"></a><span class="ddoc_psymbol">stdlog</span></span>.<p></p>
 
 </dd>
-<dt class="d_decl"><a name=".LogManager.globalLogLevel"></a>static @property @trusted LogLevel <a name="globalLogLevel"></a><span class="ddoc_psymbol">globalLogLevel</span>();
+<dt class="d_decl"><a name=".globalLogLevel"></a>@property @trusted LogLevel <a name="globalLogLevel"></a><span class="ddoc_psymbol">globalLogLevel</span>();
 </dt>
 <dd>This method returns the global <span class="d_inlinecode">LogLevel</span>.<p></p>
 
 </dd>
-<dt class="d_decl"><a name=".LogManager.globalLogLevel"></a>static @property @trusted void <a name="globalLogLevel"></a><span class="ddoc_psymbol">globalLogLevel</span>(LogLevel <i>ll</i>);
+<dt class="d_decl"><a name=".globalLogLevel"></a>@property @trusted void <a name="globalLogLevel"></a><span class="ddoc_psymbol">globalLogLevel</span>(LogLevel <i>ll</i>);
 </dt>
 <dd>This method sets the global <span class="d_inlinecode">LogLevel</span>.
 <p></p>
 Every log message with a <span class="d_inlinecode">LogLevel</span> lower as the global <span class="d_inlinecode">LogLevel</span>
-    will be discarded before it reaches <span class="d_inlinecode">writeLogMessage</span> method.<p></p>
+will be discarded before it reaches <span class="d_inlinecode">writeLogMessage</span> method.<p></p>
 
-</dd>
-</dl>
 </dd>
 </dl>
 
@@ -1224,7 +988,7 @@ Every log message with a <span class="d_inlinecode">LogLevel</span> lower as the
 
 
 <div id="copyright">
-Copyright Robert burner Schadek 2013.
+Copyright Robert "burner" Schadek 2013 --
  |
 Page generated by <a href="http://www.digitalmars.com/d/2.0/ddoc.html">Ddoc</a>.
 </div>

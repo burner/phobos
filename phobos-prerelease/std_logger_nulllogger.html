@@ -233,34 +233,18 @@ jQuery(document).ready(listanchors);
 In case of a log message with <span class="d_inlinecode">LogLevel.fatal</span> nothing will happen.<p></p>
 <b>Examples:</b><br><pre class="d_code">
 <span class="d_keyword">auto</span> nl1 = <span class="d_keyword">new</span> <span class="d_psymbol">NullLogger</span>(LogLevel.all);
-<span class="d_keyword">auto</span> nl2 = <span class="d_keyword">new</span> <span class="d_psymbol">NullLogger</span>(<span class="d_string">"NULL"</span>, LogLevel.all);
 nl1.info(<span class="d_string">"You will never read this."</span>);
-nl2.fatal(<span class="d_string">"You will never read this, either."</span>);
+nl1.fatal(<span class="d_string">"You will never read this, either."</span>);
 </pre>
 <p></p>
 <dl><dt class="d_decl"><a name=".NullLogger.this"></a>@safe this(const LogLevel <i>lv</i> = LogLevel.info);
 </dt>
 <dd>The default constructor for the <span class="d_inlinecode">NullLogger</span>.
 <p></p>
-Independend of the parameter this Logger will never log a message.
+Independent of the parameter this Logger will never log a message.
 
 <p></p>
 <b>Parameters:</b><table class=parms><tr><td valign=top>LogLevel <i>lv</i></td>
-<td valign=top>The <span class="d_inlinecode">LogLevel</span> for the <span class="d_inlinecode">MultiLogger</span>. By default the <span class="d_inlinecode">LogLevel</span>
-      for <span class="d_inlinecode">MultiLogger</span> is <span class="d_inlinecode">LogLevel.info</span>.</td></tr>
-</table><p></p>
-
-</dd>
-<dt class="d_decl"><a name=".NullLogger.this"></a>@safe this(string <i>name</i>, const LogLevel <i>lv</i> = LogLevel.info);
-</dt>
-<dd>A constructor for the <span class="d_inlinecode">NullLogger</span>.
-<p></p>
-Independend of the parameter this Logger will never log a message.
-
-<p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>string <i>name</i></td>
-<td valign=top>The <i>name</i> of the logger. Compare to <span class="d_inlinecode">FileLogger.insertLogger</span>.</td></tr>
-<tr><td valign=top>LogLevel <i>lv</i></td>
 <td valign=top>The <span class="d_inlinecode">LogLevel</span> for the <span class="d_inlinecode">MultiLogger</span>. By default the <span class="d_inlinecode">LogLevel</span>
       for <span class="d_inlinecode">MultiLogger</span> is <span class="d_inlinecode">LogLevel.info</span>.</td></tr>
 </table><p></p>
