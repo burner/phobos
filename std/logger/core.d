@@ -751,6 +751,10 @@ enum LogLevel : ubyte
 
 /** This class is the base of every logger. In order to create a new kind of
 logger a deriving class needs to implement the $(D writeLogMsg) method.
+
+In is also possible to $(D override) the three methods $(D logHeader),
+$(D logMsgPart) and $(D finishLogMsg) together, this option gives more
+flexibility.
 */
 abstract class Logger
 {
@@ -975,8 +979,8 @@ abstract class Logger
 
         In order for the resulting log message to be logged the $(D LogLevel)
         must be greater or equal than the $(D LogLevel) of the used $(D Logger)
-           and must be greater or equal than the global $(D LogLevel)
-        additionally the passed condition must be $(D true).
+        and must be greater or equal than the global $(D LogLevel) additionally
+           the passed condition must be $(D true).
 
         Params:
          condition = The condition must be $(D true) for the data to be logged.
@@ -1138,10 +1142,34 @@ abstract class Logger
                 formatString(writer, args);
 
                 this.finishLogMsg();
+
+                if (ll == LogLevel.fatal)
+                    fatalHandler();
             }
         }
     }
 
+    /** This function logs data to the used $(D Logger) with a specific
+    $(D LogLevel).
+
+    In order for the resulting log message to be logged the $(D LogLevel)
+    must be greater or equal than the $(D LogLevel) of the used $(D Logger)
+    and must be greater or equal than the global $(D LogLevel).
+
+    Params:
+    ll = The specific $(D LogLevel) used for logging the log message.
+    args = The data that should be logged.
+
+    Examples:
+    --------------------
+    auto s = new FileLogger(stdout);
+    s.log(LogLevel.trace, 1337, "is number");
+    s.log(LogLevel.info, 1337, "is number");
+    s.log(LogLevel.warning, 1337, "is number");
+    s.log(LogLevel.error, 1337, "is number");
+    s.log(LogLevel.fatal, 1337, "is number");
+    --------------------
+    */
     void log(int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
@@ -1164,10 +1192,35 @@ abstract class Logger
                 formatString(writer, args);
 
                 this.finishLogMsg();
+
+                if (ll == LogLevel.fatal)
+                    fatalHandler();
             }
         }
     }
 
+    /** This function logs data to the used $(D Logger) depending on a
+    explicitly passed condition with the $(D LogLevel) of the used
+    $(D Logger).
+
+    In order for the resulting log message to be logged the $(D LogLevel)
+    of the used $(D Logger) must be greater or equal than the global
+    $(D LogLevel) and the condition must be $(D true).
+
+    Params:
+    condition = The condition must be $(D true) for the data to be logged.
+    args = The data that should be logged.
+
+    Examples:
+    --------------------
+    auto s = new FileLogger(stdout);
+    s.log(true, 1337, "is number");
+    s.log(true, 1337, "is number");
+    s.log(true, 1337, "is number");
+    s.log(false, 1337, "is number");
+    s.log(false, 1337, "is number");
+    --------------------
+    */
     void log(int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
@@ -1189,10 +1242,33 @@ abstract class Logger
                 formatString(writer, args);
 
                 this.finishLogMsg();
+
+                if (this.logLevel_ == LogLevel.fatal)
+                    fatalHandler();
             }
         }
     }
 
+    /** This function logs data to the used $(D Logger) with the $(D LogLevel)
+    of the used $(D Logger).
+
+    In order for the resulting log message to be logged the $(D LogLevel)
+    of the used $(D Logger) must be greater or equal than the global
+    $(D LogLevel).
+
+    Params:
+    args = The data that should be logged.
+
+    Examples:
+    --------------------
+    auto s = new FileLogger(stdout);
+    s.log(1337, "is number");
+    s.log(info, 1337, "is number");
+    s.log(1337, "is number");
+    s.log(1337, "is number");
+    s.log(1337, "is number");
+    --------------------
+    */
     void log(int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
@@ -1216,10 +1292,37 @@ abstract class Logger
                 formatString(writer, args);
 
                 this.finishLogMsg();
+
+                if (this.logLevel_ == LogLevel.fatal)
+                    fatalHandler();
             }
         }
     }
 
+    /** This function logs data to the used $(D Logger) with a specific
+    $(D LogLevel) and depending on a condition in a $(D printf)-style manner.
+
+    In order for the resulting log message to be logged the $(D LogLevel)
+    must be greater or equal than the $(D LogLevel) of the used $(D Logger)
+    and must be greater or equal than the global $(D LogLevel) and the
+    condition must be $(D true).
+
+    Params:
+    ll = The specific $(D LogLevel) used for logging the log message.
+    condition = The condition must be $(D true) for the data to be logged.
+    msg = The format string used for this log call.
+    args = The data that should be logged.
+
+    Examples:
+    --------------------
+    auto s = new FileLogger(stdout);
+    s.logf(LogLevel.trace, true ,"%d %s", 1337, "is number");
+    s.logf(LogLevel.info, true ,"%d %s", 1337, "is number");
+    s.logf(LogLevel.warning, true ,"%d %s", 1337, "is number");
+    s.logf(LogLevel.error, false ,"%d %s", 1337, "is number");
+    s.logf(LogLevel.fatal, true ,"%d %s", 1337, "is number");
+    --------------------
+    */
     void logf(int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
@@ -1242,10 +1345,35 @@ abstract class Logger
                 formattedWrite(writer, msg, args);
 
                 this.finishLogMsg();
+
+                if (ll == LogLevel.fatal)
+                    fatalHandler();
             }
         }
     }
 
+    /** This function logs data to the used $(D Logger) with a specific
+    $(D LogLevel) in a $(D printf)-style manner.
+
+    In order for the resulting log message to be logged the $(D LogLevel)
+    must be greater or equal than the $(D LogLevel) of the used $(D Logger)
+    and must be greater or equal than the global $(D LogLevel).
+
+    Params:
+    ll = The specific $(D LogLevel) used for logging the log message.
+    msg = The format string used for this log call.
+    args = The data that should be logged.
+
+    Examples:
+    --------------------
+    auto s = new FileLogger(stdout);
+    s.logf(LogLevel.trace, "%d %s", 1337, "is number");
+    s.logf(LogLevel.info, "%d %s", 1337, "is number");
+    s.logf(LogLevel.warning, "%d %s", 1337, "is number");
+    s.logf(LogLevel.error, "%d %s", 1337, "is number");
+    s.logf(LogLevel.fatal, "%d %s", 1337, "is number");
+    --------------------
+    */
     void logf(int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
@@ -1268,10 +1396,36 @@ abstract class Logger
                 formattedWrite(writer, msg, args);
 
                 this.finishLogMsg();
+
+                if (ll == LogLevel.fatal)
+                    fatalHandler();
             }
         }
     }
 
+    /** This function logs data to the used $(D Logger) depending on a
+    condition with the $(D LogLevel) of the used $(D Logger) in a
+    $(D printf)-style manner.
+
+    In order for the resulting log message to be logged the $(D LogLevel)
+    of the used $(D Logger) must be greater or equal than the global
+    $(D LogLevel) and the condition must be $(D true).
+
+    Params:
+    condition = The condition must be $(D true) for the data to be logged.
+    msg = The format string used for this log call.
+    args = The data that should be logged.
+
+    Examples:
+    --------------------
+    auto s = new FileLogger(stdout);
+    s.logf(true ,"%d %s", 1337, "is number");
+    s.logf(true ,"%d %s", 1337, "is number");
+    s.logf(true ,"%d %s", 1337, "is number");
+    s.logf(false ,"%d %s", 1337, "is number");
+    s.logf(true ,"%d %s", 1337, "is number");
+    --------------------
+    */
     void logf(int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
@@ -1293,25 +1447,31 @@ abstract class Logger
                 formattedWrite(writer, msg, args);
 
                 this.finishLogMsg();
+
+                if (this.logLevel_ == LogLevel.fatal)
+                    fatalHandler();
             }
         }
     }
 
-    /** This method logs data in a $(D printf)-style manner.
+    /** This method logs data to the used $(D Logger) with the $(D LogLevel)
+    of the this $(D Logger) in a $(D printf)-style manner.
 
-    In order for the data to be processed the $(D LogLevel) of the Logger
+    In order for the data to be processed the $(D LogLevel) of the $(D Logger)
     must be greater or equal to the global $(D LogLevel).
 
     Params:
     msg = The format string used for this log call.
     args = The data that should be logged.
 
-    Returns: The logger used by the logging function as reference.
-
     Examples:
     --------------------
-    auto l = new FileLogger(stdout);
-    l.logf("Hello World %f", 3.1415);
+    auto s = new FileLogger(stdout);
+    s.logf("%d %s", 1337, "is number");
+    s.logf("%d %s", 1337, "is number");
+    s.logf("%d %s", 1337, "is number");
+    s.logf("%d %s", 1337, "is number");
+    s.logf("%d %s", 1337, "is number");
     --------------------
     */
     void logf(int line = __LINE__, string file = __FILE__,
@@ -1334,6 +1494,9 @@ abstract class Logger
                 formattedWrite(writer, msg, args);
 
                 this.finishLogMsg();
+
+                if (this.logLevel_ == LogLevel.fatal)
+                    fatalHandler();
             }
         }
     }
@@ -1351,7 +1514,7 @@ thus changing the $(D stdlog).
 
 Example:
 -------------
-stdlog = new StdioLogger;
+stdlog = new FileLogger(yourFile);
 -------------
 The example sets a new $(D StdioLogger) as new $(D stdlog).
 */
@@ -1371,17 +1534,18 @@ private ref LogLevel globalLogLevelImpl() @trusted
     return ll;
 }
 
-/** This method returns the global $(D LogLevel). */
+/** This methods get and set the global $(D LogLevel).
+
+Every log message with a $(D LogLevel) lower as the global $(D LogLevel)
+will be discarded before it reaches $(D writeLogMessage) method of any
+$(D Logger)
+*/
 @property LogLevel globalLogLevel() @trusted
 {
     return globalLogLevelImpl();
 }
 
-/** This method sets the global $(D LogLevel).
-
-Every log message with a $(D LogLevel) lower as the global $(D LogLevel)
-will be discarded before it reaches $(D writeLogMessage) method.
-*/
+/// Ditto
 @property void globalLogLevel(LogLevel ll) @trusted
 {
     if (stdlog !is null)
@@ -1509,7 +1673,7 @@ unittest
     assert(errorThrown);
 }
 
-@safe unittest
+unittest
 {
     auto l = new TestLogger(LogLevel.info);
     string msg = "Hello Logger World";
@@ -1549,19 +1713,19 @@ unittest
     assert(l.line == lineNumber);
     assert(l.logLevel == LogLevel.info);
 
-    l.logf(LogLevel.fatal, msg, "Yet");
+    assertThrown!Throwable(l.logf(LogLevel.fatal, msg, "Yet"));
     lineNumber = __LINE__ - 1;
     assert(l.msg == msg.format("Yet"));
     assert(l.line == lineNumber);
     assert(l.logLevel == LogLevel.info);
 
-    l.logf(LogLevel.fatal, true, msg, "Yet");
+    assertThrown!Throwable(l.logf(LogLevel.fatal, true, msg, "Yet"));
     lineNumber = __LINE__ - 1;
     assert(l.msg == msg.format("Yet"));
     assert(l.line == lineNumber);
     assert(l.logLevel == LogLevel.info);
 
-    l.logf(LogLevel.fatal, false, msg, "Yet");
+    assertNotThrown(l.logf(LogLevel.fatal, false, msg, "Yet"));
     nLineNumber = __LINE__ - 1;
     assert(l.msg == msg.format("Yet"));
     assert(l.line == lineNumber);
@@ -1623,19 +1787,19 @@ unittest
     assert(l.logLevel == LogLevel.info);
 
     msg = "%s Another message";
-    logf(LogLevel.fatal, msg, "Yet");
+    assertThrown!Throwable(logf(LogLevel.fatal, msg, "Yet"));
     lineNumber = __LINE__ - 1;
     assert(l.msg == msg.format("Yet"));
     assert(l.line == lineNumber);
     assert(l.logLevel == LogLevel.info);
 
-    logf(LogLevel.fatal, true, msg, "Yet");
+    assertThrown!Throwable(logf(LogLevel.fatal, true, msg, "Yet"));
     lineNumber = __LINE__ - 1;
     assert(l.msg == msg.format("Yet"));
     assert(l.line == lineNumber);
     assert(l.logLevel == LogLevel.info);
 
-    logf(LogLevel.fatal, false, msg, "Yet");
+    assertNotThrown(logf(LogLevel.fatal, false, msg, "Yet"));
     nLineNumber = __LINE__ - 1;
     assert(l.msg == msg.format("Yet"));
     assert(l.line == lineNumber);
@@ -1736,6 +1900,7 @@ unittest
     auto oldunspecificLogger = stdlog;
 
     auto mem = new TestLogger;
+    mem.setFatalHandler = delegate() {};
     stdlog = mem;
 
     scope(exit)
