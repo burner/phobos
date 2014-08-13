@@ -234,7 +234,7 @@ program. Logging should be easy, but also flexible and powerful, therefore
 
 The easiest way to create a log message is to write
 <span class="d_inlinecode">import std.logger; log("I am here");</span> this will print a message to the
-<span class="d_inlinecode">stdout</span> device.  The message will contain the filename, the linenumber, the
+<span class="d_inlinecode">stderr</span> device.  The message will contain the filename, the linenumber, the
 name of the surrounding function, the time and the message.
 
 <p></p>
@@ -271,9 +271,9 @@ object called <span class="d_inlinecode">stdlog</span>.
 <li><span class="d_inlinecode">warning</span></li>
 <li><span class="d_inlinecode">critical</span></li>
 <li><span class="d_inlinecode">fatal</span></li>
-The default <span class="d_inlinecode">Logger</span> will by default log to <span class="d_inlinecode">stdout</span> and has a default
+The default <span class="d_inlinecode">Logger</span> will by default log to <span class="d_inlinecode">stderr</span> and has a default
 <span class="d_inlinecode">LogLevel</span> of <span class="d_inlinecode">LogLevel.all</span>. The default Logger can be accessed by
-using a property call <span class="d_inlinecode">stdlog</span>. This property a reference to the
+using the property called <span class="d_inlinecode">stdlog</span>. This property a reference to the
 current default <span class="d_inlinecode">Logger</span>. This reference can be used to assign a new
 default <span class="d_inlinecode">Logger</span>.
 <pre class="d_code">stdlog = <span class="d_keyword">new</span> FileLogger(<span class="d_string">"New_Default_Log_File.log"</span>);
@@ -281,33 +281,37 @@ default <span class="d_inlinecode">Logger</span>.
 <p></p>
 
 Additional <span class="d_inlinecode">Logger</span> can be created by creating a new instance of the
-required <span class="d_inlinecode">Logger</span>. These <span class="d_inlinecode">Logger</span> have the same methodes as the
-<span class="d_inlinecode">stdlog</span>.
+required <span class="d_inlinecode">Logger</span>.
 <p></p>
 
 The <span class="d_inlinecode">LogLevel</span> of an log call can be defined in two ways. The first is by
-calling <span class="d_inlinecode">logl</span> and passing the <span class="d_inlinecode">LogLevel</span> explicit. Notice the
-additional <b>l</b> after log. The <span class="d_inlinecode">LogLevel</span> is to be passed as first
-argument to the function. The second way of setting the <span class="d_inlinecode">LogLevel</span> of a
+calling <span class="d_inlinecode">log</span> and passing the <span class="d_inlinecode">LogLevel</span> explicit as the first argument.
+The second way of setting the <span class="d_inlinecode">LogLevel</span> of a
 log call, is by calling either <span class="d_inlinecode">trace</span>, <span class="d_inlinecode">info</span>, <span class="d_inlinecode">warning</span>,
 <span class="d_inlinecode">critical</span>, or <span class="d_inlinecode">fatal</span>. The log call will than have the respective
-<span class="d_inlinecode">LogLevel</span>.
+<span class="d_inlinecode">LogLevel</span>. If no <span class="d_inlinecode">LogLevel</span> is defined the log call will use the
+current <span class="d_inlinecode">LogLevel</span> of the used <span class="d_inlinecode">Logger</span>. If data is logged with
+<span class="d_inlinecode">LogLevel</span> <span class="d_inlinecode">fatal</span> by default an <span class="d_inlinecode">Error</span> will be thrown.
+This behaviour can be modified by using the method <span class="d_inlinecode">setFatalHandler</span> to
+assign a custom delegate to handle log call with <span class="d_inlinecode">LogLevel</span> <span class="d_inlinecode">fatal</span>.
 <p></p>
 
-Conditional logging can be achived be appending a <b>c</b> to the function
-identifier and passing a <span class="d_inlinecode">bool</span> as first argument to the function.
-If conditional logging is used the condition must be <span class="d_inlinecode"><b>true</b></span> in order to
-have the log message logged.
+Conditional logging can be achieved be appending passing a <span class="d_inlinecode">bool</span> as first
+argument to a log function.  If conditional logging is used the condition must
+be <span class="d_inlinecode"><b>true</b></span> in order to have the log message logged.
 <p></p>
 
-In order to combine a explicit <span class="d_inlinecode">LogLevel</span> passing with conditional logging
-call the function or method <span class="d_inlinecode">loglc</span>. The first required argument to the
-call then becomes the <span class="d_inlinecode">LogLevel</span> and the second argument is the <span class="d_inlinecode">bool</span>.
+In order to combine an explicit <span class="d_inlinecode">LogLevel</span> passing with conditional
+logging, the <span class="d_inlinecode">LogLevel</span> has to be passed as first argument followed by the
+<span class="d_inlinecode">bool</span>.
 <p></p>
 
 Messages are logged if the <span class="d_inlinecode">LogLevel</span> of the log message is greater than or
 equal to than the <span class="d_inlinecode">LogLevel</span> of the used <span class="d_inlinecode">Logger</span> and additionally if the
 <span class="d_inlinecode">LogLevel</span> of the log message is greater equal to the global <span class="d_inlinecode">LogLevel</span>.
+If a condition is passed into the log call, this condition must be <b>true</b>.
+<p></p>
+
 The global <span class="d_inlinecode">LogLevel</span> is accessible by using <span class="d_inlinecode">globalLogLevel</span>.
 To assign the <span class="d_inlinecode">LogLevel</span> of a <span class="d_inlinecode">Logger</span> use the <span class="d_inlinecode">logLevel</span> property of
 the logger.
@@ -316,11 +320,10 @@ the logger.
 If <span class="d_inlinecode">printf</span>-style logging is needed add a <b>f</b> to the logging call, such as
 <span class="d_inlinecode">myLogger.infof("Hello %s", "world");</span> or 
 The additional <b>f</b> enables <span class="d_inlinecode">printf</span>-style logging for call combinations of
-explicit <span class="d_inlinecode">LogLevel</span> and conditional logging functions and methods. The
-<b>f</b> is always to be placed last.
+explicit <span class="d_inlinecode">LogLevel</span> and conditional logging functions and methods.
 <p></p>
 
-To customize the logger behavior, create a new <span class="d_inlinecode">class</span> that inherits from
+To customize the <span class="d_inlinecode">Logger</span> behavior, create a new <span class="d_inlinecode">class</span> that inherits from
 the abstract <span class="d_inlinecode">Logger</span> <span class="d_inlinecode">class</span>, and implements the <span class="d_inlinecode">writeLogMsg</span>
 method.
 <pre class="d_code"><span class="d_keyword">class</span> MyCustomLogger : Logger {
@@ -340,23 +343,69 @@ logger.log(<span class="d_string">"Awesome log message"</span>);
 </pre>
 <p></p>
 
-Even though the idea behind this logging module is to provide a common
-interface and easy extensibility certain specific Logger are already
-implemented.
-<p></p>
-
-<li>StdioLogger = This <span class="d_inlinecode">Logger</span> logs data to <span class="d_inlinecode">stdout</span>.</li>
-<li>FileLogger = This <span class="d_inlinecode">Logger</span> logs data to files.</li>
-<li>MulitLogger = This <span class="d_inlinecode">Logger</span> logs data to multiple <span class="d_inlinecode">Logger</span>.</li>
-<li>NullLogger = This <span class="d_inlinecode">Logger</span> will never do anything.</li>
-<li>TemplateLogger = This <span class="d_inlinecode">Logger</span> can be used to create simple custom
-<span class="d_inlinecode">Logger</span>.</li>
+To gain more precise control over the logging process, additionally to
+overwriting the <span class="d_inlinecode">writeLogMsg</span> method the methods <span class="d_inlinecode">logHeader</span>,
+<span class="d_inlinecode">logMsgPart</span> and <span class="d_inlinecode">finishLogMsg</span> can be overwritten.
 <p></p>
 
 In order to disable logging at compile time, pass <span class="d_inlinecode">DisableLogging</span> as a
-version argument to the <span class="d_inlinecode">D</span> compiler.<p></p>
+version argument to the <span class="d_inlinecode">D</span> compiler when compiling your program code.
+This will disable all logging functionality.
+Specific <span class="d_inlinecode">LogLevel</span> can be disabled at compile time as well.
+In order to disable logging with the <span class="d_inlinecode">trace</span> <span class="d_inlinecode">LogLevel</span> pass
+<span class="d_inlinecode">DisableTrace</span> as a version.
+The following table shows which version statement disables which
+<span class="d_inlinecode">LogLevel</span>.
+<table cellspacing=0 cellpadding=5><caption>    <tr><td valign=top><span class="d_inlinecode">LogLevel.trace</span> </td> <td valign=top>DisableTrace</td></tr>
+    <tr><td valign=top><span class="d_inlinecode">LogLevel.info</span> </td> <td valign=top>DisableInfo</td></tr>
+    <tr><td valign=top><span class="d_inlinecode">LogLevel.warning</span> </td> <td valign=top>DisableWarning</td></tr>
+    <tr><td valign=top><span class="d_inlinecode">LogLevel.error</span> </td> <td valign=top>DisableError</td></tr>
+    <tr><td valign=top><span class="d_inlinecode">LogLevel.critical</span> </td> <td valign=top>DisableCritical</td></tr>
+    <tr><td valign=top><span class="d_inlinecode">LogLevel.fatal</span> </td> <td valign=top>DisableFatal</td></tr>
+</caption>   <tr><td valign=top><span class="d_inlinecode">LogLevel.trace</span> </td> <td valign=top>DisableTrace</td></tr>
+    <tr><td valign=top><span class="d_inlinecode">LogLevel.info</span> </td> <td valign=top>DisableInfo</td></tr>
+    <tr><td valign=top><span class="d_inlinecode">LogLevel.warning</span> </td> <td valign=top>DisableWarning</td></tr>
+    <tr><td valign=top><span class="d_inlinecode">LogLevel.error</span> </td> <td valign=top>DisableError</td></tr>
+    <tr><td valign=top><span class="d_inlinecode">LogLevel.critical</span> </td> <td valign=top>DisableCritical</td></tr>
+    <tr><td valign=top><span class="d_inlinecode">LogLevel.fatal</span> </td> <td valign=top>DisableFatal</td></tr>
+</table>
+Such a version statement will only disable logging in the associated compile
+unit.
+<p></p>
 
-<dl><dt class="d_decl"><a name=".log"></a>void <a name="log"></a><span class="ddoc_psymbol">log</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const LogLevel <i>ll</i>, lazy bool <i>condition</i>, lazy A <i>args</i>);
+By default four <span class="d_inlinecode">Logger</span> implementations are given. The <span class="d_inlinecode">FileLogger</span>
+logs data to files. It can also be used to log to <span class="d_inlinecode">stdout</span> and <span class="d_inlinecode">stderr</span>
+as these devices are files as well. A <span class="d_inlinecode">Logger</span> that logs to <span class="d_inlinecode">stdout</span> can
+therefore be created by <span class="d_inlinecode">new FileLogger(stdout)</span>.
+The <span class="d_inlinecode">MultiLogger</span> is basically an associative array of <span class="d_inlinecode">string</span>s to
+<span class="d_inlinecode">Logger</span>. It propagates log calls to its stored <span class="d_inlinecode">Logger</span>. The
+<span class="d_inlinecode">ArrayLogger</span> contains an array of <span class="d_inlinecode">Logger</span> and also propagates log
+calls to its stored <span class="d_inlinecode">Logger</span>. The <span class="d_inlinecode">NullLogger</span> does not do anything. It
+will never log a message and will never throw on a log call with <span class="d_inlinecode">LogLevel</span>
+<span class="d_inlinecode">error</span>.<p></p>
+
+<dl><dt class="d_decl"><a name=".isLoggingActive"></a>pure nothrow @safe bool <a name="isLoggingActive"></a><span class="ddoc_psymbol">isLoggingActive</span>(LogLevel ll)();
+</dt>
+<dd>This compile time only function evaluates if the passed <span class="d_inlinecode">LogLevel</span> is
+active. The previously described version statements are used to decide if the
+<span class="d_inlinecode">LogLevel</span> is active. The version statements only influence the compile
+unit they are used with, therefore this function can only disable logging this
+specific compile unit.<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".isLoggingActive"></a>pure nothrow @safe bool <a name="isLoggingActive"></a><span class="ddoc_psymbol">isLoggingActive</span>()();
+</dt>
+<dd><p></p>
+</dd>
+<dt class="d_decl"><a name=".isLoggingEnabled"></a>pure nothrow @safe bool <a name="isLoggingEnabled"></a><span class="ddoc_psymbol">isLoggingEnabled</span>()(LogLevel <i>ll</i>);
+</dt>
+<dd>This functions is used at runtime to determine if a <span class="d_inlinecode">LogLevel</span> is
+active. The same previously defined version statements are used to disable
+certain levels. Again the version statements are associated with a compile
+unit and can therefore not disable logging in other compile units.<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".log"></a>void <a name="log"></a><span class="ddoc_psymbol">log</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(const LogLevel <i>ll</i>, lazy bool <i>condition</i>, lazy A <i>args</i>);
 </dt>
 <dd>This function logs data.
 <p></p>
