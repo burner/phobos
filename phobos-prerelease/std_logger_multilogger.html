@@ -228,9 +228,11 @@ jQuery(document).ready(listanchors);
 <p></p>
 <dl><dt class="d_decl"><a name=".MultiLogger"></a>class <a name="MultiLogger"></a><span class="ddoc_psymbol">MultiLogger</span>: <u>std.logger.multilogger.MultiLoggerBase</u>;
 </dt>
-<dd><a name="MultiLogger"></a><span class="ddoc_psymbol">MultiLogger</span> logs to multiple logger.
+<dd><span class="d_inlinecode"><a name="MultiLogger"></a><span class="ddoc_psymbol">MultiLogger</span></span> logs to multiple <span class="d_inlinecode">Logger</span>.
 <p></p>
-It can be used to construct arbitrary, tree like structures. Basically a <span class="d_inlinecode"><a name="MultiLogger"></a><span class="ddoc_psymbol">MultiLogger</span></span> is a map. It maps <span class="d_inlinecode">Logger</span>s to <span class="d_inlinecode">strings</span>s. By adding a <span class="d_inlinecode"><a name="MultiLogger"></a><span class="ddoc_psymbol">MultiLogger</span></span> into another <span class="d_inlinecode"><a name="MultiLogger"></a><span class="ddoc_psymbol">MultiLogger</span></span> a non leaf nodes is added into the
+It can be used to construct arbitrary, tree like structures. Basically a
+<span class="d_inlinecode"><a name="MultiLogger"></a><span class="ddoc_psymbol">MultiLogger</span></span> is a map. It maps <span class="d_inlinecode">Logger</span>s to <span class="d_inlinecode">strings</span>s. By adding a
+<span class="d_inlinecode"><a name="MultiLogger"></a><span class="ddoc_psymbol">MultiLogger</span></span> into another <span class="d_inlinecode"><a name="MultiLogger"></a><span class="ddoc_psymbol">MultiLogger</span></span> a non leaf nodes is added into the
 tree. The map is implemented as an associated array by the mapper
 <span class="d_inlinecode"><a name="MultiLogger"></a><span class="ddoc_psymbol">MultiLogger</span>.logger</span>.
 
@@ -245,24 +247,45 @@ root -&gt; node -&gt; b
 
 +/</span>
 
-<span class="d_keyword">auto</span> root = <span class="d_keyword">new</span> <span class="d_psymbol">MultiLogger</span>(<span class="d_string">"root"</span>, LogLevel.trace);
-<span class="d_keyword">auto</span> node = <span class="d_keyword">new</span> <span class="d_psymbol">MultiLogger</span>(<span class="d_string">"Node"</span>, LogLevel.warning);
+<span class="d_keyword">auto</span> root = <span class="d_keyword">new</span> <span class="d_psymbol">MultiLogger</span>(LogLevel.trace);
+<span class="d_keyword">auto</span> node = <span class="d_keyword">new</span> <span class="d_psymbol">MultiLogger</span>(LogLevel.warning);
 
-<span class="d_keyword">auto</span> a = <span class="d_keyword">new</span> StdioLogger(<span class="d_string">"a"</span>, LogLevel.trace);
-<span class="d_keyword">auto</span> b = <span class="d_keyword">new</span> StdioLogger(<span class="d_string">"b"</span>, LogLevel.info);
-<span class="d_keyword">auto</span> c = <span class="d_keyword">new</span> StdioLogger(<span class="d_string">"c"</span>, LogLevel.info);
+<span class="d_keyword">auto</span> a = <span class="d_keyword">new</span> FileLogger(stdout, LogLevel.trace);
+<span class="d_keyword">auto</span> b = <span class="d_keyword">new</span> FileLogger(stdout, LogLevel.info);
+<span class="d_keyword">auto</span> c = <span class="d_keyword">new</span> FileLogger(stdout, LogLevel.info);
 
-root.insert(node);
-root.insert(a);
+root.insert(<span class="d_string">"Node"</span>, node);
+root.insert(<span class="d_string">"a"</span>, a);
 
-node.insert(b);
-node.insert(c);
+node.insert(<span class="d_string">"b"</span>, b);
+node.insert(<span class="d_string">"c"</span>, c);
 </pre>
 <p></p>
 
-<dl><dt class="d_decl"><a name=".MultiLogger.insertLogger"></a>void <a name="insertLogger"></a><span class="ddoc_psymbol">insertLogger</span>(string <i>name</i>, Logger <i>newLogger</i>);
+<dl><dt class="d_decl"><a name=".MultiLogger.this"></a>this(const LogLevel <i>lv</i> = LogLevel.info);
 </dt>
-<dd>This method inserts a new Logger into the Multilogger.<p></p>
+<dd>A constructor for the <span class="d_inlinecode">MultiLogger</span> Logger.
+<p></p>
+<b>Parameters:</b><table class=parms><tr><td valign=top>LogLevel <i>lv</i></td>
+<td valign=top>The <span class="d_inlinecode">LogLevel</span> for the <span class="d_inlinecode">MultiLogger</span>. By default the
+      <span class="d_inlinecode">LogLevel</span> for <span class="d_inlinecode">MultiLogger</span> is <span class="d_inlinecode">LogLevel.info</span>.</td></tr>
+</table><p></p>
+<b>Example:</b><br>
+<pre class="d_code"><span class="d_keyword">auto</span> l1 = <span class="d_keyword">new</span> MultiLogger(LogLevel.trace);
+</pre>
+<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".MultiLogger.insertLogger"></a>void <a name="insertLogger"></a><span class="ddoc_psymbol">insertLogger</span>(string <i>name</i>, Logger <i>newLogger</i>);
+</dt>
+<dd>This method inserts a new Logger into the <span class="d_inlinecode">MultiLogger</span>.
+<p></p>
+<b>Parameters:</b><table class=parms><tr><td valign=top>string <i>name</i></td>
+<td valign=top>The <i>name</i> of the <span class="d_inlinecode">Logger</span> to insert. The <i>name</i> must be non
+        empty and unique.</td></tr>
+<tr><td valign=top>Logger <i>newLogger</i></td>
+<td valign=top>The <span class="d_inlinecode">Logger</span> to insert.</td></tr>
+</table><p></p>
 <b>Examples:</b><br><pre class="d_code">
 <span class="d_keyword">auto</span> l1 = <span class="d_keyword">new</span> MultiLogger;
 <span class="d_keyword">auto</span> l2 = <span class="d_keyword">new</span> FileLogger(stdout);
@@ -275,7 +298,14 @@ l1.<span class="d_psymbol">insertLogger</span>(<span class="d_string">"someName"
 </dd>
 <dt class="d_decl"><a name=".MultiLogger.removeLogger"></a>Logger <a name="removeLogger"></a><span class="ddoc_psymbol">removeLogger</span>(string <i>toRemove</i>);
 </dt>
-<dd>This method removes a Logger from the Multilogger.
+<dd>This method removes a Logger from the <span class="d_inlinecode">Multilogger</span>.
+<p></p>
+<b>Parameters:</b><table class=parms><tr><td valign=top>string <i>toRemove</i></td>
+<td valign=top>The name of the <span class="d_inlinecode">Logger</span> to remove. If the <span class="d_inlinecode">Logger</span>
+        is not found an exception will be thrown.</td></tr>
+</table><p></p>
+<b>Returns:</b><br>The removed <span class="d_inlinecode">Logger</span>.
+
 <p></p>
 <b>See Also:</b><br>std.logger.MultiLogger.insertLogger<p></p>
 
@@ -292,6 +322,58 @@ ml.insertLogger(<span class="d_string">"some_name"</span>, sl);
 <span class="d_keyword">assert</span>(ml[<span class="d_string">"some_name"</span>] <span class="d_keyword">is</span> sl);
 </pre>
 <p></p>
+</dd>
+</dl>
+</dd>
+<dt class="d_decl"><a name=".ArrayLogger"></a>class <a name="ArrayLogger"></a><span class="ddoc_psymbol">ArrayLogger</span>: <u>std.logger.multilogger.MultiLoggerBase</u>;
+</dt>
+<dd><a name="ArrayLogger"></a><span class="ddoc_psymbol">ArrayLogger</span> logs to multiple <span class="d_inlinecode">Logger</span>. The <span class="d_inlinecode">Logger</span> are stored in an
+<span class="d_inlinecode">std.container.Array</span> in there order of insertion.
+<p></p>
+Every data logged to this <span class="d_inlinecode"><a name="ArrayLogger"></a><span class="ddoc_psymbol">ArrayLogger</span></span> will be distributed to all the
+<span class="d_inlinecode">Logger</span> inserted into inserted it. The <span class="d_inlinecode"><a name="ArrayLogger"></a><span class="ddoc_psymbol">ArrayLogger</span></span> can hold multiple
+<span class="d_inlinecode">Logger</span> with the same name. If the method <span class="d_inlinecode">removeLogger</span> is used to
+remove a <span class="d_inlinecode">Logger</span> only the first occurrence with that name will be removed.<p></p>
+
+<dl><dt class="d_decl"><a name=".ArrayLogger.this"></a>this(const LogLevel <i>lv</i> = LogLevel.info);
+</dt>
+<dd>A constructor for the <span class="d_inlinecode">ArrayLogger</span> Logger.
+<p></p>
+<b>Parameters:</b><table class=parms><tr><td valign=top>LogLevel <i>lv</i></td>
+<td valign=top>The <span class="d_inlinecode">LogLevel</span> for the <span class="d_inlinecode">ArrayLogger</span>. By default the
+      <span class="d_inlinecode">LogLevel</span> for <span class="d_inlinecode">ArrayLogger</span> is <span class="d_inlinecode">LogLevel.info</span>.</td></tr>
+</table><p></p>
+<b>Example:</b><br>
+<pre class="d_code"><span class="d_keyword">auto</span> l1 = <span class="d_keyword">new</span> ArrayLogger(LogLevel.trace);
+</pre>
+<p></p>
+
+</dd>
+<dt class="d_decl"><a name=".ArrayLogger.insertLogger"></a>void <a name="insertLogger"></a><span class="ddoc_psymbol">insertLogger</span>(string <i>name</i>, Logger <i>newLogger</i>);
+</dt>
+<dd>This method inserts a new Logger into the <span class="d_inlinecode">ArrayLogger</span>.
+<p></p>
+<b>Parameters:</b><table class=parms><tr><td valign=top>string <i>name</i></td>
+<td valign=top>The <i>name</i> of the <span class="d_inlinecode">Logger</span> to insert.</td></tr>
+<tr><td valign=top>Logger <i>newLogger</i></td>
+<td valign=top>The <span class="d_inlinecode">Logger</span> to insert.</td></tr>
+</table><p></p>
+
+</dd>
+<dt class="d_decl"><a name=".ArrayLogger.removeLogger"></a>Logger <a name="removeLogger"></a><span class="ddoc_psymbol">removeLogger</span>(string <i>toRemove</i>);
+</dt>
+<dd>This method removes a Logger from the <span class="d_inlinecode">ArrayLogger</span>.
+<p></p>
+<b>Parameters:</b><table class=parms><tr><td valign=top>string <i>toRemove</i></td>
+<td valign=top>The name of the <span class="d_inlinecode">Logger</span> to remove. If the <span class="d_inlinecode">Logger</span>
+        is not found an exception will be thrown. Only the first occurrence of
+        a <span class="d_inlinecode">Logger</span> with the given name will be removed.</td></tr>
+</table><p></p>
+<b>Returns:</b><br>The removed <span class="d_inlinecode">Logger</span>.
+
+<p></p>
+<b>See Also:</b><br>std.logger.ArrayLogger.insertLogger<p></p>
+
 </dd>
 </dl>
 </dd>

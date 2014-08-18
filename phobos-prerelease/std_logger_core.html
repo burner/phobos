@@ -326,7 +326,8 @@ explicit <span class="d_inlinecode">LogLevel</span> and conditional logging func
 To customize the <span class="d_inlinecode">Logger</span> behavior, create a new <span class="d_inlinecode">class</span> that inherits from
 the abstract <span class="d_inlinecode">Logger</span> <span class="d_inlinecode">class</span>, and implements the <span class="d_inlinecode">writeLogMsg</span>
 method.
-<pre class="d_code"><span class="d_keyword">class</span> MyCustomLogger : Logger {
+<pre class="d_code"><span class="d_keyword">class</span> MyCustomLogger : Logger
+{
     <span class="d_keyword">this</span>(string newName, LogLevel lv) @safe
     {
         <span class="d_keyword">super</span>(newName, lv);
@@ -344,7 +345,7 @@ logger.log(<span class="d_string">"Awesome log message"</span>);
 <p></p>
 
 To gain more precise control over the logging process, additionally to
-overwriting the <span class="d_inlinecode">writeLogMsg</span> method the methods <span class="d_inlinecode">logHeader</span>,
+overwriting the <span class="d_inlinecode">writeLogMsg</span> method the methods <span class="d_inlinecode">beginLogMsg</span>,
 <span class="d_inlinecode">logMsgPart</span> and <span class="d_inlinecode">finishLogMsg</span> can be overwritten.
 <p></p>
 
@@ -385,6 +386,7 @@ will never log a message and will never throw on a log call with <span class="d_
 <span class="d_inlinecode">error</span>.<p></p>
 
 <dl><dt class="d_decl"><a name=".isLoggingActive"></a>pure nothrow @safe bool <a name="isLoggingActive"></a><span class="ddoc_psymbol">isLoggingActive</span>(LogLevel ll)();
+<br><a name=".isLoggingActive"></a>pure nothrow @safe bool <a name="isLoggingActive"></a><span class="ddoc_psymbol">isLoggingActive</span>()();
 </dt>
 <dd>This compile time only function evaluates if the passed <span class="d_inlinecode">LogLevel</span> is
 active. The previously described version statements are used to decide if the
@@ -392,10 +394,6 @@ active. The previously described version statements are used to decide if the
 unit they are used with, therefore this function can only disable logging this
 specific compile unit.<p></p>
 
-</dd>
-<dt class="d_decl"><a name=".isLoggingActive"></a>pure nothrow @safe bool <a name="isLoggingActive"></a><span class="ddoc_psymbol">isLoggingActive</span>()();
-</dt>
-<dd><p></p>
 </dd>
 <dt class="d_decl"><a name=".isLoggingEnabled"></a>pure nothrow @safe bool <a name="isLoggingEnabled"></a><span class="ddoc_psymbol">isLoggingEnabled</span>()(LogLevel <i>ll</i>);
 </dt>
@@ -563,7 +561,16 @@ be greater or equal to the <span class="d_inlinecode">defaultLogLevel</span>.
 
 </dd>
 <dt class="d_decl"><a name=".defaultLogFunction"></a>template <a name="defaultLogFunction"></a><span class="ddoc_psymbol">defaultLogFunction</span>(LogLevel ll)</dt>
-<dd><p></p>
+<dd>This template provides the global log functions with the <span class="d_inlinecode">LogLevel</span>
+is encoded in the function name.
+<p></p>
+For further information see the the two functions defined inside of this
+template.
+<p></p>
+
+The aliases following this template create the public names of these log
+functions.<p></p>
+
 <dl><dt class="d_decl"><a name=".defaultLogFunction"></a>@trusted void <a name="defaultLogFunction"></a><span class="ddoc_psymbol">defaultLogFunction</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A <i>args</i>) if (<i>args</i>.length &gt; 0 &amp;&amp; !is(Unqual!(A[0]) : bool));
 </dt>
 <dd>This function logs data to the <span class="d_inlinecode">stdlog</span>.
@@ -618,7 +625,16 @@ fatal(<span class="d_keyword">true</span>, 1337, <span class="d_string">"is numb
 <br><a name=".criticalf"></a>alias <a name="criticalf"></a><span class="ddoc_psymbol">criticalf</span> = defaultLogFunctionf!cast(LogLevel)cast(ubyte)160u.defaultLogFunctionf(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy string msg, lazy A args);
 <br><a name=".fatalf"></a>alias <a name="fatalf"></a><span class="ddoc_psymbol">fatalf</span> = defaultLogFunctionf!cast(LogLevel)cast(ubyte)192u.defaultLogFunctionf(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy string msg, lazy A args);
 </dt>
-<dd><p></p>
+<dd>This template provides the global <span class="d_inlinecode">printf</span>-style log functions with
+the <span class="d_inlinecode">LogLevel</span> is encoded in the function name.
+<p></p>
+For further information see the the two functions defined inside of this
+template.
+<p></p>
+
+The aliases following this template create the public names of the log
+functions.<p></p>
+
 <dl><dt class="d_decl"><a name=".defaultLogFunctionf"></a>@trusted void <a name="defaultLogFunctionf"></a><span class="ddoc_psymbol">defaultLogFunctionf</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy string <i>msg</i>, lazy A <i>args</i>);
 </dt>
 <dd>This function logs data to the <span class="d_inlinecode">stdlog</span> in a <span class="d_inlinecode">printf</span>-style
@@ -722,7 +738,7 @@ that logger is called.<p></p>
 <dd>This class is the base of every logger. In order to create a new kind of
 logger a deriving class needs to implement the <span class="d_inlinecode">writeLogMsg</span> method.
 <p></p>
-In is also possible to <span class="d_inlinecode">override</span> the three methods <span class="d_inlinecode">logHeader</span>,
+In is also possible to <span class="d_inlinecode">override</span> the three methods <span class="d_inlinecode">beginLogMsg</span>,
 <span class="d_inlinecode">logMsgPart</span> and <span class="d_inlinecode">finishLogMsg</span> together, this option gives more
 flexibility.<p></p>
 
@@ -817,15 +833,17 @@ Every subclass of <span class="d_inlinecode">Logger</span> has to call this cons
 <dd>The <span class="d_inlinecode">LogLevel</span> determines if the log call are processed or dropped
     by the <span class="d_inlinecode">Logger</span>. In order for the log call to be processed the
     <span class="d_inlinecode">LogLevel</span> of the log call must be greater or equal to the <span class="d_inlinecode">LogLevel</span>
-    of the <span class="d_inlinecode">logger</span>.<p></p>
-
-</dd>
-<dt class="d_decl"><a name=".Logger.setFatalHandler"></a>final @safe void <a name="setFatalHandler"></a><span class="ddoc_psymbol">setFatalHandler</span>(void delegate() <i>dg</i>);
-</dt>
-<dd>This methods sets the <span class="d_inlinecode">delegate</span> called in case of a log message
-    with <span class="d_inlinecode">LogLevel.fatal</span> gets logged.
+    of the <span class="d_inlinecode">logger</span>.
 <p></p>
-By default an <span class="d_inlinecode">Error</span> will be thrown.<p></p>
+These two methods set and get the <span class="d_inlinecode">LogLevel</span> of the used <span class="d_inlinecode">Logger</span>.
+
+<p></p>
+<b>Example:</b><br>
+<pre class="d_code"><span class="d_keyword">auto</span> f = <span class="d_keyword">new</span> FileLogger(stdout);
+f.<span class="d_psymbol">logLevel</span> = LogLevel.info;
+<span class="d_keyword">assert</span>(f.<span class="d_psymbol">logLevel</span> == LogLevel.info);
+</pre>
+<p></p>
 
 </dd>
 <dt class="d_decl"><a name=".Logger.memLogFunctions"></a>template <a name="memLogFunctions"></a><span class="ddoc_psymbol">memLogFunctions</span>(LogLevel ll)<br><a name=".Logger.trace"></a>alias <a name="trace"></a><span class="ddoc_psymbol">trace</span> = .Logger.memLogFunctions!cast(LogLevel)cast(ubyte)32u.logImpl(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A args) if (args.length == 0 || args.length &gt; 0 &amp;&amp; !is(A[0] : bool));
@@ -841,7 +859,16 @@ By default an <span class="d_inlinecode">Error</span> will be thrown.<p></p>
 <br><a name=".Logger.fatal"></a>alias <a name="fatal"></a><span class="ddoc_psymbol">fatal</span> = .Logger.memLogFunctions!cast(LogLevel)cast(ubyte)192u.logImpl(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A args) if (args.length == 0 || args.length &gt; 0 &amp;&amp; !is(A[0] : bool));
 <br><a name=".Logger.fatalf"></a>alias <a name="fatalf"></a><span class="ddoc_psymbol">fatalf</span> = .Logger.memLogFunctions!cast(LogLevel)cast(ubyte)192u.logImplf(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy bool condition, lazy string msg, lazy A args);
 </dt>
-<dd><p></p>
+<dd>This template provides the log functions for the <span class="d_inlinecode">Logger</span> <span class="d_inlinecode">class</span>
+    with the <span class="d_inlinecode">LogLevel</span> encoded in the function name.
+<p></p>
+For further information see the the two functions defined inside of this
+    template.
+<p></p>
+
+    The aliases following this template create the public names of these log
+    functions.<p></p>
+
 <dl><dt class="d_decl"><a name=".Logger.memLogFunctions.logImpl"></a>@trusted void <a name="logImpl"></a><span class="ddoc_psymbol">logImpl</span>(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A <i>args</i>) if (<i>args</i>.length == 0 || <i>args</i>.length &gt; 0 &amp;&amp; !is(A[0] : bool));
 </dt>
 <dd>This function logs data to the used <span class="d_inlinecode">Logger</span>.
@@ -1151,6 +1178,14 @@ s.<span class="d_psymbol">logf</span>(<span class="d_string">"%d %s"</span>, 133
 s.<span class="d_psymbol">logf</span>(<span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
 </pre>
 <p></p>
+
+</dd>
+<dt class="d_decl"><a name=".Logger.fatalHandler"></a>void delegate() <a name="fatalHandler"></a><span class="ddoc_psymbol">fatalHandler</span>;
+</dt>
+<dd>This member stores the <span class="d_inlinecode">delegate</span> that is called in case of a log
+    message with <span class="d_inlinecode">LogLevel.fatal</span> gets logged.
+<p></p>
+By default an <span class="d_inlinecode">Error</span> will be thrown.<p></p>
 
 </dd>
 </dl>

@@ -234,7 +234,7 @@ In case of a log message with <span class="d_inlinecode">LogLevel.fatal</span> n
 <b>Examples:</b><br><pre class="d_code">
 <span class="d_keyword">auto</span> nl1 = <span class="d_keyword">new</span> <span class="d_psymbol">NullLogger</span>(LogLevel.all);
 nl1.info(<span class="d_string">"You will never read this."</span>);
-nl1.fatal(<span class="d_string">"You will never read this, either."</span>);
+nl1.fatal(<span class="d_string">"You will never read this, either and it will not throw"</span>);
 </pre>
 <p></p>
 <dl><dt class="d_decl"><a name=".NullLogger.this"></a>@safe this(const LogLevel <i>lv</i> = LogLevel.info);
