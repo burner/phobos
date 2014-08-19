@@ -237,7 +237,8 @@ is already present new log messages will be append at its end.<p></p>
 <dd>A constructor for the <span class="d_inlinecode">FileLogger</span> Logger.
 <p></p>
 <b>Parameters:</b><table class=parms><tr><td valign=top>string <i>fn</i></td>
-<td valign=top>The filename of the output file of the <span class="d_inlinecode">FileLogger</span>.</td></tr>
+<td valign=top>The filename of the output file of the <span class="d_inlinecode">FileLogger</span>. If that
+      file can not be opened for writting an exception will be thrown.</td></tr>
 <tr><td valign=top>LogLevel <i>lv</i></td>
 <td valign=top>The <span class="d_inlinecode">LogLevel</span> for the <span class="d_inlinecode">FileLogger</span>. By default the
       <span class="d_inlinecode">LogLevel</span> for <span class="d_inlinecode">FileLogger</span> is <span class="d_inlinecode">LogLevel.info</span>.</td></tr>
@@ -249,7 +250,7 @@ is already present new log messages will be append at its end.<p></p>
 <p></p>
 
 </dd>
-<dt class="d_decl"><a name=".FileLogger.this"></a>this(ref File <i>file</i>, const LogLevel <i>lv</i> = LogLevel.info);
+<dt class="d_decl"><a name=".FileLogger.this"></a>this(File* <i>file</i>, const LogLevel <i>lv</i> = LogLevel.info);
 </dt>
 <dd>A constructor for the <span class="d_inlinecode">FileLogger</span> Logger that takes a reference to
     a <span class="d_inlinecode">File</span>.
@@ -259,7 +260,7 @@ The <span class="d_inlinecode">File</span> passed must be open for all the log c
     <span class="d_inlinecode">FileLogger</span> for logging will result in undefined behaviour.
 
 <p></p>
-<b>Parameters:</b><table class=parms><tr><td valign=top>File <i>file</i></td>
+<b>Parameters:</b><table class=parms><tr><td valign=top>File* <i>file</i></td>
 <td valign=top>The <i>file</i> used for logging.</td></tr>
 <tr><td valign=top>LogLevel <i>lv</i></td>
 <td valign=top>The <span class="d_inlinecode">LogLevel</span> for the <span class="d_inlinecode">FileLogger</span>. By default the
@@ -267,8 +268,8 @@ The <span class="d_inlinecode">File</span> passed must be open for all the log c
 </table><p></p>
 <b>Example:</b><br>
 <pre class="d_code"><span class="d_keyword">auto</span> <span class="d_param">file</span> = File(<span class="d_string">"logFile.log"</span>, <span class="d_string">"w"</span>);
-<span class="d_keyword">auto</span> l1 = <span class="d_keyword">new</span> FileLogger(<span class="d_param">file</span>, <span class="d_string">"LoggerName"</span>);
-<span class="d_keyword">auto</span> l2 = <span class="d_keyword">new</span> FileLogger(<span class="d_param">file</span>, <span class="d_string">"LoggerName"</span>, LogLevel.fatal);
+<span class="d_keyword">auto</span> l1 = <span class="d_keyword">new</span> FileLogger(&amp;<span class="d_param">file</span>, <span class="d_string">"LoggerName"</span>);
+<span class="d_keyword">auto</span> l2 = <span class="d_keyword">new</span> FileLogger(&amp;<span class="d_param">file</span>, <span class="d_string">"LoggerName"</span>, LogLevel.fatal);
 </pre>
 <p></p>
 
@@ -279,7 +280,7 @@ The <span class="d_inlinecode">File</span> passed must be open for all the log c
     to.<p></p>
 
 </dd>
-<dt class="d_decl"><a name=".FileLogger.file"></a>@property ref File <a name="file"></a><span class="ddoc_psymbol">file</span>();
+<dt class="d_decl"><a name=".FileLogger.file"></a>@property File <a name="file"></a><span class="ddoc_psymbol">file</span>();
 </dt>
 <dd>If the <span class="d_inlinecode">FileLogger</span> is managing the <span class="d_inlinecode">File</span> it logs to, this
     method will return a reference to this File. Otherwise a default

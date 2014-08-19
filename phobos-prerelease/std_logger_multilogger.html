@@ -250,9 +250,9 @@ root -&gt; node -&gt; b
 <span class="d_keyword">auto</span> root = <span class="d_keyword">new</span> <span class="d_psymbol">MultiLogger</span>(LogLevel.trace);
 <span class="d_keyword">auto</span> node = <span class="d_keyword">new</span> <span class="d_psymbol">MultiLogger</span>(LogLevel.warning);
 
-<span class="d_keyword">auto</span> a = <span class="d_keyword">new</span> FileLogger(stdout, LogLevel.trace);
-<span class="d_keyword">auto</span> b = <span class="d_keyword">new</span> FileLogger(stdout, LogLevel.info);
-<span class="d_keyword">auto</span> c = <span class="d_keyword">new</span> FileLogger(stdout, LogLevel.info);
+<span class="d_keyword">auto</span> a = <span class="d_keyword">new</span> FileLogger(&amp;stdout, LogLevel.trace);
+<span class="d_keyword">auto</span> b = <span class="d_keyword">new</span> FileLogger(&amp;stdout, LogLevel.info);
+<span class="d_keyword">auto</span> c = <span class="d_keyword">new</span> FileLogger(&amp;stdout, LogLevel.info);
 
 root.insert(<span class="d_string">"Node"</span>, node);
 root.insert(<span class="d_string">"a"</span>, a);
@@ -288,7 +288,7 @@ node.insert(<span class="d_string">"c"</span>, c);
 </table><p></p>
 <b>Examples:</b><br><pre class="d_code">
 <span class="d_keyword">auto</span> l1 = <span class="d_keyword">new</span> MultiLogger;
-<span class="d_keyword">auto</span> l2 = <span class="d_keyword">new</span> FileLogger(stdout);
+<span class="d_keyword">auto</span> l2 = <span class="d_keyword">new</span> FileLogger(&amp;stdout);
 
 l1.<span class="d_psymbol">insertLogger</span>(<span class="d_string">"someName"</span>, l2);
 
@@ -315,7 +315,7 @@ l1.<span class="d_psymbol">insertLogger</span>(<span class="d_string">"someName"
 <dd>This method returns a <span class="d_inlinecode">Logger</span> if it is present in the <span class="d_inlinecode">    MultiLogger</span>, otherwise a <span class="d_inlinecode">RangeError</span> will be thrown.<p></p>
 <b>Examples:</b><br><pre class="d_code">
 <span class="d_keyword">auto</span> ml = <span class="d_keyword">new</span> MultiLogger;
-<span class="d_keyword">auto</span> sl = <span class="d_keyword">new</span> FileLogger(stdout);
+<span class="d_keyword">auto</span> sl = <span class="d_keyword">new</span> FileLogger(&amp;stdout);
 
 ml.insertLogger(<span class="d_string">"some_name"</span>, sl);
 

@@ -292,7 +292,7 @@ log call, is by calling either <span class="d_inlinecode">trace</span>, <span cl
 <span class="d_inlinecode">LogLevel</span>. If no <span class="d_inlinecode">LogLevel</span> is defined the log call will use the
 current <span class="d_inlinecode">LogLevel</span> of the used <span class="d_inlinecode">Logger</span>. If data is logged with
 <span class="d_inlinecode">LogLevel</span> <span class="d_inlinecode">fatal</span> by default an <span class="d_inlinecode">Error</span> will be thrown.
-This behaviour can be modified by using the method <span class="d_inlinecode">setFatalHandler</span> to
+This behaviour can be modified by using the member <span class="d_inlinecode">fatalHandler</span> to
 assign a custom delegate to handle log call with <span class="d_inlinecode">LogLevel</span> <span class="d_inlinecode">fatal</span>.
 <p></p>
 
@@ -560,7 +560,13 @@ be greater or equal to the <span class="d_inlinecode">defaultLogLevel</span>.
 <p></p>
 
 </dd>
-<dt class="d_decl"><a name=".defaultLogFunction"></a>template <a name="defaultLogFunction"></a><span class="ddoc_psymbol">defaultLogFunction</span>(LogLevel ll)</dt>
+<dt class="d_decl"><a name=".defaultLogFunction"></a>template <a name="defaultLogFunction"></a><span class="ddoc_psymbol">defaultLogFunction</span>(LogLevel ll)<br><a name=".trace"></a>alias <a name="trace"></a><span class="ddoc_psymbol">trace</span> = defaultLogFunction!cast(LogLevel)cast(ubyte)32u.defaultLogFunction(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A args) if (args.length &gt; 0 &amp;&amp; !is(Unqual!(A[0]) : bool));
+<br><a name=".info"></a>alias <a name="info"></a><span class="ddoc_psymbol">info</span> = defaultLogFunction!cast(LogLevel)cast(ubyte)64u.defaultLogFunction(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A args) if (args.length &gt; 0 &amp;&amp; !is(Unqual!(A[0]) : bool));
+<br><a name=".warning"></a>alias <a name="warning"></a><span class="ddoc_psymbol">warning</span> = defaultLogFunction!cast(LogLevel)cast(ubyte)96u.defaultLogFunction(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A args) if (args.length &gt; 0 &amp;&amp; !is(Unqual!(A[0]) : bool));
+<br><a name=".error"></a>alias <a name="error"></a><span class="ddoc_psymbol">error</span> = defaultLogFunction!cast(LogLevel)cast(ubyte)128u.defaultLogFunction(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A args) if (args.length &gt; 0 &amp;&amp; !is(Unqual!(A[0]) : bool));
+<br><a name=".critical"></a>alias <a name="critical"></a><span class="ddoc_psymbol">critical</span> = defaultLogFunction!cast(LogLevel)cast(ubyte)160u.defaultLogFunction(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A args) if (args.length &gt; 0 &amp;&amp; !is(Unqual!(A[0]) : bool));
+<br><a name=".fatal"></a>alias <a name="fatal"></a><span class="ddoc_psymbol">fatal</span> = defaultLogFunction!cast(LogLevel)cast(ubyte)192u.defaultLogFunction(int line = __LINE__, string file = __FILE__, string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__, A...)(lazy A args) if (args.length &gt; 0 &amp;&amp; !is(Unqual!(A[0]) : bool));
+</dt>
 <dd>This template provides the global log functions with the <span class="d_inlinecode">LogLevel</span>
 is encoded in the function name.
 <p></p>
@@ -814,11 +820,13 @@ Every subclass of <span class="d_inlinecode">Logger</span> has to call this cons
 </dd>
 <dt class="d_decl"><a name=".Logger.writeLogMsg"></a>void <a name="writeLogMsg"></a><span class="ddoc_psymbol">writeLogMsg</span>(ref LogEntry <i>payload</i>);
 </dt>
-<dd>A custom logger needs to implement this method.
+<dd>A custom logger must implement this method in order to work in a
+    <span class="d_inlinecode">MultiLogger</span> and <span class="d_inlinecode">ArrayLogger</span>.
 <p></p>
 <b>Parameters:</b><table class=parms><tr><td valign=top>LogEntry <i>payload</i></td>
 <td valign=top>All information associated with call to log function.</td></tr>
 </table><p></p>
+<b>See Also:</b><br>beginLogMsg, logMsgPart, finishLogMsg<p></p>
 
 </dd>
 <dt class="d_decl"><a name=".Logger.logMsgPart"></a>protected void <a name="logMsgPart"></a><span class="ddoc_psymbol">logMsgPart</span>(const(char)[] <i>msg</i>);
@@ -844,7 +852,7 @@ These two methods set and get the <span class="d_inlinecode">LogLevel</span> of 
 
 <p></p>
 <b>Example:</b><br>
-<pre class="d_code"><span class="d_keyword">auto</span> f = <span class="d_keyword">new</span> FileLogger(stdout);
+<pre class="d_code"><span class="d_keyword">auto</span> f = <span class="d_keyword">new</span> FileLogger(&amp;stdout);
 f.<span class="d_psymbol">logLevel</span> = LogLevel.info;
 <span class="d_keyword">assert</span>(f.<span class="d_psymbol">logLevel</span> == LogLevel.info);
 </pre>
@@ -886,7 +894,7 @@ In order for the resulting log message to be logged the <span class="d_inlinecod
 <b>Parameters:</b><table class=parms><tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(stdout);
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(&amp;stdout);
 s.trace(1337, <span class="d_string">"is number"</span>);
 s.info(1337, <span class="d_string">"is number"</span>);
 s.error(1337, <span class="d_string">"is number"</span>);
@@ -912,7 +920,7 @@ In order for the resulting log message to be logged the <span class="d_inlinecod
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(stdout);
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(&amp;stdout);
 s.trace(<span class="d_keyword">true</span>, 1337, <span class="d_string">"is number"</span>);
 s.info(<span class="d_keyword">false</span>, 1337, <span class="d_string">"is number"</span>);
 s.error(<span class="d_keyword">true</span>, 1337, <span class="d_string">"is number"</span>);
@@ -940,7 +948,7 @@ In order for the resulting log message to be logged the <span class="d_inlinecod
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(stderr);
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(&amp;stderr);
 s.trace(<span class="d_string">"is number %d"</span>, 1);
 s.info(<span class="d_string">"is number %d"</span>, 2);
 s.error(<span class="d_string">"is number %d"</span>, 3);
@@ -965,7 +973,7 @@ In order for the resulting log message to be logged the <span class="d_inlinecod
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(stderr);
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(&amp;stderr);
 s.trace(<span class="d_string">"is number %d"</span>, 1);
 s.info(<span class="d_string">"is number %d"</span>, 2);
 s.error(<span class="d_string">"is number %d"</span>, 3);
@@ -1017,7 +1025,7 @@ In order for the resulting <a name="log"></a><span class="ddoc_psymbol">log</spa
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(stdout);
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(&amp;stdout);
 s.<span class="d_psymbol">log</span>(LogLevel.trace, 1337, <span class="d_string">"is number"</span>);
 s.<span class="d_psymbol">log</span>(LogLevel.info, 1337, <span class="d_string">"is number"</span>);
 s.<span class="d_psymbol">log</span>(LogLevel.warning, 1337, <span class="d_string">"is number"</span>);
@@ -1043,7 +1051,7 @@ In order for the resulting <a name="log"></a><span class="ddoc_psymbol">log</spa
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(stdout);
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(&amp;stdout);
 s.<span class="d_psymbol">log</span>(<span class="d_keyword">true</span>, 1337, <span class="d_string">"is number"</span>);
 s.<span class="d_psymbol">log</span>(<span class="d_keyword">true</span>, 1337, <span class="d_string">"is number"</span>);
 s.<span class="d_psymbol">log</span>(<span class="d_keyword">true</span>, 1337, <span class="d_string">"is number"</span>);
@@ -1066,7 +1074,7 @@ In order for the resulting <a name="log"></a><span class="ddoc_psymbol">log</spa
 <b>Parameters:</b><table class=parms><tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(stdout);
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(&amp;stdout);
 s.<span class="d_psymbol">log</span>(1337, <span class="d_string">"is number"</span>);
 s.<span class="d_psymbol">log</span>(info, 1337, <span class="d_string">"is number"</span>);
 s.<span class="d_psymbol">log</span>(1337, <span class="d_string">"is number"</span>);
@@ -1096,7 +1104,7 @@ In order for the resulting log message to be logged the <span class="d_inlinecod
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(stdout);
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(&amp;stdout);
 s.<span class="d_psymbol">logf</span>(LogLevel.trace, <span class="d_keyword">true</span> ,<span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
 s.<span class="d_psymbol">logf</span>(LogLevel.info, <span class="d_keyword">true</span> ,<span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
 s.<span class="d_psymbol">logf</span>(LogLevel.warning, <span class="d_keyword">true</span> ,<span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
@@ -1123,7 +1131,7 @@ In order for the resulting log message to be logged the <span class="d_inlinecod
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(stdout);
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(&amp;stdout);
 s.<span class="d_psymbol">logf</span>(LogLevel.trace, <span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
 s.<span class="d_psymbol">logf</span>(LogLevel.info, <span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
 s.<span class="d_psymbol">logf</span>(LogLevel.warning, <span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
@@ -1151,7 +1159,7 @@ In order for the resulting log message to be logged the <span class="d_inlinecod
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(stdout);
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(&amp;stdout);
 s.<span class="d_psymbol">logf</span>(<span class="d_keyword">true</span> ,<span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
 s.<span class="d_psymbol">logf</span>(<span class="d_keyword">true</span> ,<span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
 s.<span class="d_psymbol">logf</span>(<span class="d_keyword">true</span> ,<span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
@@ -1175,7 +1183,7 @@ In order for the data to be processed the <span class="d_inlinecode">LogLevel</s
 <tr><td valign=top>A args</td>
 <td valign=top>The data that should be logged.</td></tr>
 </table><p></p>
-<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(stdout);
+<b>Examples:</b><br><pre class="d_code"><span class="d_keyword">auto</span> s = <span class="d_keyword">new</span> FileLogger(&amp;stdout);
 s.<span class="d_psymbol">logf</span>(<span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
 s.<span class="d_psymbol">logf</span>(<span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
 s.<span class="d_psymbol">logf</span>(<span class="d_string">"%d %s"</span>, 1337, <span class="d_string">"is number"</span>);
