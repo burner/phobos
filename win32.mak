@@ -135,8 +135,7 @@ SRC_STD_CONTAINER= std\container\array.d std\container\binaryheap.d \
     std\container\util.d std\container\package.d
 
 SRC_STD_LOGGER= std\experimental\logger\core.d std\experimental\logger\filelogger.d \
-	std\experimental\logger\multilogger.d std\experimental\logger\nulllogger.d \
-	std\experimental\logger\package.d
+	std\experimental\logger\multilogger.d std\experimental\logger\nulllogger.d
     
 SRC_STD_4= std\uuid.d $(SRC_STD_DIGEST)
 
@@ -755,9 +754,6 @@ $(DOC)\std_experimental_logger_filelogger.html : $(STDDOC) std\experimental\logg
 
 $(DOC)\std_experimental_logger_nulllogger.html : $(STDDOC) std\experimental\logger\nulllogger.d
 	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_experimental_logger_nulllogger.html $(STDDOC) std\experimental\logger\nulllogger.d
-
-$(DOC)\std_experimental_logger_package.html : $(STDDOC) std\experimental\logger\package.d
-	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_experimental_logger_package.html $(STDDOC) std\experimental\logger\package.d
 
 $(DOC)\std_digest_crc.html : $(STDDOC) std\digest\crc.d
 	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_digest_crc.html $(STDDOC) std\digest\crc.d
