@@ -186,8 +186,8 @@ STD_MODULES = $(addprefix std/, algorithm array ascii base64 bigint \
 
 STD_NET_MODULES = $(addprefix std/net/, isemail curl)
 
-STD_LOGGER_MODULES = $(addprefix std/logger/, package core filelogger \
-        nulllogger multilogger)
+STD_LOGGER_MODULES = $(addprefix std/experimental/logger/, package core \
+        filelogger nulllogger multilogger)
 
 STD_REGEX_MODULES = $(addprefix std/regex/, package $(addprefix internal/, \
 	generator ir parser backtracking kickstart tests thompson))
@@ -421,7 +421,7 @@ $(DOC_OUTPUT_DIR)/std_container_%.html : std/container/%.d $(STDDOC)
 $(DOC_OUTPUT_DIR)/std_net_%.html : std/net/%.d $(STDDOC)
 	$(DDOC) project.ddoc $(STDDOC) -Df$@ $<
 
-$(DOC_OUTPUT_DIR)/std_logger_%.html : std/logger/%.d $(STDDOC)
+$(DOC_OUTPUT_DIR)/std_experimental_logger_%.html : std/experimental/logger/%.d $(STDDOC)
 	$(DDOC) project.ddoc $(STDDOC) -Df$@ $<
 
 $(DOC_OUTPUT_DIR)/std_digest_%.html : std/digest/%.d $(STDDOC)

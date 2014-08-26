@@ -131,9 +131,13 @@ SRC_STD_DIGEST= std\digest\crc.d std\digest\sha.d std\digest\md.d \
 	std\digest\ripemd.d std\digest\digest.d
 	
 SRC_STD_CONTAINER= std\container\array.d std\container\binaryheap.d \
-	std\container\dlist.d std\container\rbtree.d std\container\slist.d \
-	std\container\util.d std\container\package.d
-	
+    std\container\dlist.d std\container\rbtree.d std\container\slist.d \
+    std\container\util.d std\container\package.d
+
+SRC_STD_LOGGER= std\experimental\logger\core.d std\experimental\logger\filelogger.d \
+	std\experimental\logger\mulitlogger.d std\experimental\logger\nulllogger.d \
+	std\experimental\logger\package.d
+    
 SRC_STD_4= std\uuid.d $(SRC_STD_DIGEST)
 
 SRC_STD_5_HEAVY= std\algorithm.d
