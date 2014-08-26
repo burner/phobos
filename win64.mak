@@ -201,7 +201,7 @@ SRC_STD_REGEX= std\regex\internal\ir.d std\regex\package.d std\regex\internal\pa
 SRC_STD_NET= std\net\isemail.d std\net\curl.d
 
 SRC_STD_LOGGER= std\experimental\logger\core.d std\experimental\logger\filelogger.d \
-	std\experimental\logger\mulitlogger.d std\experimental\logger\nulllogger.d \
+	std\experimental\logger\multilogger.d std\experimental\logger\nulllogger.d \
 	std\experimental\logger\package.d
 
 SRC_STD_C= std\c\process.d std\c\stdlib.d std\c\time.d std\c\stdio.d \

@@ -135,7 +135,7 @@ SRC_STD_CONTAINER= std\container\array.d std\container\binaryheap.d \
     std\container\util.d std\container\package.d
 
 SRC_STD_LOGGER= std\experimental\logger\core.d std\experimental\logger\filelogger.d \
-	std\experimental\logger\mulitlogger.d std\experimental\logger\nulllogger.d \
+	std\experimental\logger\multilogger.d std\experimental\logger\nulllogger.d \
 	std\experimental\logger\package.d
     
 SRC_STD_4= std\uuid.d $(SRC_STD_DIGEST)
