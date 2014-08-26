@@ -201,8 +201,7 @@ SRC_STD_REGEX= std\regex\internal\ir.d std\regex\package.d std\regex\internal\pa
 SRC_STD_NET= std\net\isemail.d std\net\curl.d
 
 SRC_STD_LOGGER= std\experimental\logger\core.d std\experimental\logger\filelogger.d \
-	std\experimental\logger\multilogger.d std\experimental\logger\nulllogger.d \
-	std\experimental\logger\package.d
+	std\experimental\logger\multilogger.d std\experimental\logger\nulllogger.d
 
 SRC_STD_C= std\c\process.d std\c\stdlib.d std\c\time.d std\c\stdio.d \
 	std\c\math.d std\c\stdarg.d std\c\stddef.d std\c\fenv.d std\c\string.d \
@@ -381,7 +380,6 @@ DOCS=	$(DOC)\object.html \
 	$(DOC)\std_experimental_logger_multilogger.html \
 	$(DOC)\std_experimental_logger_nulllogger.html \
 	$(DOC)\std_experimental_logger_core.html \
-	$(DOC)\std_experimental_logger_package.html \
 	$(DOC)\std_windows_charset.html \
 	$(DOC)\std_windows_registry.html \
 	$(DOC)\std_c_fenv.html \
@@ -727,9 +725,6 @@ $(DOC)\std_experimental_logger_filelogger.html : $(STDDOC) std\experimental\logg
 
 $(DOC)\std_experimental_logger_nulllogger.html : $(STDDOC) std\experimental\logger\nulllogger.d
 	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_experimental_logger_nulllogger.html $(STDDOC) std\experimental\logger\nulllogger.d
-
-$(DOC)\std_experimental_logger_package.html : $(STDDOC) std\experimental\logger\package.d
-	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_experimental_logger_package.html $(STDDOC) std\experimental\logger\package.d
 
 $(DOC)\std_digest_crc.html : $(STDDOC) std\digest\crc.d
 	$(DMD) -c -o- $(DDOCFLAGS) -Df$(DOC)\std_digest_crc.html $(STDDOC) std\digest\crc.d
