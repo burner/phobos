@@ -36,8 +36,8 @@ abstract class MultiLoggerBase : Logger
     */
     Array!MultiLoggerEntry logger;
 
-    void insertLogger(string name, Logger logger);
-    Logger removeLogger(string loggerName);
+    abstract void insertLogger(string name, Logger logger);
+    abstract Logger removeLogger(string loggerName);
 
     /* The override to pass the payload to all children of the
     $(D MultiLoggerBase).
