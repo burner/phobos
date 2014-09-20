@@ -200,12 +200,12 @@ template isLoggingActiveAt(LogLevel ll)
         {
             version (StdLoggerDisableFatal) enum isLoggingActiveAt = false;
         }
-    }
-    // If `isLoggingActiveAt` didn't get defined above to false,
-    // we default it to true.
-    static if (!is(isLoggingActiveAt))
-    {
-        enum isLoggingActiveAt = true;
+        // If `isLoggingActiveAt` didn't get defined above to false,
+        // we default it to true.
+        static if (!is(isLoggingActiveAt))
+        {
+            enum isLoggingActiveAt = true;
+        }
     }
 }
 
