@@ -1740,6 +1740,7 @@ abstract class Logger
 
 private __gshared Mutex __stdloggermutex;
 private __gshared Logger __logger;
+private __gshared Logger __defaultLogger;
 private shared LogLevel __globalLogLevel = LogLevel.all;
 
 
@@ -1755,13 +1756,15 @@ on entry and exit.
 */
 package @property Logger stdlogImpl() @trusted
 {
-    static __gshared bool once;
     static __gshared ubyte[__traits(classInstanceSize, FileLogger)] buffer;
 
-    if (!once)
+    if (__defaultLogger is null)
     {
-        once = true;
-        __logger = emplace!FileLogger(buffer, stderr, LogLevel.all);
+        __defaultLogger = emplace!FileLogger(buffer, stderr, LogLevel.all);
+    }
+    if (__logger is null)
+    {
+        __logger = __defaultLogger;
     }
     return __logger;
 }
@@ -1777,13 +1780,19 @@ stdlog = new FileLogger(yourFile);
 The example sets a new $(D StdioLogger) as new $(D stdlog).
 */
 @property void stdlog(Logger logger) @trusted
-in { assert(logger !is null, "The stdlog must not be set to null"); }
 body
 {
     // We don't want to swap out the stdlog while another thread works with it.
     synchronized (__stdloggermutex)
     {
-        __logger = logger;
+        if (logger is null)
+        {
+            __logger = __defaultLogger;
+        }
+        else
+        {
+            __logger = logger;
+        }
     }
 }
 
@@ -1791,7 +1800,12 @@ body
 
 Every log message with a $(D LogLevel) lower as the global $(D LogLevel)
 will be discarded before it reaches $(D writeLogMessage) method of any
-$(D Logger)
+$(D Logger).
+*/
+/* Implementation note:
+For any public logging call, the global log level shall only be queried once on
+entry. Otherwise when another threads changes the level, we wouls work with
+different levels at different spots in the code.
 */
 @property LogLevel globalLogLevel() @trusted @nogc
 {
