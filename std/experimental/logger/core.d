@@ -2076,14 +2076,14 @@ unittest
     }
 
     int value = 0;
-    foreach(gll; [LogLevel.all, LogLevel.trace,
+    foreach(gll; [cast(LogLevel) LogLevel.all, LogLevel.trace,
             LogLevel.info, LogLevel.warning, LogLevel.error,
             LogLevel.critical, LogLevel.fatal, LogLevel.off])
     {
 
         globalLogLevel = gll;
 
-        foreach(ll; [LogLevel.all, LogLevel.trace,
+        foreach(ll; [cast(LogLevel) LogLevel.all, LogLevel.trace,
                 LogLevel.info, LogLevel.warning, LogLevel.error,
                 LogLevel.critical, LogLevel.fatal, LogLevel.off])
         {
@@ -2098,7 +2098,7 @@ unittest
                     {
                         foreach(prntf; [true, false])
                         {
-                            foreach(ll2; [LogLevel.all, LogLevel.trace,
+                            foreach(ll2; [cast(LogLevel) LogLevel.all, LogLevel.trace,
                                     LogLevel.info, LogLevel.warning,
                                     LogLevel.error, LogLevel.critical,
                                     LogLevel.fatal, LogLevel.off])
@@ -2233,14 +2233,14 @@ unittest
         globalLogLevel = LogLevel.all;
     }
 
-    foreach(gll; [LogLevel.all, LogLevel.trace,
+    foreach(gll; [cast(LogLevel) LogLevel.all, LogLevel.trace,
             LogLevel.info, LogLevel.warning, LogLevel.error,
             LogLevel.critical, LogLevel.fatal, LogLevel.off])
     {
 
         globalLogLevel = gll;
 
-        foreach(ll; [LogLevel.all, LogLevel.trace,
+        foreach(ll; [cast(LogLevel) LogLevel.all, LogLevel.trace,
                 LogLevel.info, LogLevel.warning, LogLevel.error,
                 LogLevel.critical, LogLevel.fatal, LogLevel.off])
         {
