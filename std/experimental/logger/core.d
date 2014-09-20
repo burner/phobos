@@ -156,9 +156,7 @@ import std.concurrency;
 import std.format;
 import core.sync.mutex : Mutex;
 
-import std.experimental.logger.multilogger;
 import std.experimental.logger.filelogger;
-import std.experimental.logger.nulllogger;
 
 shared static this() {
     __stdloggermutex = new Mutex;
@@ -1781,7 +1779,7 @@ version (unittest)
     import std.ascii;
     import std.random;
 
-    @trusted string randomString(size_t upto)
+    @trusted package string randomString(size_t upto)
     {
         auto app = Appender!string();
         foreach(_ ; 0 .. upto)
@@ -1800,7 +1798,7 @@ version (unittest)
 
 version (unittest)
 {
-    class TestLogger : Logger
+    package class TestLogger : Logger
     {
         int line = -1;
         string file = null;
@@ -1825,7 +1823,7 @@ version (unittest)
         }
     }
 
-    void testFuncNames(Logger logger) {
+    private void testFuncNames(Logger logger) {
         string s = "I'm here";
         logger.log(s);
     }
@@ -1845,6 +1843,8 @@ unittest
 
 unittest
 {
+    import std.experimental.logger.multilogger;
+
     auto tl1 = new TestLogger;
     auto tl2 = new TestLogger;
 
@@ -2434,6 +2434,8 @@ unittest
 // Issue #5
 unittest
 {
+    import std.experimental.logger.multilogger;
+
     auto oldunspecificLogger = stdlogImpl;
 
     scope(exit)
