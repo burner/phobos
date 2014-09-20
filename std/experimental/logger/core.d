@@ -889,7 +889,7 @@ abstract class Logger
         payload = All information associated with call to log function.
     See_Also: beginLogMsg, logMsgPart, finishLogMsg
     */
-    void writeLogMsg(ref LogEntry payload);
+    abstract void writeLogMsg(ref LogEntry payload);
 
     /* The default implementation will use an $(D std.array.appender)
     internally to construct the message string. This means dynamic,
