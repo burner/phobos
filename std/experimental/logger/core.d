@@ -251,7 +251,7 @@ bool isLoggingEnabled()(LogLevel ll, LogLevel loggerLL,
 
 /* This function formates a $(D SysTime) into an $(D OutputRange).
 
-The $(D SysTime) is formatted simular to
+The $(D SysTime) is formatted similar to
 $(LREF std.datatime.DateTime.toISOExtString) expect the fractional second part.
 The sub second part is the upper three digest of the microsecond.
 */
@@ -1733,17 +1733,15 @@ $(D Logger)
 */
 @property LogLevel globalLogLevel() @trusted @nogc
 {
-    return globalLogLevelImpl();
+    import core.atomic;
+    return atomicLoad!(MemoryOrder.acq)(__globalLogLevel);
 }
 
 /// Ditto
 @property void globalLogLevel(LogLevel ll) @trusted
 {
-    if (stdlog !is null)
-    {
-        stdlog.logLevel = ll;
-    }
-    globalLogLevelImpl = ll;
+    import core.atomic;
+    atomicStore!(MemoryOrder.rel)(__globalLogLevel, ll);
 }
 
 version (unittest)
@@ -1997,7 +1995,7 @@ unittest // default logger
     string written = "this should be written to file";
 
     globalLogLevel = LogLevel.critical;
-    assert(l.logLevel == LogLevel.critical);
+    assert(globalLogLevel == LogLevel.critical);
 
     log(LogLevel.warning, notWritten);
     log(LogLevel.critical, written);
