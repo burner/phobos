@@ -42,7 +42,7 @@ abstract class MultiLoggerBase : Logger
     /* The override to pass the payload to all children of the
     $(D MultiLoggerBase).
     */
-    override void writeLogMsg(ref LogEntry payload) @trusted
+    override protected void writeLogMsg(ref LogEntry payload) @trusted
     {
         foreach (it; logger)
         {
