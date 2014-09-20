@@ -286,7 +286,7 @@ void log(int line = __LINE__, string file = __FILE__,
     lazy bool condition, lazy A args) @trusted
     if (args.length > 1)
 {
-    static if (isLoggingActive()) synchronized (__stdloggermutex)
+    static if (isLoggingActive) synchronized (__stdloggermutex)
     {
         Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel, condition))
@@ -335,7 +335,7 @@ void log(int line = __LINE__, string file = __FILE__,
     @trusted
     if (args.length > 1 && !is(Unqual!(A[0]) : bool))
 {
-    static if (isLoggingActive()) synchronized (__stdloggermutex)
+    static if (isLoggingActive) synchronized (__stdloggermutex)
     {
         Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel))
@@ -384,7 +384,7 @@ void log(int line = __LINE__, string file = __FILE__,
     @trusted
     if (args.length > 1)
 {
-    static if (isLoggingActive()) synchronized (__stdloggermutex)
+    static if (isLoggingActive) synchronized (__stdloggermutex)
     {
         Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(stdlog.logLevel, stdlog.logLevel, globalLogLevel,
@@ -434,7 +434,7 @@ void log(int line = __LINE__, string file = __FILE__,
     if (args.length > 1 && !is(Unqual!(A[0]) : bool)
          && !is(Unqual!(A[0]) == LogLevel))
 {
-    static if (isLoggingActive()) synchronized (__stdloggermutex)
+    static if (isLoggingActive) synchronized (__stdloggermutex)
     {
         Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(stdlog.logLevel, stdlog.logLevel, globalLogLevel))
@@ -889,8 +889,8 @@ abstract class Logger
     */
     this(LogLevel lv) @safe
     {
-        this.logLevel = lv;
-        this.fatalHandler = delegate() {
+        this.logLevel_ = lv;
+        this.fatalHandler_ = delegate() {
             throw new Error("A fatal log message was logged");
         };
 
@@ -904,7 +904,7 @@ abstract class Logger
         payload = All information associated with call to log function.
     See_Also: beginLogMsg, logMsgPart, finishLogMsg
     */
-    abstract void writeLogMsg(ref LogEntry payload);
+    abstract protected void writeLogMsg(ref LogEntry payload);
 
     /* The default implementation will use an $(D std.array.appender)
     internally to construct the message string. This means dynamic,
@@ -995,15 +995,54 @@ abstract class Logger
     assert(f.logLevel == LogLevel.info);
     -----------
     */
-    @property final LogLevel logLevel() const pure nothrow @safe @nogc
+    @property final LogLevel logLevel() const pure @safe @nogc
     {
-        return this.logLevel_;
+        synchronized (mutex) return this.logLevel_;
     }
 
     /// Ditto
-    @property final void logLevel(const LogLevel lv) pure nothrow @safe @nogc
+    @property final void logLevel(const LogLevel lv) pure @safe @nogc
     {
-        this.logLevel_ = lv;
+        synchronized (mutex) this.logLevel_ = lv;
+    }
+
+    /** This $(D delegate) is called in case a log message with
+    $(D LogLevel.fatal) gets logged.
+
+    By default an $(D Error) will be thrown.
+    */
+    @property final void delegate() fatalHandler() const pure @safe @nogc
+    {
+        synchronized (mutex) return this.fatalHandler_;
+    }
+
+    /// Ditto
+    @property final void fatalHandler(void delegate() fh) pure @safe @nogc
+    {
+        synchronized (mutex) this.fatalHandler_ = fh;
+    }
+
+    /** This method allows forwarding log entries from one logger to another.
+
+    $(D forwardMsg) will ensure proper synchronization and then call
+    $(D writeLogMsg). This is an API for implementing your own loggers and
+    should not be called by normal user code. A notable difference from other
+    logging functions is that the $(D globalLogLevel) wont be evaluated again
+    since it is assumed that the caller already checked that.
+    */
+    final void forwardMsg(ref LogEntry payload)
+    {
+        static if (isLoggingActive) synchronized (mutex)
+        {
+            if (isLoggingEnabled(payload.logLevel, this.logLevel_,
+                                 LogLevel.all))
+            {
+                this.writeLogMsg(payload);
+
+                if (payload.logLevel == LogLevel.fatal)
+                    this.fatalHandler_();
+            }
+        }
     }
 
     /** This template provides the log functions for the $(D Logger) $(D class)
@@ -1055,7 +1094,7 @@ abstract class Logger
                     this.finishLogMsg();
 
                     static if (ll == LogLevel.fatal)
-                        fatalHandler();
+                        this.fatalHandler_();
                 }
             }
         }
@@ -1101,7 +1140,7 @@ abstract class Logger
                     this.finishLogMsg();
 
                     static if (ll == LogLevel.fatal)
-                        fatalHandler();
+                        this.fatalHandler_();
                 }
             }
         }
@@ -1148,7 +1187,7 @@ abstract class Logger
                     this.finishLogMsg();
 
                     static if (ll == LogLevel.fatal)
-                        fatalHandler();
+                        this.fatalHandler_();
                 }
             }
         }
@@ -1193,7 +1232,7 @@ abstract class Logger
                     this.finishLogMsg();
 
                     static if (ll == LogLevel.fatal)
-                        fatalHandler();
+                        this.fatalHandler_();
                 }
             }
         }
@@ -1243,14 +1282,14 @@ abstract class Logger
     l.log(1337);
     --------------------
     */
-    void log(int line = __LINE__, string file = __FILE__,
+    final void log(int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__, A...)(const LogLevel ll,
         lazy bool condition, lazy A args) @trusted
         if (args.length > 1)
     {
-        static if (isLoggingActive())
+        static if (isLoggingActive)
         {
             if (isLoggingEnabled(ll, this.logLevel_, globalLogLevel, condition))
             {
@@ -1263,13 +1302,13 @@ abstract class Logger
                 this.finishLogMsg();
 
                 if (ll == LogLevel.fatal)
-                    fatalHandler();
+                    this.fatalHandler_();
             }
         }
     }
 
     /// Ditto
-    void log(T)(const LogLevel ll, lazy bool condition, lazy T args,
+    final void log(T)(const LogLevel ll, lazy bool condition, lazy T args,
         int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
@@ -1288,7 +1327,7 @@ abstract class Logger
                 this.finishLogMsg();
 
                 if (ll == LogLevel.fatal)
-                    fatalHandler();
+                    this.fatalHandler_();
             }
         }
     }
@@ -1314,14 +1353,14 @@ abstract class Logger
     s.log(LogLevel.fatal, 1337, "is number");
     --------------------
     */
-    void log(int line = __LINE__, string file = __FILE__,
+    final void log(int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__, A...)(const LogLevel ll, lazy A args)
         @trusted
         if (args.length > 1 && !is(Unqual!(A[0]) : bool))
     {
-        static if (isLoggingActive())
+        static if (isLoggingActive)
         {
             if (isLoggingEnabled(ll, this.logLevel_, globalLogLevel))
             {
@@ -1334,13 +1373,13 @@ abstract class Logger
                 this.finishLogMsg();
 
                 if (ll == LogLevel.fatal)
-                    fatalHandler();
+                    this.fatalHandler_();
             }
         }
     }
 
     /// Ditto
-    void log(T)(const LogLevel ll, lazy T args, int line = __LINE__,
+    final void log(T)(const LogLevel ll, lazy T args, int line = __LINE__,
         string file = __FILE__, string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__) @trusted
@@ -1357,7 +1396,7 @@ abstract class Logger
                 this.finishLogMsg();
 
                 if (ll == LogLevel.fatal)
-                    fatalHandler();
+                    this.fatalHandler_();
             }
         }
     }
@@ -1384,14 +1423,14 @@ abstract class Logger
     s.log(false, 1337, "is number");
     --------------------
     */
-    void log(int line = __LINE__, string file = __FILE__,
+    final void log(int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__, A...)(lazy bool condition, lazy A args)
         @trusted
         if (args.length > 1)
     {
-        static if (isLoggingActive())
+        static if (isLoggingActive)
         {
             if (isLoggingEnabled(this.logLevel_, this.logLevel_,
                 globalLogLevel, condition))
@@ -1405,13 +1444,13 @@ abstract class Logger
                 this.finishLogMsg();
 
                 if (this.logLevel_ == LogLevel.fatal)
-                    fatalHandler();
+                    this.fatalHandler_();
             }
         }
     }
 
     /// Ditto
-    void log(T)(lazy bool condition, lazy T args, int line = __LINE__,
+    final void log(T)(lazy bool condition, lazy T args, int line = __LINE__,
         string file = __FILE__, string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__) @trusted
@@ -1429,7 +1468,7 @@ abstract class Logger
                 this.finishLogMsg();
 
                 if (this.logLevel_ == LogLevel.fatal)
-                    fatalHandler();
+                    this.fatalHandler_();
             }
         }
     }
@@ -1454,7 +1493,7 @@ abstract class Logger
     s.log(1337, "is number");
     --------------------
     */
-    void log(int line = __LINE__, string file = __FILE__,
+    final void log(int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__, A...)(lazy A args)
@@ -1463,7 +1502,7 @@ abstract class Logger
                 && !is(Unqual!(A[0]) : bool)
                 && !is(Unqual!(A[0]) == LogLevel))
     {
-        static if (isLoggingActive())
+        static if (isLoggingActive)
         {
             if (isLoggingEnabled(this.logLevel_, this.logLevel_,
                 globalLogLevel))
@@ -1476,13 +1515,13 @@ abstract class Logger
                 this.finishLogMsg();
 
                 if (this.logLevel_ == LogLevel.fatal)
-                    fatalHandler();
+                    this.fatalHandler_();
             }
         }
     }
 
     /// Ditto
-    void log(T)(lazy T arg, int line = __LINE__, string file = __FILE__,
+    final void log(T)(lazy T arg, int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__) @trusted
@@ -1499,7 +1538,7 @@ abstract class Logger
                 this.finishLogMsg();
 
                 if (this.logLevel_ == LogLevel.fatal)
-                    fatalHandler();
+                    this.fatalHandler_();
             }
         }
     }
@@ -1528,7 +1567,7 @@ abstract class Logger
     s.logf(LogLevel.fatal, true ,"%d %s", 1337, "is number");
     --------------------
     */
-    void logf(int line = __LINE__, string file = __FILE__,
+    final void logf(int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__, A...)(const LogLevel ll,
@@ -1547,7 +1586,7 @@ abstract class Logger
                 this.finishLogMsg();
 
                 if (ll == LogLevel.fatal)
-                    fatalHandler();
+                    this.fatalHandler_();
             }
         }
     }
@@ -1574,7 +1613,7 @@ abstract class Logger
     s.logf(LogLevel.fatal, "%d %s", 1337, "is number");
     --------------------
     */
-    void logf(int line = __LINE__, string file = __FILE__,
+    final void logf(int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__, A...)(const LogLevel ll,
@@ -1594,7 +1633,7 @@ abstract class Logger
                 this.finishLogMsg();
 
                 if (ll == LogLevel.fatal)
-                    fatalHandler();
+                    this.fatalHandler_();
             }
         }
     }
@@ -1622,7 +1661,7 @@ abstract class Logger
     s.logf(true ,"%d %s", 1337, "is number");
     --------------------
     */
-    void logf(int line = __LINE__, string file = __FILE__,
+    final void logf(int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__, A...)(lazy bool condition,
@@ -1642,7 +1681,7 @@ abstract class Logger
                 this.finishLogMsg();
 
                 if (this.logLevel_ == LogLevel.fatal)
-                    fatalHandler();
+                    this.fatalHandler_();
             }
         }
     }
@@ -1667,7 +1706,7 @@ abstract class Logger
     s.logf("%d %s", 1337, "is number");
     --------------------
     */
-    void logf(int line = __LINE__, string file = __FILE__,
+    final void logf(int line = __LINE__, string file = __FILE__,
         string funcName = __FUNCTION__,
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__, A...)(lazy string msg, lazy A args)
@@ -1687,18 +1726,12 @@ abstract class Logger
                 this.finishLogMsg();
 
                 if (this.logLevel_ == LogLevel.fatal)
-                    fatalHandler();
+                    this.fatalHandler_();
             }
         }
     }
 
-    /** This member stores the $(D delegate) that is called in case of a log
-    message with $(D LogLevel.fatal) gets logged.
-
-    By default an $(D Error) will be thrown.
-    */
-    void delegate() fatalHandler;
-
+    private void delegate() fatalHandler_;
     private LogLevel logLevel_ = LogLevel.info;
 
     protected Appender!string msgAppender;
