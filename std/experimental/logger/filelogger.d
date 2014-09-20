@@ -190,7 +190,7 @@ unittest
 
 unittest
 {
-    auto dl = stdlog;
+    auto dl = stdlogImpl;
     assert(dl !is null);
     assert(dl.logLevel == LogLevel.all);
     assert(globalLogLevel == LogLevel.all);

@@ -287,8 +287,9 @@ void log(int line = __LINE__, string file = __FILE__,
     lazy bool condition, lazy A args) @trusted
     if (args.length > 1)
 {
-    static if (isLoggingActive())
+    static if (isLoggingActive()) synchronized (__stdloggermutex)
     {
+        Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel, condition))
         {
             stdlog.log!(line, file, funcName,prettyFuncName, moduleName)
@@ -304,8 +305,9 @@ void log(T)(const LogLevel ll, lazy bool condition, lazy T args,
     string moduleName = __MODULE__)
     @trusted
 {
-    static if (isLoggingActive())
+    static if (isLoggingActive()) synchronized (__stdloggermutex)
     {
+        Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel, condition))
         {
             stdlog.log!T(ll, args, line, file, funcName,prettyFuncName,
@@ -334,8 +336,9 @@ void log(int line = __LINE__, string file = __FILE__,
     @trusted
     if (args.length > 1 && !is(Unqual!(A[0]) : bool))
 {
-    static if (isLoggingActive())
+    static if (isLoggingActive()) synchronized (__stdloggermutex)
     {
+        Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel))
         {
             stdlog.log!(line, file, funcName,prettyFuncName, moduleName)
@@ -350,8 +353,9 @@ void log(T)(const LogLevel ll, lazy T args, int line = __LINE__,
     string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__)
     @trusted
 {
-    static if (isLoggingActive())
+    static if (isLoggingActive()) synchronized (__stdloggermutex)
     {
+        Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel))
         {
             stdlog.log!T(ll, args, line, file, funcName,prettyFuncName,
@@ -381,8 +385,9 @@ void log(int line = __LINE__, string file = __FILE__,
     @trusted
     if (args.length > 1)
 {
-    static if (isLoggingActive())
+    static if (isLoggingActive()) synchronized (__stdloggermutex)
     {
+        Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(stdlog.logLevel, stdlog.logLevel, globalLogLevel,
                 condition))
         {
@@ -398,8 +403,9 @@ void log(T)(lazy bool condition, lazy T args, int line = __LINE__,
     string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__)
     @trusted
 {
-    static if (isLoggingActive())
+    static if (isLoggingActive()) synchronized (__stdloggermutex)
     {
+        Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(stdlog.logLevel, stdlog.logLevel, globalLogLevel,
             condition))
         {
@@ -429,8 +435,9 @@ void log(int line = __LINE__, string file = __FILE__,
     if (args.length > 1 && !is(Unqual!(A[0]) : bool)
          && !is(Unqual!(A[0]) == LogLevel))
 {
-    static if (isLoggingActive())
+    static if (isLoggingActive()) synchronized (__stdloggermutex)
     {
+        Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(stdlog.logLevel, stdlog.logLevel, globalLogLevel))
         {
             stdlog.log!(line, file, funcName,prettyFuncName,
@@ -444,8 +451,9 @@ void log(T)(lazy T args, int line = __LINE__, string file = __FILE__,
     string moduleName = __MODULE__)
     @trusted
 {
-    static if (isLoggingActive())
+    static if (isLoggingActive()) synchronized (__stdloggermutex)
     {
+        Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(stdlog.logLevel, stdlog.logLevel, globalLogLevel))
         {
             stdlog.log!T(args, line, file, funcName, prettyFuncName,
@@ -478,8 +486,9 @@ void logf(int line = __LINE__, string file = __FILE__,
     lazy bool condition, lazy string msg, lazy A args)
     @trusted
 {
-    static if (isLoggingActive())
+    static if (isLoggingActive()) synchronized (__stdloggermutex)
     {
+        Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel, condition))
         {
             stdlog.logf!(line, file, funcName,prettyFuncName, moduleName)
@@ -510,8 +519,9 @@ void logf(int line = __LINE__, string file = __FILE__,
         lazy A args) @trusted
     if (args.length == 0 || (args.length > 0 && !is(Unqual!(A[0]) : bool)))
 {
-    static if (isLoggingActive())
+    static if (isLoggingActive()) synchronized (__stdloggermutex)
     {
+        Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel))
         {
             stdlog.logf!(line, file, funcName,prettyFuncName, moduleName)
@@ -542,8 +552,9 @@ void logf(int line = __LINE__, string file = __FILE__,
         lazy string msg, lazy A args)
     @trusted
 {
-    static if (isLoggingActive())
+    static if (isLoggingActive()) synchronized (__stdloggermutex)
     {
+        Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(stdlog.logLevel, stdlog.logLevel, globalLogLevel,
                 condition))
         {
@@ -573,8 +584,9 @@ void logf(int line = __LINE__, string file = __FILE__,
     string moduleName = __MODULE__, A...)(lazy string msg, lazy A args)
     @trusted
 {
-    static if (isLoggingActive())
+    static if (isLoggingActive()) synchronized (__stdloggermutex)
     {
+        Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(stdlog.logLevel, stdlog.logLevel, globalLogLevel))
         {
             stdlog.logf!(line, file, funcName,prettyFuncName,
@@ -618,8 +630,9 @@ template defaultLogFunction(LogLevel ll)
         string moduleName = __MODULE__, A...)(lazy A args) @trusted
         if (args.length > 0 && !is(Unqual!(A[0]) : bool))
     {
-        static if (isLoggingActive!ll)
+        static if (isLoggingActive!ll) synchronized (__stdloggermutex)
         {
+            Logger stdlog = stdlogImpl;
             if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel))
             {
                 stdlog.memLogFunctions!(ll).logImpl!(line, file,
@@ -654,8 +667,9 @@ template defaultLogFunction(LogLevel ll)
         string moduleName = __MODULE__, A...)(lazy bool condition, lazy A args)
         @trusted
     {
-        static if (isLoggingActive!ll)
+        static if (isLoggingActive!ll) synchronized (__stdloggermutex)
         {
+            Logger stdlog = stdlogImpl;
             if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel,
                 condition))
             {
@@ -716,8 +730,9 @@ template defaultLogFunctionf(LogLevel ll)
         string moduleName = __MODULE__, A...)(lazy string msg, lazy A args)
         @trusted
     {
-        static if (isLoggingActive!ll)
+        static if (isLoggingActive!ll) synchronized (__stdloggermutex)
         {
+            Logger stdlog = stdlogImpl;
             if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel))
             {
                 stdlog.memLogFunctions!(ll).logImplf!(line, file,
@@ -753,8 +768,9 @@ template defaultLogFunctionf(LogLevel ll)
         string moduleName = __MODULE__, A...)(lazy bool condition,
             lazy string msg, lazy A args) @trusted
     {
-        static if (isLoggingActive!ll)
+        static if (isLoggingActive!ll) synchronized (__stdloggermutex)
         {
+            Logger stdlog = stdlogImpl;
             if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel,
                 condition))
             {
@@ -1691,11 +1707,36 @@ abstract class Logger
 }
 
 private __gshared Mutex __stdloggermutex;
+private __gshared Logger __logger;
+private shared LogLevel __globalLogLevel = LogLevel.all;
 
-/** This method returns the default $(D Logger).
 
-The Logger is returned as a reference. This means it can be reassigned,
-thus changing the $(D stdlog). The default $(D Logger) must be thread-safe.
+/* This method returns the global default Logger.
+
+Since operations on global state shared between threads must be properly
+synchronized, this has package visibility only and is to be used inside
+`synchronized (__stdloggermutex)` blocks or in single-threaded unittests.
+
+If public access to the stdlog should be needed we could implement a
+`stdlogApply(…)` function that takes a fn/dlg and properly synchronizes
+on entry and exit.
+*/
+package @property Logger stdlogImpl() @trusted
+{
+    static __gshared bool once;
+    static __gshared ubyte[__traits(classInstanceSize, FileLogger)] buffer;
+
+    if (!once)
+    {
+        once = true;
+        __logger = emplace!FileLogger(buffer, stderr, LogLevel.all);
+    }
+    return __logger;
+}
+
+/** This method sets the default $(D Logger).
+
+The default $(D Logger) must be thread-safe.
 
 Example:
 -------------
@@ -1703,26 +1744,15 @@ stdlog = new FileLogger(yourFile);
 -------------
 The example sets a new $(D StdioLogger) as new $(D stdlog).
 */
-@property ref Logger stdlog() @trusted
+@property void stdlog(Logger logger) @trusted
+in { assert(logger !is null, "The stdlog must not be set to null"); }
+body
 {
-    static __gshared bool once;
-    static __gshared Logger logger;
-    static __gshared ubyte[__traits(classInstanceSize, FileLogger)] buffer;
-
-    __stdloggermutex.lock();
-    scope(exit) __stdloggermutex.unlock();
-    if (!once)
+    // We don't want to swap out the stdlog while another thread works with it.
+    synchronized (__stdloggermutex)
     {
-        once = true;
-        logger = emplace!FileLogger(buffer, stderr, globalLogLevel());
+        __logger = logger;
     }
-    return logger;
-}
-
-private ref LogLevel globalLogLevelImpl() @trusted @nogc
-{
-    static __gshared LogLevel ll = LogLevel.all;
-    return ll;
 }
 
 /** This methods get and set the global $(D LogLevel).
@@ -1903,7 +1933,7 @@ unittest
     assert(l.line == lineNumber);
     assert(l.logLevel == LogLevel.info);
 
-    auto oldunspecificLogger = stdlog;
+    auto oldunspecificLogger = stdlogImpl;
 
     assert(oldunspecificLogger.logLevel == LogLevel.all,
          to!string(oldunspecificLogger.logLevel));
@@ -1918,7 +1948,7 @@ unittest
         stdlog = oldunspecificLogger;
     }
 
-    assert(stdlog.logLevel == LogLevel.info);
+    assert(stdlogImpl.logLevel == LogLevel.info);
     assert(globalLogLevel == LogLevel.all);
 
     msg = "Another message";
@@ -1981,7 +2011,7 @@ unittest // default logger
     import std.file;
     string filename = randomString(32) ~ ".tempLogFile";
     FileLogger l = new FileLogger(filename);
-    auto oldunspecificLogger = stdlog;
+    auto oldunspecificLogger = stdlogImpl;
     stdlog = l;
 
     scope(exit)
@@ -2017,7 +2047,7 @@ unittest
     import std.file;
     import core.memory;
     string filename = randomString(32) ~ ".tempLogFile";
-    auto oldunspecificLogger = stdlog;
+    auto oldunspecificLogger = stdlogImpl;
 
     scope(exit)
     {
@@ -2031,7 +2061,7 @@ unittest
 
     auto l = new FileLogger(filename);
     stdlog = l;
-    stdlog.logLevel = LogLevel.critical;
+    stdlogImpl.logLevel = LogLevel.critical;
 
     log(LogLevel.error, false, notWritten);
     log(LogLevel.critical, true, written);
@@ -2063,7 +2093,7 @@ unittest
 // testing possible log conditions
 @safe unittest
 {
-    auto oldunspecificLogger = stdlog;
+    auto oldunspecificLogger = stdlogImpl;
 
     auto mem = new TestLogger;
     mem.fatalHandler = delegate() {};
@@ -2224,7 +2254,7 @@ unittest
 @safe unittest
 {
     auto mem = new TestLogger;
-    auto oldunspecificLogger = stdlog;
+    auto oldunspecificLogger = stdlogImpl;
 
     stdlog = mem;
     scope(exit)
@@ -2383,7 +2413,7 @@ unittest
 // Issue #5
 unittest
 {
-    auto oldunspecificLogger = stdlog;
+    auto oldunspecificLogger = stdlogImpl;
 
     scope(exit)
     {
@@ -2403,7 +2433,7 @@ unittest
 // Issue #5
 unittest
 {
-    auto oldunspecificLogger = stdlog;
+    auto oldunspecificLogger = stdlogImpl;
 
     scope(exit)
     {
@@ -2434,7 +2464,7 @@ unittest
 
 unittest
 {
-    auto dl = cast(FileLogger)stdlog;
+    auto dl = cast(FileLogger)stdlogImpl;
     assert(dl !is null);
     assert(dl.logLevel == LogLevel.all);
     assert(globalLogLevel == LogLevel.all);
