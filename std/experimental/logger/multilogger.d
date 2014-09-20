@@ -54,7 +54,7 @@ abstract class MultiLoggerBase : Logger
             const bool ll = payload.logLevel >= it.logger.logLevel;
             if (ll)
             {
-                it.logger.writeLogMsg(payload);
+                it.logger.forwardMsg(payload);
             }
         }
     }
