@@ -160,7 +160,7 @@ import std.experimental.logger.multilogger;
 import std.experimental.logger.filelogger;
 import std.experimental.logger.nulllogger;
 
-static this() {
+shared static this() {
     __stdloggermutex = new Mutex;
 }
 
@@ -1690,7 +1690,7 @@ abstract class Logger
     protected LogEntry header;
 }
 
-private Mutex __stdloggermutex;
+private __gshared Mutex __stdloggermutex;
 
 /** This method returns the default $(D Logger).
 
