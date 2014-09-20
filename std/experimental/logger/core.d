@@ -164,54 +164,55 @@ shared static this() {
     __stdloggermutex = new Mutex;
 }
 
-/** This compile time only function evaluates if the passed $(D LogLevel) is
-active. The previously described version statements are used to decide if the
+/** This template evaluates if the passed $(D LogLevel) is active.
+The previously described version statements are used to decide if the
 $(D LogLevel) is active. The version statements only influence the compile
 unit they are used with, therefore this function can only disable logging this
 specific compile unit.
 */
-pure bool isLoggingActive(LogLevel ll)() @safe nothrow @nogc
+template isLoggingActiveAt(LogLevel ll)
 {
-    static assert(__ctfe);
     version (StdLoggerDisableLogging)
     {
-        return false;
+        enum isLoggingActiveAt = false;
     }
     else
     {
         static if (ll == LogLevel.trace)
         {
-            version (StdLoggerDisableTrace) return false;
+            version (StdLoggerDisableTrace) enum isLoggingActiveAt = false;
         }
         else static if (ll == LogLevel.info)
         {
-            version (StdLoggerDisableInfo) return false;
+            version (StdLoggerDisableInfo) enum isLoggingActiveAt = false;
         }
         else static if (ll == LogLevel.warning)
         {
-            version (StdLoggerDisableWarning) return false;
+            version (StdLoggerDisableWarning) enum isLoggingActiveAt = false;
         }
         else static if (ll == LogLevel.error)
         {
-            version (StdLoggerDisableError) return false;
+            version (StdLoggerDisableError) enum isLoggingActiveAt = false;
         }
         else static if (ll == LogLevel.critical)
         {
-            version (StdLoggerDisableCritical) return false;
+            version (StdLoggerDisableCritical) enum isLoggingActiveAt = false;
         }
         else static if (ll == LogLevel.fatal)
         {
-            version (StdLoggerDisableFatal) return false;
+            version (StdLoggerDisableFatal) enum isLoggingActiveAt = false;
         }
-        return true;
+    }
+    // If `isLoggingActiveAt` didn't get defined above to false,
+    // we default it to true.
+    static if (!is(isLoggingActiveAt))
+    {
+        enum isLoggingActiveAt = true;
     }
 }
 
-/// Ditto
-pure bool isLoggingActive()() @safe nothrow @nogc
-{
-    return isLoggingActive!(LogLevel.all)();
-}
+/// This flag is set if all logging is disabled statically.
+enum isLoggingActive = isLoggingActiveAt!(LogLevel.all);
 
 /** This functions is used at runtime to determine if a $(D LogLevel) is
 active. The same previously defined version statements are used to disable
@@ -305,7 +306,7 @@ void log(T)(const LogLevel ll, lazy bool condition, lazy T args,
     string moduleName = __MODULE__)
     @trusted
 {
-    static if (isLoggingActive()) synchronized (__stdloggermutex)
+    static if (isLoggingActive) synchronized (__stdloggermutex)
     {
         Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel, condition))
@@ -353,7 +354,7 @@ void log(T)(const LogLevel ll, lazy T args, int line = __LINE__,
     string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__)
     @trusted
 {
-    static if (isLoggingActive()) synchronized (__stdloggermutex)
+    static if (isLoggingActive) synchronized (__stdloggermutex)
     {
         Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel))
@@ -403,7 +404,7 @@ void log(T)(lazy bool condition, lazy T args, int line = __LINE__,
     string prettyFuncName = __PRETTY_FUNCTION__, string moduleName = __MODULE__)
     @trusted
 {
-    static if (isLoggingActive()) synchronized (__stdloggermutex)
+    static if (isLoggingActive) synchronized (__stdloggermutex)
     {
         Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(stdlog.logLevel, stdlog.logLevel, globalLogLevel,
@@ -451,7 +452,7 @@ void log(T)(lazy T args, int line = __LINE__, string file = __FILE__,
     string moduleName = __MODULE__)
     @trusted
 {
-    static if (isLoggingActive()) synchronized (__stdloggermutex)
+    static if (isLoggingActive) synchronized (__stdloggermutex)
     {
         Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(stdlog.logLevel, stdlog.logLevel, globalLogLevel))
@@ -486,7 +487,7 @@ void logf(int line = __LINE__, string file = __FILE__,
     lazy bool condition, lazy string msg, lazy A args)
     @trusted
 {
-    static if (isLoggingActive()) synchronized (__stdloggermutex)
+    static if (isLoggingActive) synchronized (__stdloggermutex)
     {
         Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel, condition))
@@ -519,7 +520,7 @@ void logf(int line = __LINE__, string file = __FILE__,
         lazy A args) @trusted
     if (args.length == 0 || (args.length > 0 && !is(Unqual!(A[0]) : bool)))
 {
-    static if (isLoggingActive()) synchronized (__stdloggermutex)
+    static if (isLoggingActive) synchronized (__stdloggermutex)
     {
         Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel))
@@ -552,7 +553,7 @@ void logf(int line = __LINE__, string file = __FILE__,
         lazy string msg, lazy A args)
     @trusted
 {
-    static if (isLoggingActive()) synchronized (__stdloggermutex)
+    static if (isLoggingActive) synchronized (__stdloggermutex)
     {
         Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(stdlog.logLevel, stdlog.logLevel, globalLogLevel,
@@ -584,7 +585,7 @@ void logf(int line = __LINE__, string file = __FILE__,
     string moduleName = __MODULE__, A...)(lazy string msg, lazy A args)
     @trusted
 {
-    static if (isLoggingActive()) synchronized (__stdloggermutex)
+    static if (isLoggingActive) synchronized (__stdloggermutex)
     {
         Logger stdlog = stdlogImpl;
         if (isLoggingEnabled(stdlog.logLevel, stdlog.logLevel, globalLogLevel))
@@ -630,7 +631,7 @@ template defaultLogFunction(LogLevel ll)
         string moduleName = __MODULE__, A...)(lazy A args) @trusted
         if (args.length > 0 && !is(Unqual!(A[0]) : bool))
     {
-        static if (isLoggingActive!ll) synchronized (__stdloggermutex)
+        static if (isLoggingActiveAt!ll) synchronized (__stdloggermutex)
         {
             Logger stdlog = stdlogImpl;
             if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel))
@@ -667,7 +668,7 @@ template defaultLogFunction(LogLevel ll)
         string moduleName = __MODULE__, A...)(lazy bool condition, lazy A args)
         @trusted
     {
-        static if (isLoggingActive!ll) synchronized (__stdloggermutex)
+        static if (isLoggingActiveAt!ll) synchronized (__stdloggermutex)
         {
             Logger stdlog = stdlogImpl;
             if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel,
@@ -730,7 +731,7 @@ template defaultLogFunctionf(LogLevel ll)
         string moduleName = __MODULE__, A...)(lazy string msg, lazy A args)
         @trusted
     {
-        static if (isLoggingActive!ll) synchronized (__stdloggermutex)
+        static if (isLoggingActiveAt!ll) synchronized (__stdloggermutex)
         {
             Logger stdlog = stdlogImpl;
             if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel))
@@ -768,7 +769,7 @@ template defaultLogFunctionf(LogLevel ll)
         string moduleName = __MODULE__, A...)(lazy bool condition,
             lazy string msg, lazy A args) @trusted
     {
-        static if (isLoggingActive!ll) synchronized (__stdloggermutex)
+        static if (isLoggingActiveAt!ll) synchronized (__stdloggermutex)
         {
             Logger stdlog = stdlogImpl;
             if (isLoggingEnabled(ll, stdlog.logLevel, globalLogLevel,
@@ -954,7 +955,7 @@ abstract class Logger
         Tid threadId, SysTime timestamp, Logger logger)
         @trusted
     {
-        static if (isLoggingActive())
+        static if (isLoggingActive)
         {
             header = LogEntry(file, line, funcName, prettyFuncName,
                 moduleName, logLevel, threadId, timestamp, null, logger);
@@ -964,7 +965,7 @@ abstract class Logger
     /** Logs a part of the log message. */
     protected void logMsgPart(const(char)[] msg)
     {
-        static if (isLoggingActive())
+        static if (isLoggingActive)
         {
             msgAppender.put(msg);
         }
@@ -974,7 +975,7 @@ abstract class Logger
     $(D logMsgPart) follow. */
     protected void finishLogMsg()
     {
-        static if (isLoggingActive())
+        static if (isLoggingActive)
         {
             header.msg = msgAppender.data;
             this.writeLogMsg(header);
@@ -1043,7 +1044,7 @@ abstract class Logger
             string moduleName = __MODULE__, A...)(lazy A args) @trusted
             if (args.length == 0 || (args.length > 0 && !is(A[0] : bool)))
         {
-            static if(isLoggingActive!ll)
+            static if(isLoggingActiveAt!ll)
             {
                 if (isLoggingEnabled(ll, this.logLevel_, globalLogLevel))
                 {
@@ -1089,7 +1090,7 @@ abstract class Logger
             string moduleName = __MODULE__, A...)(lazy bool condition,
                 lazy A args) @trusted
         {
-            static if(isLoggingActive!ll)
+            static if(isLoggingActiveAt!ll)
             {
                 if (isLoggingEnabled(ll, this.logLevel_, globalLogLevel))
                 {
@@ -1136,7 +1137,7 @@ abstract class Logger
             string moduleName = __MODULE__, A...)(lazy bool condition,
                 lazy string msg, lazy A args) @trusted
         {
-            static if (isLoggingActive!ll)
+            static if (isLoggingActiveAt!ll)
             {
                 if (isLoggingEnabled(ll, this.logLevel_, globalLogLevel))
                 {
@@ -1181,7 +1182,7 @@ abstract class Logger
             string moduleName = __MODULE__, A...)(lazy string msg, lazy A args)
             @trusted
         {
-            static if (isLoggingActive!ll)
+            static if (isLoggingActiveAt!ll)
             {
                 if (isLoggingEnabled(ll, this.logLevel_, globalLogLevel))
                 {
@@ -1276,7 +1277,7 @@ abstract class Logger
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__) @trusted
     {
-        static if (isLoggingActive())
+        static if (isLoggingActive)
         {
             if (isLoggingEnabled(ll, this.logLevel_, globalLogLevel,
                 condition))
@@ -1346,7 +1347,7 @@ abstract class Logger
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__) @trusted
     {
-        static if (isLoggingActive())
+        static if (isLoggingActive)
         {
             if (isLoggingEnabled(ll, this.logLevel_, globalLogLevel))
             {
@@ -1417,7 +1418,7 @@ abstract class Logger
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__) @trusted
     {
-        static if (isLoggingActive())
+        static if (isLoggingActive)
         {
             if (isLoggingEnabled(this.logLevel_, this.logLevel_, globalLogLevel,
                 condition))
@@ -1488,7 +1489,7 @@ abstract class Logger
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__) @trusted
     {
-        static if (isLoggingActive())
+        static if (isLoggingActive)
         {
             if (isLoggingEnabled(this.logLevel_, this.logLevel_, globalLogLevel))
             {
@@ -1535,7 +1536,7 @@ abstract class Logger
         string moduleName = __MODULE__, A...)(const LogLevel ll,
         lazy bool condition, lazy string msg, lazy A args) @trusted
     {
-        static if (isLoggingActive())
+        static if (isLoggingActive)
         {
             if (isLoggingEnabled(ll, this.logLevel_, globalLogLevel, condition))
             {
@@ -1582,7 +1583,7 @@ abstract class Logger
             lazy string msg, lazy A args) @trusted
         if (args.length == 0 || (args.length > 0 && !is(Unqual!(A[0]) : bool)))
     {
-        static if (isLoggingActive())
+        static if (isLoggingActive)
         {
             if (isLoggingEnabled(ll, this.logLevel_, globalLogLevel))
             {
@@ -1629,7 +1630,7 @@ abstract class Logger
         string moduleName = __MODULE__, A...)(lazy bool condition,
             lazy string msg, lazy A args) @trusted
     {
-        static if (isLoggingActive())
+        static if (isLoggingActive)
         {
             if (isLoggingEnabled(this.logLevel_, this.logLevel_, globalLogLevel,
                 condition))
@@ -1674,7 +1675,7 @@ abstract class Logger
         string moduleName = __MODULE__, A...)(lazy string msg, lazy A args)
         @trusted
     {
-        static if (isLoggingActive())
+        static if (isLoggingActive)
         {
             if (isLoggingEnabled(this.logLevel_, this.logLevel_,
                 globalLogLevel))
