@@ -154,6 +154,7 @@ import std.traits;
 import std.exception;
 import std.concurrency;
 import std.format;
+import core.atomic;
 import core.sync.mutex : Mutex;
 
 import std.experimental.logger.filelogger;
@@ -922,9 +923,9 @@ abstract class Logger
     assert(f.logLevel == LogLevel.info);
     -----------
     */
-    @property final LogLevel logLevel() const pure @safe @nogc
+    @property final LogLevel logLevel() const pure @trusted @nogc
     {
-        synchronized (mutex) return this.logLevel_;
+        return atomicLoad!(MemoryOrder.acq)(this.logLevel_);
     }
 
     /// Ditto
@@ -1661,7 +1662,7 @@ abstract class Logger
     }
 
     private void delegate() fatalHandler_;
-    private LogLevel logLevel_ = LogLevel.info;
+    private shared LogLevel logLevel_ = LogLevel.info;
     private Mutex mutex;
 
     protected Appender!string msgAppender;
@@ -1679,10 +1680,6 @@ private shared LogLevel __globalLogLevel = LogLevel.all;
 Since operations on global state shared between threads must be properly
 synchronized, this has package visibility only and is to be used inside
 `synchronized (__stdloggermutex)` blocks or in single-threaded unittests.
-
-If public access to the stdlog should be needed we could implement a
-`stdlogApply(…)` function that takes a fn/dlg and properly synchronizes
-on entry and exit.
 */
 package @property Logger stdlogImpl() @trusted
 {
@@ -1699,9 +1696,7 @@ package @property Logger stdlogImpl() @trusted
     return __logger;
 }
 
-/** This method sets the default $(D Logger).
-
-The default $(D Logger) must be thread-safe.
+/** This property sets and gets the default $(D Logger).
 
 Example:
 -------------
@@ -1711,9 +1706,27 @@ The example sets a new $(D StdioLogger) as new $(D stdlog).
 
 If at some point you want to use the original default logger again, you can
 use $(D stdlog = null;). This will put back the original.
+
+Note:
+While getting and setting $(D stdlog) is thread-safe, it has to be considered
+that the returned reference is only a current snapshot and in the following
+code, you must make sure no other thread reassigns to it between reading and
+writing $(D stdlog).
+-------------
+if (stdlog !is myLogger)
+    stdlog = new myLogger;
+-------------
 */
+@property Logger stdlog() @trusted
+{
+    synchronized (__stdloggermutex)
+    {
+        return stdlogImpl;
+    }
+}
+
+/// Ditto
 @property void stdlog(Logger logger) @trusted
-body
 {
     // We don't want to swap out the stdlog while another thread works with it.
     synchronized (__stdloggermutex)
@@ -1742,14 +1755,12 @@ different levels at different spots in the code.
 */
 @property LogLevel globalLogLevel() @trusted @nogc
 {
-    import core.atomic;
     return atomicLoad!(MemoryOrder.acq)(__globalLogLevel);
 }
 
 /// Ditto
 @property void globalLogLevel(LogLevel ll) @trusted
 {
-    import core.atomic;
     atomicStore!(MemoryOrder.rel)(__globalLogLevel, ll);
 }
 
@@ -1914,7 +1925,7 @@ unittest
     assert(l.line == lineNumber);
     assert(l.logLevel == LogLevel.info);
 
-    auto oldunspecificLogger = stdlogImpl;
+    auto oldunspecificLogger = stdlog;
 
     assert(oldunspecificLogger.logLevel == LogLevel.all,
          to!string(oldunspecificLogger.logLevel));
@@ -1929,7 +1940,7 @@ unittest
         stdlog = oldunspecificLogger;
     }
 
-    assert(stdlogImpl.logLevel == LogLevel.info);
+    assert(stdlog.logLevel == LogLevel.info);
     assert(globalLogLevel == LogLevel.all);
 
     msg = "Another message";
@@ -1992,7 +2003,7 @@ unittest // default logger
     import std.file;
     string filename = randomString(32) ~ ".tempLogFile";
     FileLogger l = new FileLogger(filename);
-    auto oldunspecificLogger = stdlogImpl;
+    auto oldunspecificLogger = stdlog;
     stdlog = l;
 
     scope(exit)
@@ -2028,7 +2039,7 @@ unittest
     import std.file;
     import core.memory;
     string filename = randomString(32) ~ ".tempLogFile";
-    auto oldunspecificLogger = stdlogImpl;
+    auto oldunspecificLogger = stdlog;
 
     scope(exit)
     {
@@ -2042,7 +2053,7 @@ unittest
 
     auto l = new FileLogger(filename);
     stdlog = l;
-    stdlogImpl.logLevel = LogLevel.critical;
+    stdlog.logLevel = LogLevel.critical;
 
     log(LogLevel.error, false, notWritten);
     log(LogLevel.critical, true, written);
@@ -2074,7 +2085,7 @@ unittest
 // testing possible log conditions
 unittest
 {
-    auto oldunspecificLogger = stdlogImpl;
+    auto oldunspecificLogger = stdlog;
 
     auto mem = new TestLogger;
     mem.fatalHandler = delegate() {};
@@ -2235,7 +2246,7 @@ unittest
 unittest
 {
     auto mem = new TestLogger;
-    auto oldunspecificLogger = stdlogImpl;
+    auto oldunspecificLogger = stdlog;
 
     stdlog = mem;
     scope(exit)
@@ -2394,7 +2405,7 @@ unittest
 // Issue #5
 unittest
 {
-    auto oldunspecificLogger = stdlogImpl;
+    auto oldunspecificLogger = stdlog;
 
     scope(exit)
     {
@@ -2416,7 +2427,7 @@ unittest
 {
     import std.experimental.logger.multilogger;
 
-    auto oldunspecificLogger = stdlogImpl;
+    auto oldunspecificLogger = stdlog;
 
     scope(exit)
     {
@@ -2447,7 +2458,7 @@ unittest
 
 unittest
 {
-    auto dl = cast(FileLogger)stdlogImpl;
+    auto dl = cast(FileLogger)stdlog;
     assert(dl !is null);
     assert(dl.logLevel == LogLevel.all);
     assert(globalLogLevel == LogLevel.all);
