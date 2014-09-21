@@ -45,9 +45,9 @@ abstract class MultiLoggerBase : Logger
     override protected void writeLogMsg(ref LogEntry payload) @trusted
     {
         //foreach (ref it; logger) BUG
-		for (size_t i = 0; i < this.logger.length; ++i) 
-		{
-			auto it = this.logger[i];
+        for (size_t i = 0; i < this.logger.length; ++i) 
+        {
+            auto it = this.logger[i];
             /* We don't perform any checks here to avoid race conditions.
             Instead the child will check on its own if its log level matches
             and assume LogLevel.all for the globalLogLevel (since we already
@@ -420,7 +420,7 @@ unittest
 
 unittest
 {
-    auto dl = stdlogImpl;
+    auto dl = stdlog;
     assert(dl !is null);
     assert(dl.logLevel == LogLevel.all);
     assert(globalLogLevel == LogLevel.all);

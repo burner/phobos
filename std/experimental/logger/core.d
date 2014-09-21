@@ -154,6 +154,7 @@ import std.traits;
 import std.exception;
 import std.concurrency;
 import std.format;
+import core.atomic;
 import core.sync.mutex : Mutex;
 
 import std.experimental.logger.filelogger;
@@ -168,49 +169,49 @@ $(D LogLevel) is active. The version statements only influence the compile
 unit they are used with, therefore this function can only disable logging this
 specific compile unit.
 */
-pure bool isLoggingActiveAt(LogLevel ll)() @safe nothrow @nogc
+template isLoggingActiveAt(LogLevel ll)
 {
-    static assert(__ctfe);
     version (StdLoggerDisableLogging)
     {
-        return false;
+        enum isLoggingActiveAt = false;
     }
     else
     {
         static if (ll == LogLevel.trace)
         {
-            version (StdLoggerDisableTrace) return false;
+            version (StdLoggerDisableTrace) enum isLoggingActiveAt = false;
         }
         else static if (ll == LogLevel.info)
         {
-            version (StdLoggerDisableInfo) return false;
+            version (StdLoggerDisableInfo) enum isLoggingActiveAt = false;
         }
         else static if (ll == LogLevel.warning)
         {
-            version (StdLoggerDisableWarning) return false;
+            version (StdLoggerDisableWarning) enum isLoggingActiveAt = false;
         }
         else static if (ll == LogLevel.error)
         {
-            version (StdLoggerDisableError) return false;
+            version (StdLoggerDisableError) enum isLoggingActiveAt = false;
         }
         else static if (ll == LogLevel.critical)
         {
-            version (StdLoggerDisableCritical) return false;
+            version (StdLoggerDisableCritical) enum isLoggingActiveAt = false;
         }
         else static if (ll == LogLevel.fatal)
         {
-            version (StdLoggerDisableFatal) return false;
+            version (StdLoggerDisableFatal) enum isLoggingActiveAt = false;
+        }
+        // If `isLoggingActiveAt` didn't get defined above to false,
+        // we default it to true.
+        static if (!is(isLoggingActiveAt))
+        {
+            enum isLoggingActiveAt = true;
         }
     }
-
-    return true;
 }
 
-/// Ditto
-@property pure bool isLoggingActive()() @safe nothrow @nogc
-{
-    return isLoggingActiveAt!(LogLevel.all)();
-}
+/// This flag is set if all logging is disabled statically.
+enum isLoggingActive = isLoggingActiveAt!(LogLevel.all);
 
 /** This functions is used at runtime to determine if a $(D LogLevel) is
 active. The same previously defined version statements are used to disable
@@ -922,9 +923,9 @@ abstract class Logger
     assert(f.logLevel == LogLevel.info);
     -----------
     */
-    @property final LogLevel logLevel() const pure @safe @nogc
+    @property final LogLevel logLevel() const pure @trusted @nogc
     {
-        synchronized (mutex) return this.logLevel_;
+        return atomicLoad!(MemoryOrder.acq)(this.logLevel_);
     }
 
     /// Ditto
@@ -1661,7 +1662,7 @@ abstract class Logger
     }
 
     private void delegate() fatalHandler_;
-    private LogLevel logLevel_ = LogLevel.info;
+    private shared LogLevel logLevel_ = LogLevel.info;
     private Mutex mutex;
 
     protected Appender!string msgAppender;
@@ -1699,9 +1700,7 @@ package @property Logger stdlogImpl() @trusted
     return __logger;
 }
 
-/** This method sets the default $(D Logger).
-
-The default $(D Logger) must be thread-safe.
+/** This property sets and gets the default $(D Logger).
 
 Example:
 -------------
@@ -1711,9 +1710,27 @@ The example sets a new $(D StdioLogger) as new $(D stdlog).
 
 If at some point you want to use the original default logger again, you can
 use $(D stdlog = null;). This will put back the original.
+
+Note:
+While getting and setting $(D stdlog) is thread-safe, it has to be considered
+that the returned reference is only a current snapshot and in the following
+code, you must make sure no other thread reassigns to it between reading and
+writing $(D stdlog).
+-------------
+if (stdlog !is myLogger)
+    stdlog = new myLogger;
+-------------
 */
+@property Logger stdlog() @trusted
+{
+    synchronized (__stdloggermutex)
+    {
+        return stdlogImpl;
+    }
+}
+
+/// Ditto
 @property void stdlog(Logger logger) @trusted
-body
 {
     // We don't want to swap out the stdlog while another thread works with it.
     synchronized (__stdloggermutex)
@@ -1914,7 +1931,7 @@ unittest
     assert(l.line == lineNumber);
     assert(l.logLevel == LogLevel.info);
 
-    auto oldunspecificLogger = stdlogImpl;
+    auto oldunspecificLogger = stdlog;
 
     assert(oldunspecificLogger.logLevel == LogLevel.all,
          to!string(oldunspecificLogger.logLevel));
@@ -1929,7 +1946,7 @@ unittest
         stdlog = oldunspecificLogger;
     }
 
-    assert(stdlogImpl.logLevel == LogLevel.info);
+    assert(stdlog.logLevel == LogLevel.info);
     assert(globalLogLevel == LogLevel.all);
 
     msg = "Another message";
@@ -1992,7 +2009,7 @@ unittest // default logger
     import std.file;
     string filename = randomString(32) ~ ".tempLogFile";
     FileLogger l = new FileLogger(filename);
-    auto oldunspecificLogger = stdlogImpl;
+    auto oldunspecificLogger = stdlog;
     stdlog = l;
 
     scope(exit)
@@ -2028,7 +2045,7 @@ unittest
     import std.file;
     import core.memory;
     string filename = randomString(32) ~ ".tempLogFile";
-    auto oldunspecificLogger = stdlogImpl;
+    auto oldunspecificLogger = stdlog;
 
     scope(exit)
     {
@@ -2042,7 +2059,7 @@ unittest
 
     auto l = new FileLogger(filename);
     stdlog = l;
-    stdlogImpl.logLevel = LogLevel.critical;
+    stdlog.logLevel = LogLevel.critical;
 
     log(LogLevel.error, false, notWritten);
     log(LogLevel.critical, true, written);
@@ -2074,7 +2091,7 @@ unittest
 // testing possible log conditions
 unittest
 {
-    auto oldunspecificLogger = stdlogImpl;
+    auto oldunspecificLogger = stdlog;
 
     auto mem = new TestLogger;
     mem.fatalHandler = delegate() {};
@@ -2313,7 +2330,7 @@ unittest
 // more testing
 unittest
 {
-    auto oldunspecificLogger = stdlogImpl;
+    auto oldunspecificLogger = stdlog;
 
     auto mem = new TestLogger;
     mem.fatalHandler = delegate() {};
@@ -2543,7 +2560,7 @@ unittest
     bool fatalLog;
     auto mem = new TestLogger;
     mem.fatalHandler = delegate() { fatalLog = true; };
-    auto oldunspecificLogger = stdlogImpl;
+    auto oldunspecificLogger = stdlog;
 
     stdlog = mem;
     scope(exit)
@@ -2746,7 +2763,7 @@ unittest
 // Issue #5
 unittest
 {
-    auto oldunspecificLogger = stdlogImpl;
+    auto oldunspecificLogger = stdlog;
 
     scope(exit)
     {
@@ -2768,7 +2785,7 @@ unittest
 {
     import std.experimental.logger.multilogger;
 
-    auto oldunspecificLogger = stdlogImpl;
+    auto oldunspecificLogger = stdlog;
 
     scope(exit)
     {
@@ -2799,7 +2816,7 @@ unittest
 
 unittest
 {
-    auto dl = cast(FileLogger)stdlogImpl;
+    auto dl = cast(FileLogger)stdlog;
     assert(dl !is null);
     assert(dl.logLevel == LogLevel.all);
     assert(globalLogLevel == LogLevel.all);
