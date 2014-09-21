@@ -210,7 +210,7 @@ template isLoggingActiveAt(LogLevel ll)
     }
 }
 
-/// This flag is set if all logging is disabled statically.
+/// This compile-time flag is $(D true) if logging is not statically disabled.
 enum isLoggingActive = isLoggingActiveAt!(LogLevel.all);
 
 /** This functions is used at runtime to determine if a $(D LogLevel) is
