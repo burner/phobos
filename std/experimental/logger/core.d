@@ -470,14 +470,13 @@ args = The data that should be logged.
 
 Examples:
 --------------------
-logf(LogLevel.warning, true, "Hello World %f", 3.1415);
+logf(LogLevel.warning, "Hello World %f", 3.1415);
 --------------------
 */
 void logf(int line = __LINE__, string file = __FILE__,
     string funcName = __FUNCTION__, string prettyFuncName = __PRETTY_FUNCTION__,
     string moduleName = __MODULE__, A...)(const LogLevel ll, lazy string msg,
         lazy A args) @trusted
-    if (args.length == 0 || (args.length > 0 && !is(Unqual!(A[0]) : bool)))
 {
     static if (isLoggingActive)
     {
@@ -1548,7 +1547,6 @@ abstract class Logger
         string prettyFuncName = __PRETTY_FUNCTION__,
         string moduleName = __MODULE__, A...)(const LogLevel ll,
             lazy string msg, lazy A args) @trusted
-        if (args.length == 0 || (args.length > 0 && !is(Unqual!(A[0]) : bool)))
     {
         static if (isLoggingActive) synchronized (mutex)
         {
