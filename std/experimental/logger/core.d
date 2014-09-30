@@ -1089,11 +1089,11 @@ abstract class Logger
         Examples:
         --------------------
         auto s = new FileLogger(stderr);
-        s.trace(true, "is number %d", 1);
-        s.info(true, "is number %d", 2);
-        s.error(false, "is number %d", 3);
-        s.critical(someFunc(), "is number %d", 4);
-        s.fatal(true, "is number %d", 5);
+        s.tracef(true, "is number %d", 1);
+        s.infof(true, "is number %d", 2);
+        s.errorf(false, "is number %d", 3);
+        s.criticalf(someFunc(), "is number %d", 4);
+        s.fatalf(true, "is number %d", 5);
         --------------------
         */
         void logImplf(int line = __LINE__, string file = __FILE__,
@@ -1135,11 +1135,11 @@ abstract class Logger
         Examples:
         --------------------
         auto s = new FileLogger(stderr);
-        s.trace("is number %d", 1);
-        s.info("is number %d", 2);
-        s.error("is number %d", 3);
-        s.critical("is number %d", 4);
-        s.fatal("is number %d", 5);
+        s.tracef("is number %d", 1);
+        s.infof("is number %d", 2);
+        s.errorf("is number %d", 3);
+        s.criticalf("is number %d", 4);
+        s.fatalf("is number %d", 5);
         --------------------
         */
         void logImplf(int line = __LINE__, string file = __FILE__,
