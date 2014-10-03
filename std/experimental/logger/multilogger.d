@@ -45,7 +45,7 @@ abstract class MultiLoggerBase : Logger
     override protected void writeLogMsg(ref LogEntry payload) @trusted
     {
         //foreach (ref it; logger) BUG
-		for (size_t i = 0; i < this.logger.size(); ++i) 
+		for (size_t i = 0; i < this.logger.length; ++i) 
 		{
 			auto it = this.logger[i];
             /* We don't perform any checks here to avoid race conditions.
