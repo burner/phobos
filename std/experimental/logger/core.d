@@ -203,7 +203,7 @@ template isLoggingActiveAt(LogLevel ll)
         }
         // If `isLoggingActiveAt` didn't get defined above to false,
         // we default it to true.
-        static if (!is(isLoggingActiveAt))
+        static if (!is(typeof(isLoggingActiveAt) == bool))
         {
             enum isLoggingActiveAt = true;
         }
