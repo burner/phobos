@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+<html lang='en-US'>
+<!--
+	Copyright (c) 1999-2010 by Digital Mars
+	All Rights Reserved Written by Walter Bright
+	http://www.digitalmars.com
+  -->
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" >
+<title>std.experimental.logger.filelogger - D Programming Language</title>
+<link rel="stylesheet" type="text/css" href="../css/codemirror.css" />
+<link rel="stylesheet" type="text/css" href="../css/style.css">
+<link rel="stylesheet" type="text/css" href="../css/cssmenu.css">
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="../js/codemirror-compressed.js"></script>
+<script type="text/javascript" src="../js/run.js"></script>
+<script type="text/javascript" src="../js/listanchors.js"></script>
+<script type="text/javascript" src="../js/cssmenu.js"></script>
+<script type="text/javascript">jQuery(document).ready(listanchors);</script>
+</head>
+<body id="std.experimental.logger.filelogger" class='hyphenate'>
+<script type="text/javascript">document.body.className += ' have-javascript';</script>
+<div id="top">	
+	<div id="header">		<a href="http://dlang.org"><img id="logo" width="125" height="95" border="0" alt="D Logo" src="../images/dlogo.png"></a>
+		<a id="d-language" href="http://dlang.org">D Programming Language</a>
+	</div>
+</div>
+<div id="navigation">
+<div class="navblock">	<form method="get" action="http://www.google.com/search">
+		<div id="searchbox">			<input name="q" size="10" value="RTL Search" onFocus='if(this.value == "RTL Search"){this.value="";}'>
+			<input type="hidden" name="domains" value="www.digitalmars.com">
+			<input type="hidden" name="sitesearch" value="dlang.org/phobos">
+			<input type="hidden" name="sourceid" value="google-search">
+			<input type="submit" name="submit" value="Go">
+		</div>
+	</form>
+</div>
+
+<div id="cssmenu"><ul>    <li><a href='../index.html'><span>D Lib Prerelease</span></a></li>
+	<li><a href='../phobos/index.html'><span>Current Release ()</span></a></li>
+	<li><a href='object.html'><span><tt>object</tt></span></a></li>
+	<li class='has-sub'><a href='#'><span><tt>std</tt></span></a>
+	  <ul><li>		  <li><a href="std_algorithm.html"><span class="d_inlinecode donthyphenate notranslate">std.algorithm</span></a></li></li><li>		  <li><a href="std_array.html"><span class="d_inlinecode donthyphenate notranslate">std.array</span></a></li></li><li>		  <li><a href="std_ascii.html"><span class="d_inlinecode donthyphenate notranslate">std.ascii</span></a></li></li><li>		  <li><a href="std_base64.html"><span class="d_inlinecode donthyphenate notranslate">std.base64</span></a></li></li><li>		  <li><a href="std_bigint.html"><span class="d_inlinecode donthyphenate notranslate">std.bigint</span></a></li></li><li>		  <li><a href="std_bitmanip.html"><span class="d_inlinecode donthyphenate notranslate">std.bitmanip</span></a></li></li><li>		  <li><a href="std_compiler.html"><span class="d_inlinecode donthyphenate notranslate">std.compiler</span></a></li></li><li>		  <li><a href="std_complex.html"><span class="d_inlinecode donthyphenate notranslate">std.complex</span></a></li></li><li>		  <li><a href="std_concurrency.html"><span class="d_inlinecode donthyphenate notranslate">std.concurrency</span></a></li></li><li>		  <li><a href="std_container_package.html"><span class="d_inlinecode donthyphenate notranslate">std.container.package</span></a></li></li><li>		  <li><a href="std_container_array.html"><span class="d_inlinecode donthyphenate notranslate">std.container.array</span></a></li></li><li>		  <li><a href="std_container_binaryheap.html"><span class="d_inlinecode donthyphenate notranslate">std.container.binaryheap</span></a></li></li><li>		  <li><a href="std_container_dlist.html"><span class="d_inlinecode donthyphenate notranslate">std.container.dlist</span></a></li></li><li>		  <li><a href="std_container_rbtree.html"><span class="d_inlinecode donthyphenate notranslate">std.container.rbtree</span></a></li></li><li>		  <li><a href="std_container_slist.html"><span class="d_inlinecode donthyphenate notranslate">std.container.slist</span></a></li></li><li>		  <li><a href="std_container_util.html"><span class="d_inlinecode donthyphenate notranslate">std.container.util</span></a></li></li><li>		  <li><a href="std_conv.html"><span class="d_inlinecode donthyphenate notranslate">std.conv</span></a></li></li><li>		  <li><a href="std_datetime.html"><span class="d_inlinecode donthyphenate notranslate">std.datetime</span></a></li></li><li>		  <li><a href="std_digest_crc.html"><span class="d_inlinecode donthyphenate notranslate">std.digest.crc</span></a></li></li><li>		  <li><a href="std_digest_digest.html"><span class="d_inlinecode donthyphenate notranslate">std.digest.digest</span></a></li></li><li>		  <li><a href="std_digest_md.html"><span class="d_inlinecode donthyphenate notranslate">std.digest.md</span></a></li></li><li>		  <li><a href="std_digest_ripemd.html"><span class="d_inlinecode donthyphenate notranslate">std.digest.ripemd</span></a></li></li><li>		  <li><a href="std_digest_sha.html"><span class="d_inlinecode donthyphenate notranslate">std.digest.sha</span></a></li></li><li>		  <li><a href="std_encoding.html"><span class="d_inlinecode donthyphenate notranslate">std.encoding</span></a></li></li><li>		  <li><a href="std_exception.html"><span class="d_inlinecode donthyphenate notranslate">std.exception</span></a></li></li><li>		  <li><a href="std_file.html"><span class="d_inlinecode donthyphenate notranslate">std.file</span></a></li></li><li>		  <li><a href="std_format.html"><span class="d_inlinecode donthyphenate notranslate">std.format</span></a></li></li><li>		  <li><a href="std_functional.html"><span class="d_inlinecode donthyphenate notranslate">std.functional</span></a></li></li><li>		  <li><a href="std_getopt.html"><span class="d_inlinecode donthyphenate notranslate">std.getopt</span></a></li></li><li>		  <li><a href="std_json.html"><span class="d_inlinecode donthyphenate notranslate">std.json</span></a></li></li><li>		  <li><a href="std_math.html"><span class="d_inlinecode donthyphenate notranslate">std.math</span></a></li></li><li>		  <li><a href="std_mathspecial.html"><span class="d_inlinecode donthyphenate notranslate">std.mathspecial</span></a></li></li><li>		  <li><a href="std_mmfile.html"><span class="d_inlinecode donthyphenate notranslate">std.mmfile</span></a></li></li><li>		  <li><a href="std_net_curl.html"><span class="d_inlinecode donthyphenate notranslate">std.net.curl</span></a></li></li><li>		  <li><a href="std_net_isemail.html"><span class="d_inlinecode donthyphenate notranslate">std.net.isemail</span></a></li></li><li>		  <li><a href="std_numeric.html"><span class="d_inlinecode donthyphenate notranslate">std.numeric</span></a></li></li><li>		  <li><a href="std_outbuffer.html"><span class="d_inlinecode donthyphenate notranslate">std.outbuffer</span></a></li></li><li>		  <li><a href="std_parallelism.html"><span class="d_inlinecode donthyphenate notranslate">std.parallelism</span></a></li></li><li>		  <li><a href="std_path.html"><span class="d_inlinecode donthyphenate notranslate">std.path</span></a></li></li><li>		  <li><a href="std_process.html"><span class="d_inlinecode donthyphenate notranslate">std.process</span></a></li></li><li>		  <li><a href="std_random.html"><span class="d_inlinecode donthyphenate notranslate">std.random</span></a></li></li><li>		  <li><a href="std_range_package.html"><span class="d_inlinecode donthyphenate notranslate">std.range.package</span></a></li></li><li>		  <li><a href="std_range_interfaces.html"><span class="d_inlinecode donthyphenate notranslate">std.range.interfaces</span></a></li></li><li>		  <li><a href="std_range_primitives.html"><span class="d_inlinecode donthyphenate notranslate">std.range.primitives</span></a></li></li><li>		  <li><a href="std_regex_package.html"><span class="d_inlinecode donthyphenate notranslate">std.regex.package</span></a></li></li><li>		  <li><a href="std_signals.html"><span class="d_inlinecode donthyphenate notranslate">std.signals</span></a></li></li><li>		  <li><a href="std_socket.html"><span class="d_inlinecode donthyphenate notranslate">std.socket</span></a></li></li><li>		  <li><a href="std_socketstream.html"><span class="d_inlinecode donthyphenate notranslate">std.socketstream</span></a></li></li><li>		  <li><a href="std_stdio.html"><span class="d_inlinecode donthyphenate notranslate">std.stdio</span></a></li></li><li>		  <li><a href="std_cstream.html"><span class="d_inlinecode donthyphenate notranslate">std.cstream</span></a></li></li><li>		  <li><a href="std_stream.html"><span class="d_inlinecode donthyphenate notranslate">std.stream</span></a></li></li><li>		  <li><a href="std_string.html"><span class="d_inlinecode donthyphenate notranslate">std.string</span></a></li></li><li>		  <li><a href="std_system.html"><span class="d_inlinecode donthyphenate notranslate">std.system</span></a></li></li><li>		  <li><a href="std_traits.html"><span class="d_inlinecode donthyphenate notranslate">std.traits</span></a></li></li><li>		  <li><a href="std_typecons.html"><span class="d_inlinecode donthyphenate notranslate">std.typecons</span></a></li></li><li>		  <li><a href="std_typetuple.html"><span class="d_inlinecode donthyphenate notranslate">std.typetuple</span></a></li></li><li>		  <li><a href="std_uni.html"><span class="d_inlinecode donthyphenate notranslate">std.uni</span></a></li></li><li>		  <li><a href="std_uri.html"><span class="d_inlinecode donthyphenate notranslate">std.uri</span></a></li></li><li>		  <li><a href="std_utf.html"><span class="d_inlinecode donthyphenate notranslate">std.utf</span></a></li></li><li>		  <li><a href="std_uuid.html"><span class="d_inlinecode donthyphenate notranslate">std.uuid</span></a></li></li><li>		  <li><a href="std_variant.html"><span class="d_inlinecode donthyphenate notranslate">std.variant</span></a></li></li><li>		  <li><a href="std_windows_charset.html"><span class="d_inlinecode donthyphenate notranslate">std.windows.charset</span></a></li></li><li>		  <li><a href="std_xml.html"><span class="d_inlinecode donthyphenate notranslate">std.xml</span></a></li></li><li>		  <li><a href="std_zip.html"><span class="d_inlinecode donthyphenate notranslate">std.zip</span></a></li></li><li>		  <li><a href="std_zlib.html"><span class="d_inlinecode donthyphenate notranslate">std.zlib</span></a></li>
+	  </li></ul>
+	<li class='has-sub'><a href='#'><span><tt>etc</tt></span></a>
+	  <ul><li>	    <li><a href="etc_c_curl.html"><span class="d_inlinecode donthyphenate notranslate">etc.c.curl</span></a></li></li><li>	    <li><a href="etc_c_sqlite3.html"><span class="d_inlinecode donthyphenate notranslate">etc.c.sqlite3</span></a></li></li><li>	    <li><a href="etc_c_zlib.html"><span class="d_inlinecode donthyphenate notranslate">etc.c.zlib</span></a></li>
+	  </li></ul>
+	<li class='has-sub'><a href='#'><span><TT>core</TT></span></a>
+	  <ul><li>		<li><a href="core_atomic.html"><span class="d_inlinecode donthyphenate notranslate">core.atomic</span></a></li></li><li>		<li><a href="core_bitop.html"><span class="d_inlinecode donthyphenate notranslate">core.bitop</span></a></li></li><li>		<li><a href="core_cpuid.html"><span class="d_inlinecode donthyphenate notranslate">core.cpuid</span></a></li></li><li>		<li><a href="core_demangle.html"><span class="d_inlinecode donthyphenate notranslate">core.demangle</span></a></li></li><li>		<li><a href="core_exception.html"><span class="d_inlinecode donthyphenate notranslate">core.exception</span></a></li></li><li>		<li><a href="core_memory.html"><span class="d_inlinecode donthyphenate notranslate">core.memory</span></a></li></li><li>		<li><a href="core_runtime.html"><span class="d_inlinecode donthyphenate notranslate">core.runtime</span></a></li></li><li>		<li><a href="core_simd.html"><span class="d_inlinecode donthyphenate notranslate">core.simd</span></a></li></li><li>		<li><a href="core_thread.html"><span class="d_inlinecode donthyphenate notranslate">core.thread</span></a></li></li><li>		<li><a href="core_time.html"><span class="d_inlinecode donthyphenate notranslate">core.time</span></a></li></li><li>		<li><a href="core_vararg.html"><span class="d_inlinecode donthyphenate notranslate">core.vararg</span></a></li></li><li>		<li><a href="core_sync_barrier.html"><span class="d_inlinecode donthyphenate notranslate">core.sync.barrier</span></a></li></li><li>		<li><a href="core_sync_condition.html"><span class="d_inlinecode donthyphenate notranslate">core.sync.condition</span></a></li></li><li>		<li><a href="core_sync_config.html"><span class="d_inlinecode donthyphenate notranslate">core.sync.config</span></a></li></li><li>		<li><a href="core_sync_exception.html"><span class="d_inlinecode donthyphenate notranslate">core.sync.exception</span></a></li></li><li>		<li><a href="core_sync_mutex.html"><span class="d_inlinecode donthyphenate notranslate">core.sync.mutex</span></a></li></li><li>		<li><a href="core_sync_rwmutex.html"><span class="d_inlinecode donthyphenate notranslate">core.sync.rwmutex</span></a></li></li><li>		<li><a href="core_sync_semaphore.html"><span class="d_inlinecode donthyphenate notranslate">core.sync.semaphore</span></a></li>
+	  </li></ul>
+	<li><a href='http://code.dlang.org'><span>3rd Party Packages</span></a></li>
+</ul></div>
+</div>
+<div id="content">
+	
+<div id="tools">	<span class="tip">		<a href="https://github.com/D-Programming-Language/phobos/edit/master/std/experimental/logger/filelogger.d" class="button">Improve this page</a>
+		<span 			Quickly fork>edit online, and submit a pull request for this page.
+			Requires a signed-in GitHub account. This works well for small changes.
+			If you'd like to make larger changes you may want to consider using
+			local clone.
+		</span>
+	</span>
+	<span class="tip">		<a href="http://wiki.dlang.org/DocComments/std.experimental.logger.filelogger" class="button">Page wiki</a>
+		<span 			View or edit the community-maintained wiki page associated with this page.
+		></span>
+	</span>
+</div>
+    <h1>std.experimental.logger.filelogger</h1>
+    <div class="quickindex" id="quickindex"></div>
+    <!--Generated by Ddoc from std/experimental/logger/filelogger.d-->
+<p></p>
+<dl><dt class="d_decl"><a name=".FileLogger"></a><div class="quickindex" id="quickindex.FileLogger"></div>class <a name="FileLogger"></a><span class="ddoc_psymbol">FileLogger</span>: <u>std.experimental.logger.core.Logger</u>;
+</dt>
+<dd><p class="summary">This <span class="d_inlinecode donthyphenate notranslate">Logger</span> implementation writes log messages to the associated
+file. The name of the file has to be passed on construction time. If the file
+is already present new log messages will be append at its end.</p>
+
+<dl><dt class="d_decl"><a name=".FileLogger.this"></a><div class="quickindex" id="quickindex.FileLogger.this"></div>@safe this(in string <i>fn</i>, const LogLevel <i>lv</i> = LogLevel.info);
+</dt>
+<dd><p class="summary">A constructor for the <span class="d_inlinecode donthyphenate notranslate">FileLogger</span> Logger.
+</p>
+<p class="keyval Parameters"><span class="key keyParameters">Parameters:</span> <div class="val valParameters"><table class=params><tr class="param"><td class="param_id">string <i>fn</i></td>
+<td class="param_desc">The filename of the output file of the <span class="d_inlinecode donthyphenate notranslate">FileLogger</span>. If that
+      file can not be opened for writting an exception will be thrown.</td></tr>
+<tr class="param"><td class="param_id">LogLevel <i>lv</i></td>
+<td class="param_desc">The <span class="d_inlinecode donthyphenate notranslate">LogLevel</span> for the <span class="d_inlinecode donthyphenate notranslate">FileLogger</span>. By default the
+      <span class="d_inlinecode donthyphenate notranslate">LogLevel</span> for <span class="d_inlinecode donthyphenate notranslate">FileLogger</span> is <span class="d_inlinecode donthyphenate notranslate">LogLevel.info</span>.</td></tr>
+</table></div></p>
+<span class="val"><p class="keyval Section"><span class="key keySection">Example:</span>
+<pre class="d_code notranslate"><span class="d_keyword">auto</span> l1 = <span class="d_keyword">new</span> FileLogger(<span class="d_string">"logFile"</span>, <span class="d_string">"loggerName"</span>);
+<span class="d_keyword">auto</span> l2 = <span class="d_keyword">new</span> FileLogger(<span class="d_string">"logFile"</span>, <span class="d_string">"loggerName"</span>, LogLevel.fatal);
+</pre>
+</span></p>
+
+</dd>
+<dt class="d_decl"><a name=".FileLogger.this.2"></a><div class="quickindex" id="quickindex.FileLogger.this.2"></div>@safe this(File <i>file</i>, const LogLevel <i>lv</i> = LogLevel.info);
+</dt>
+<dd><p class="summary">A constructor for the <span class="d_inlinecode donthyphenate notranslate">FileLogger</span> Logger that takes a reference to
+    a <span class="d_inlinecode donthyphenate notranslate">File</span>.
+</p>
+<p class="description">The <span class="d_inlinecode donthyphenate notranslate">File</span> passed must be open for all the log call to the
+    <span class="d_inlinecode donthyphenate notranslate">FileLogger</span>. If the <span class="d_inlinecode donthyphenate notranslate">File</span> gets closed, using the <span class="d_inlinecode donthyphenate notranslate">FileLogger</span>
+    for logging will result in undefined behaviour.
+
+</p>
+<p class="keyval Parameters"><span class="key keyParameters">Parameters:</span> <div class="val valParameters"><table class=params><tr class="param"><td class="param_id">File <i>file</i></td>
+<td class="param_desc">The <i>file</i> used for logging.</td></tr>
+<tr class="param"><td class="param_id">LogLevel <i>lv</i></td>
+<td class="param_desc">The <span class="d_inlinecode donthyphenate notranslate">LogLevel</span> for the <span class="d_inlinecode donthyphenate notranslate">FileLogger</span>. By default the
+      <span class="d_inlinecode donthyphenate notranslate">LogLevel</span> for <span class="d_inlinecode donthyphenate notranslate">FileLogger</span> is <span class="d_inlinecode donthyphenate notranslate">LogLevel.info</span>.</td></tr>
+</table></div></p>
+<span class="val"><p class="keyval Section"><span class="key keySection">Example:</span>
+<pre class="d_code notranslate"><span class="d_keyword">auto</span> <span class="d_param">file</span> = File(<span class="d_string">"logFile.log"</span>, <span class="d_string">"w"</span>);
+<span class="d_keyword">auto</span> l1 = <span class="d_keyword">new</span> FileLogger(<span class="d_param">file</span>, <span class="d_string">"LoggerName"</span>);
+<span class="d_keyword">auto</span> l2 = <span class="d_keyword">new</span> FileLogger(<span class="d_param">file</span>, <span class="d_string">"LoggerName"</span>, LogLevel.fatal);
+</pre>
+</span></p>
+
+</dd>
+<dt class="d_decl"><a name=".FileLogger.file"></a><div class="quickindex" id="quickindex.FileLogger.file"></div>@property @safe File <a name="file"></a><span class="ddoc_psymbol">file</span>();
+</dt>
+<dd><p class="summary">If the <span class="d_inlinecode donthyphenate notranslate">FileLogger</span> is managing the <span class="d_inlinecode donthyphenate notranslate">File</span> it logs to, this
+    method will return a reference to this File.</p>
+
+</dd>
+<dt class="d_decl"><a name=".FileLogger.getFilename"></a><div class="quickindex" id="quickindex.FileLogger.getFilename"></div>string <a name="getFilename"></a><span class="ddoc_psymbol">getFilename</span>();
+</dt>
+<dd><p class="summary">If the <span class="d_inlinecode donthyphenate notranslate">FileLogger</span> was constructed with a filename, this method
+    returns this filename. Otherwise an empty <span class="d_inlinecode donthyphenate notranslate">string</span> is returned.</p>
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</div>
+<div id="copyright">Copyright &copy; 1999-2015 by Digital Mars &reg;, All Rights Reserved | Page generated by <a href="http://dlang.org/ddoc.html">Ddoc</a> on Thu Jan 22 17:48:56 2015
+</div>
+</body>
+</html>

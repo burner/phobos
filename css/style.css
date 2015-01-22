@@ -4,13 +4,124 @@ body
 	border: 0;
 	color: black;
 	background-color: #1f252b;
-	background-image: url(../images/gradient-red.jpg);
 	background-repeat: no-repeat;
 	font-size: 100%;
 	font-family: Verdana, "Deja Vu", "Bitstream Vera Sans", sans-serif;
-	min-width: 60em;
-/*     max-width: 1590px; */
-    margin: 0px auto;
+	margin: 0px auto;
+}
+
+a.btn
+{
+    color: black !important; /*override a:visited color*/
+    border: 1px solid gray;
+    border-radius: 20px;
+    text-decoration: none;
+    padding: 6px 12px;
+}
+
+a.btn:hover
+{
+    background-color: lightgray;
+}
+
+table.params
+{
+	border: 1px dotted black;
+}
+
+tr.param
+{
+	border: none;
+   	border-bottom: 1px dotted gray;
+}
+
+tr:last-child
+{
+   	border-bottom: none;
+}
+
+td.param_id
+{
+	border: inherit;
+	font-family: monospace;
+	font-weight: bold;
+	font-size: 120%;
+	padding-right: 1em;
+	white-space: nowrap;
+	vertical-align: top;
+}
+
+td.param_desc
+{
+	border: inherit;
+	font-style: italic;
+}
+
+.download_image
+{
+	display: inline-block;
+	width: 100px;	
+}
+
+h3.download
+{
+	display: inline-block;
+}
+
+.download_paragraph
+{
+	display: inline-block;
+}
+
+.footnote
+{
+	font-style: italic;
+}
+.footnote::before { content: " ("; }
+.footnote::after { content: ")"; }
+
+.gname
+{
+	font-style: italic;
+}
+
+.metacode
+{
+	font-style: italic;
+}
+
+.key
+{
+	font-weight: bold;
+	display: block;
+}
+
+.hyphenate
+{
+	-webkit-hyphens: auto;
+	-moz-hyphens: auto;
+	-ms-hyphens: auto;
+	hyphens: auto;
+}
+
+.donthyphenate
+{
+	-webkit-hyphens: manual;
+	-moz-hyphens: manual;
+	-ms-hyphens: manual;
+	hyphens: manual;
+}
+
+.black { color: black; }
+.blue { color: blue; }
+.green { color: green; }
+.red { color: red; }
+.white { color: white; }
+.yellow { color: yellow; }
+
+.bigoh
+{
+	font-weight: bold;
 }
 
 h1, h2, h3, h4, h5, h6
@@ -25,17 +136,20 @@ h1, h2, h3, h4, h5, h6
 h1
 {
 	margin-top: 0;
-	font-size: 2.5em;
+	font-size: 2.0em;
 }
 
 h2
 {
-	font-size: 1.7em;
+	font-size: 1.5em;
+	margin-top: 1em;
+	margin-bottom: 0.5em;
 }
 
 h3
 {
 	font-size: 1.35em;
+	margin-bottom: 0.5em;
 }
 
 h4
@@ -88,7 +202,7 @@ pre
 {
 	background: white;
 	padding: 1ex;
-	margin: 1em 0 1em 3em;
+	margin: 1em 0 1em 0em;
 	font-family: monospace;
 	font-size: 1.2em;
 	line-height: normal;
@@ -101,21 +215,28 @@ pre
 	word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
-dd
+dd, .d_decl_dd
 {
 	padding: 1ex;
 	margin-left: 3em;
 	margin-bottom: 1em;
 }
 
+table
+{
+	border-spacing: 0px;
+}
+
 table, tr, td, th
 {
+	border: 1px solid black;
 	/*border-style: solid;*/
 }
 
 td
 {
 	text-align: justify;
+	padding: 4pt;
 }
 
 hr
@@ -131,6 +252,30 @@ a
 a:visited
 {
 	color: #606;
+}
+
+/*
+Styling for page anchor self-links.
+
+These links look like regular headers unless hovered, in which case
+they are underlined and display a pilcrow after them.
+*/
+a.anchor
+{
+	color: #633; /* Use the regular header text color */
+	text-decoration: none; /* Don't underline unless hovered */
+}
+
+a.anchor:hover
+{
+	text-decoration: underline; /* See above */
+}
+
+a.anchor:hover:after
+{
+	content: " \00B6"; /* Unicode pilcrow symbol */
+	color: black; /* Pilcrow should not use the regular header text color */
+	font-style: normal; /* ... and should not be italic */
 }
 
 /* These are different kinds of <pre> sections */
@@ -346,7 +491,7 @@ div#twitter
 	color: white;
 	font-size: 0.875em;
 	float: right;
-	width: 16em;
+	width: 18em;
 	padding: 1em 1em;
     margin-top: -1em;
 }
@@ -417,18 +562,19 @@ div#tools
 	text-align: right;
 }
 
-div#tools > a.button
+div#tools a.button
 {
 	-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
 	-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
 	box-shadow:inset 0px 1px 0px 0px #ffffff;
 	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ededed), color-stop(1, #dfdfdf) );
 	background:-moz-linear-gradient( center top, #ededed 5%, #dfdfdf 100% );
+	background:-o-linear-gradient(top, #ededed, #dfdfdf);
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#dfdfdf');
 	background-color:#ededed;
-	border:1px solid #dcdcdc;
+	border:1px solid #aaa;
 	display:inline-block;
-	color:#777777;
+	color:#555;
 	font-family:arial;
 	font-size:10px;
 	font-weight:bold;
@@ -437,15 +583,16 @@ div#tools > a.button
 	text-shadow:1px 1px 0px #ffffff;
 }
 
-div#tools > a.button:hover
+div#tools a.button:hover
 {
 	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #dfdfdf), color-stop(1, #ededed) );
 	background:-moz-linear-gradient( center top, #dfdfdf 5%, #ededed 100% );
+	background:-o-linear-gradient(top, #dfdfdf, #ededed);
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dfdfdf', endColorstr='#ededed');
 	background-color:#dfdfdf;
 }
 
-div#tools > a.button:active
+div#tools a.button:active
 {
 	position: relative;
 	top: 1px;
@@ -456,11 +603,11 @@ div#tools img
 	vertical-align: middle;
 }
 
-a.tip {
+.tip {
 	position: relative;
 }
 
-a.tip span {
+.tip span {
 	display: none;
 	position: absolute;
 	top: 25px;
@@ -482,7 +629,7 @@ a.tip span {
 	text-shadow: none;
 }
 
-a:hover.tip span {
+.tip:hover span {
 	display: block;
 }
 
@@ -490,12 +637,6 @@ a:hover.tip span {
 div#content li
 {
 	padding-bottom: .7ex;
-}
-
-
-div#google_ad
-{
-	margin-top: 6em;
 }
 
 
@@ -600,25 +741,25 @@ div#PostingTOC a
 }
 
 /* These are for the changelogs */
-div#version
+div.version
 {
 	border-top: 1px solid black;
 	font-size: 0.9em;
 	padding-top: 2ex;
 }
-div#version font
+div.version font
 {
 	font-family: Georgia, "Times New Roman", Times, serif;
 	color: #633;
 }
-div#version li
+div.version li
 {
 	padding-bottom: 0.3ex;
 }
-div#bugsfixed
+div.bugsfixed
 {
 }
-div#whatsnew
+div.whatsnew
 {
 }
 
@@ -645,13 +786,20 @@ td.compYes  /* comparison with D: "YES" */
 
 TABLE.book
 {
+	border: none;
     border-top: 2px solid;
     border-bottom: 2px solid;
     border-spacing: 1pt;
 }
 
+TABLE.book TR
+{
+	border: none;
+}
+
 TABLE.book TD
 {
+	border: none;
     padding: 1pt 12pt 1pt 1pt;
     vertical-align: top;
     border-bottom: 1px solid #E4E9EF;
@@ -659,6 +807,7 @@ TABLE.book TD
 
 TABLE.book TH
 {
+	border: none;
     border-bottom: 1px solid;
     padding: 1pt 12pt 1pt 1pt;
     vertical-align: top;
@@ -689,6 +838,12 @@ TABLE.book CAPTION
     /* border-top: solid black 1px; */
     border-bottom: solid 2px #336600;
     padding: 2px 0px 2px 2px;
+    text-align: left;
+}
+
+.quickindex {
+	font-weight: normal;
+	background-color: #E4E9EF;
 }
 
 .question
@@ -723,7 +878,7 @@ textarea.d_code_output, textarea.d_code_stdin, textarea.d_code_args
 	font-family: monospace;
 	padding: 5px;
 	margin: 1px;
-	word-wrap: break-word;	
+	word-wrap: break-word;
 	height: auto;
 	background: white;
 	margin-left: 2px;
