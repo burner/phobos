@@ -38,9 +38,10 @@ module std.zip;
  */
 class ZipException : Exception
 {
-    this(string msg)
+    this(string msg, string file = __FILE__, size_t line = __LINE__,
+         Throwable next = null) @safe pure
     {
-        super("ZipException: " ~ msg);
+        super("ZipException: " ~msg, file, line, next);
     }
 }
 
@@ -87,8 +88,8 @@ final class ArchiveMember
     ushort flags;                  /// Read/Write: normally set to 0
     ushort internalAttributes;     /// Read/Write
 
-    @property ushort extractVersion()     { return _extractVersion; }    /// Read Only
-    @property uint crc32()         { return _crc32; }    /// Read Only: cyclic redundancy check (CRC) value
+    @property @safe pure nothrow ushort extractVersion() const { return _extractVersion; }    /// Read Only
+    @property @safe pure nothrow uint crc32() const { return _crc32; }    /// Read Only: cyclic redundancy check (CRC) value
 
     // Explicitly undocumented. It will be removed in January 2015.
     deprecated("Please use fileAttributes instead.")
@@ -101,20 +102,20 @@ final class ArchiveMember
     { return _externalAttributes; }
 
     /// Read Only: size of data of member in compressed form.
-    @property uint compressedSize()     { return _compressedSize; }
+    @property @safe pure nothrow uint compressedSize() const { return _compressedSize; }
 
     /// Read Only: size of data of member in expanded form.
-    @property uint expandedSize()     { return _expandedSize; }
-    @property ushort diskNumber()     { return _diskNumber; }        /// Read Only: should be 0.
+    @property @safe pure uint expandedSize() const { return _expandedSize; }
+    @property @safe pure ushort diskNumber() const { return _diskNumber; }        /// Read Only: should be 0.
 
     /// Read Only: data of member in compressed form.
-    @property ubyte[] compressedData()     { return _compressedData; }
+    @property @safe pure ubyte[] compressedData() { return _compressedData; }
 
     /// Read data of member in uncompressed form.
-    @property ubyte[] expandedData()     { return _expandedData; }
+    @property @safe pure ubyte[] expandedData() { return _expandedData; }
 
     /// Write data of member in uncompressed form.
-    @property void expandedData(ubyte[] ed)
+    @property @safe pure void expandedData(ubyte[] ed)
     {
         _expandedData = ed;
         _expandedSize  = to!uint(_expandedData.length);
@@ -128,7 +129,7 @@ final class ArchiveMember
      * Set the OS specific file attributes, as obtained by
      * $(XREF file,getAttributes) or $(XREF file,DirEntry.attributes), for this archive member.
      */
-    @property void fileAttributes(uint attr)
+    @property @safe pure nothrow void fileAttributes(uint attr)
     {
         version (Posix)
         {
@@ -162,7 +163,7 @@ final class ArchiveMember
      * encoded for an incompatible OS (Windows vs. Posix).
      *
      */
-    @property uint fileAttributes() const
+    @property @safe pure nothrow uint fileAttributes() const
     {
         version (Posix)
         {
@@ -205,7 +206,7 @@ final class ArchiveMember
      * See_Also:
      *     CompressionMethod
      **/
-    @property CompressionMethod compressionMethod() { return _compressionMethod; }
+    @property @safe pure nothrow CompressionMethod compressionMethod() const { return _compressionMethod; }
 
     // Explicitly undocumented. It will be removed in January 2015.
     deprecated("Please use the enum CompressionMethod to set this property instead.")
@@ -219,7 +220,7 @@ final class ArchiveMember
      * See_Also:
      *     CompressionMethod
      **/
-    @property void compressionMethod(CompressionMethod cm)
+    @property @safe pure void compressionMethod(CompressionMethod cm)
     {
         if (cm == _compressionMethod) return;
 
@@ -277,23 +278,23 @@ final class ZipArchive
     static const int eocd64Length = 56;
 
     /// Read Only: array representing the entire contents of the archive.
-    @property ubyte[] data()       { return _data; }
+    @property @safe pure nothrow ubyte[] data()       { return _data; }
 
     /// Read Only: 0 since multi-disk zip archives are not supported.
-    @property uint diskNumber()    { return _diskNumber; }
+    @property @safe pure nothrow uint diskNumber() const { return _diskNumber; }
 
     /// Read Only: 0 since multi-disk zip archives are not supported
-    @property uint diskStartDir()  { return _diskStartDir; }
+    @property @safe pure nothrow uint diskStartDir() const { return _diskStartDir; }
 
     /// Read Only: number of ArchiveMembers in the directory.
-    @property uint numEntries()    { return _numEntries; }
-    @property uint totalEntries()  { return _totalEntries; }    /// ditto
+    @property @safe pure nothrow uint numEntries() const { return _numEntries; }
+    @property @safe pure nothrow uint totalEntries() const { return _totalEntries; }    /// ditto
     
     /// True when the archive is in Zip64 format.
-    @property bool isZip64()  { return _isZip64; }
+    @property @safe pure nothrow bool isZip64() const { return _isZip64; }
     
     /// Set this to true to force building a Zip64 archive.
-    @property void isZip64(bool value) { _isZip64 = value; }
+    @property @safe pure nothrow void isZip64(bool value) { _isZip64 = value; }
     /**
      * Read Only: array indexed by the name of each member of the archive.
      *  All the members of the archive can be accessed with a foreach loop:

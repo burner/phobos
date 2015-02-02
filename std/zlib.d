@@ -41,8 +41,10 @@ enum
 
 class ZlibException : Exception
 {
-    this(int errnum)
-    {   string msg;
+    this(int errnum, string file = __FILE__, size_t line = __LINE__,
+         Throwable next = null)
+    {   
+		string msg;
 
         switch (errnum)
         {
@@ -56,7 +58,7 @@ class ZlibException : Exception
             case Z_VERSION_ERROR:   msg = "version error"; break;
             default:                msg = "unknown error";  break;
         }
-        super(msg);
+        super(msg, file, line, next);
     }
 }
 
