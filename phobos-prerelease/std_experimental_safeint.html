@@ -1,0 +1,386 @@
+
+<!DOCTYPE html>
+<html lang="en-US">
+<!--
+    Copyright (c) 1999-2015 by Digital Mars
+    All Rights Reserved Written by Walter Bright
+    http://digitalmars.com
+  -->
+<head>
+<meta charset="utf-8" />
+<meta name="keywords" content="D programming language" />
+<meta name="description" content="D Programming Language" />
+<title>std.experimental.safeint - D Programming Language</title>
+<link rel="stylesheet" href="../css/codemirror.css" />
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="stylesheet" href="../css/print.css" media="print" />
+<link rel="stylesheet" href="../css/cssmenu.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+<link rel="shortcut icon" href="../favicon.ico" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.1, maximum-scale=10.0" />
+</head>
+<body id='std.experimental.safeint' class='std'>
+<script type="text/javascript">document.body.className += ' have-javascript';</script>
+<div id="top">	<div id="header">		<a class="logo" href=".."><img id="logo" width="125" height="95" alt="D Logo" src="../images/dlogo.svg"></a>
+		<span id="d-language-mobilehelper"><a href=".." id="d-language">D Programming Language</a></span>
+	</div>
+</div>
+<div id="navigation">    <div id="search-box">        <form method="get" action="http://google.com/search">
+            <input type="hidden" id="domains" name="domains" value="dlang.org" />
+            <input type="hidden" id="sourceid" name="sourceid" value="google-search" />
+            <span id="search-query"><input id="q" name="q" placeholder="Search" tabindex="1000" /></span><span id="search-dropdown">                <select id="sitesearch" name="sitesearch" size="1">
+                    <option value="dlang.org">Entire D Site</option>
+                    <option selected value="dlang.org/phobos">Library Reference</option>
+                    <option value="digitalmars.com/d/archives">Newsgroup Archives</option>
+                </select>
+            </span><span id="search-submit"><button type="submit"><i class="fa fa-search"></i><span>go</span></button></span>
+        </form>
+    </div>
+    
+<div id="cssmenu"><ul>    <li><a href='../index.html'><span>D Lib Prerelease</span></a></li>
+    <li><a href='../phobos/index.html'><span>Current Release (<!--UNDEFINED MACRO: "LATEST"-->)</span></a></li>
+    
+<li><a href='object.html'><span><em class="tt">object</em></span></a></li>
+<li class='has-sub'><a href='#'><span><em class="tt">std</em></span></a>
+<ul><li>  <a href="std_algorithm.html" title="std.algorithm"><span class="d_inlinecode donthyphenate notranslate">algorithm</span></a><ul><li>    <a href="std_algorithm_comparison.html" title="std.algorithm.comparison"><span class="d_inlinecode donthyphenate notranslate">comparison</span></a></li><li>    <a href="std_algorithm_iteration.html" title="std.algorithm.iteration"><span class="d_inlinecode donthyphenate notranslate">iteration</span></a></li><li>    <a href="std_algorithm_mutation.html" title="std.algorithm.mutation"><span class="d_inlinecode donthyphenate notranslate">mutation</span></a></li><li>    <a href="std_algorithm_searching.html" title="std.algorithm.searching"><span class="d_inlinecode donthyphenate notranslate">searching</span></a></li><li>    <a href="std_algorithm_setops.html" title="std.algorithm.setops"><span class="d_inlinecode donthyphenate notranslate">setops</span></a></li><li>    <a href="std_algorithm_sorting.html" title="std.algorithm.sorting"><span class="d_inlinecode donthyphenate notranslate">sorting</span></a>
+  </li></ul></li><li>  <a href="std_array.html" title="std.array"><span class="d_inlinecode donthyphenate notranslate">array</span></a></li><li>  <a href="std_ascii.html" title="std.ascii"><span class="d_inlinecode donthyphenate notranslate">ascii</span></a></li><li>  <a href="std_base64.html" title="std.base64"><span class="d_inlinecode donthyphenate notranslate">base64</span></a></li><li>  <a href="std_bigint.html" title="std.bigint"><span class="d_inlinecode donthyphenate notranslate">bigint</span></a></li><li>  <a href="std_bitmanip.html" title="std.bitmanip"><span class="d_inlinecode donthyphenate notranslate">bitmanip</span></a></li><li>  <a href="std_compiler.html" title="std.compiler"><span class="d_inlinecode donthyphenate notranslate">compiler</span></a></li><li>  <a href="std_complex.html" title="std.complex"><span class="d_inlinecode donthyphenate notranslate">complex</span></a></li><li>  <a href="std_concurrency.html" title="std.concurrency"><span class="d_inlinecode donthyphenate notranslate">concurrency</span></a></li><li>  <a href="std_container.html" title="std.container"><span class="d_inlinecode donthyphenate notranslate">container</span></a><ul><li>    <a href="std_container_array.html" title="std.container.array"><span class="d_inlinecode donthyphenate notranslate">array</span></a></li><li>    <a href="std_container_binaryheap.html" title="std.container.binaryheap"><span class="d_inlinecode donthyphenate notranslate">binaryheap</span></a></li><li>    <a href="std_container_dlist.html" title="std.container.dlist"><span class="d_inlinecode donthyphenate notranslate">dlist</span></a></li><li>    <a href="std_container_rbtree.html" title="std.container.rbtree"><span class="d_inlinecode donthyphenate notranslate">rbtree</span></a></li><li>    <a href="std_container_slist.html" title="std.container.slist"><span class="d_inlinecode donthyphenate notranslate">slist</span></a></li><li>    <a href="std_container_util.html" title="std.container.util"><span class="d_inlinecode donthyphenate notranslate">util</span></a>
+  </li></ul></li><li>  <a href="std_conv.html" title="std.conv"><span class="d_inlinecode donthyphenate notranslate">conv</span></a></li><li>  <a href="std_cstream.html" title="std.cstream"><span class="d_inlinecode donthyphenate notranslate">cstream</span></a></li><li>  <a href="std_csv.html" title="std.csv"><span class="d_inlinecode donthyphenate notranslate">csv</span></a></li><li>  <a href="std_datetime.html" title="std.datetime"><span class="d_inlinecode donthyphenate notranslate">datetime</span></a></li><li>  <a href="std_demangle.html" title="std.demangle"><span class="d_inlinecode donthyphenate notranslate">demangle</span></a></li><li>  <h7><span class="d_inlinecode donthyphenate notranslate">digest</span></h7><ul><li>    <a href="std_digest_crc.html" title="std.digest.crc"><span class="d_inlinecode donthyphenate notranslate">crc</span></a></li><li>    <a href="std_digest_digest.html" title="std.digest.digest"><span class="d_inlinecode donthyphenate notranslate">digest</span></a></li><li>    <a href="std_digest_md.html" title="std.digest.md"><span class="d_inlinecode donthyphenate notranslate">md</span></a></li><li>    <a href="std_digest_ripemd.html" title="std.digest.ripemd"><span class="d_inlinecode donthyphenate notranslate">ripemd</span></a></li><li>    <a href="std_digest_sha.html" title="std.digest.sha"><span class="d_inlinecode donthyphenate notranslate">sha</span></a>
+  </li></ul></li><li>  <a href="std_encoding.html" title="std.encoding"><span class="d_inlinecode donthyphenate notranslate">encoding</span></a></li><li>  <a href="std_exception.html" title="std.exception"><span class="d_inlinecode donthyphenate notranslate">exception</span></a></li><li>  <h7><span class="d_inlinecode donthyphenate notranslate">experimental</span></h7><ul><li>    <a href="std_experimental_logger.html" title="std.experimental.logger"><span class="d_inlinecode donthyphenate notranslate">logger</span></a><ul><li>      <a href="std_experimental_logger_core.html" title="std.experimental.logger.core"><span class="d_inlinecode donthyphenate notranslate">core</span></a></li><li>      <a href="std_experimental_logger_filelogger.html" title="std.experimental.logger.filelogger"><span class="d_inlinecode donthyphenate notranslate">filelogger</span></a></li><li>      <a href="std_experimental_logger_multilogger.html" title="std.experimental.logger.multilogger"><span class="d_inlinecode donthyphenate notranslate">multilogger</span></a></li><li>      <a href="std_experimental_logger_nulllogger.html" title="std.experimental.logger.nulllogger"><span class="d_inlinecode donthyphenate notranslate">nulllogger</span></a>
+    </li></ul></li><li>    <a href="std_experimental_safeint.html" title="std.experimental.safeint"><span class="d_inlinecode donthyphenate notranslate">safeint</span></a>
+  </li></ul></li><li>  <a href="std_file.html" title="std.file"><span class="d_inlinecode donthyphenate notranslate">file</span></a></li><li>  <a href="std_format.html" title="std.format"><span class="d_inlinecode donthyphenate notranslate">format</span></a></li><li>  <a href="std_functional.html" title="std.functional"><span class="d_inlinecode donthyphenate notranslate">functional</span></a></li><li>  <a href="std_getopt.html" title="std.getopt"><span class="d_inlinecode donthyphenate notranslate">getopt</span></a></li><li>  <a href="std_json.html" title="std.json"><span class="d_inlinecode donthyphenate notranslate">json</span></a></li><li>  <a href="std_math.html" title="std.math"><span class="d_inlinecode donthyphenate notranslate">math</span></a></li><li>  <a href="std_mathspecial.html" title="std.mathspecial"><span class="d_inlinecode donthyphenate notranslate">mathspecial</span></a></li><li>  <a href="std_meta.html" title="std.meta"><span class="d_inlinecode donthyphenate notranslate">meta</span></a></li><li>  <a href="std_metastrings.html" title="std.metastrings"><span class="d_inlinecode donthyphenate notranslate">metastrings</span></a></li><li>  <a href="std_mmfile.html" title="std.mmfile"><span class="d_inlinecode donthyphenate notranslate">mmfile</span></a></li><li>  <h7><span class="d_inlinecode donthyphenate notranslate">net</span></h7><ul><li>    <a href="std_net_curl.html" title="std.net.curl"><span class="d_inlinecode donthyphenate notranslate">curl</span></a></li><li>    <a href="std_net_isemail.html" title="std.net.isemail"><span class="d_inlinecode donthyphenate notranslate">isemail</span></a>
+  </li></ul></li><li>  <a href="std_numeric.html" title="std.numeric"><span class="d_inlinecode donthyphenate notranslate">numeric</span></a></li><li>  <a href="std_outbuffer.html" title="std.outbuffer"><span class="d_inlinecode donthyphenate notranslate">outbuffer</span></a></li><li>  <a href="std_parallelism.html" title="std.parallelism"><span class="d_inlinecode donthyphenate notranslate">parallelism</span></a></li><li>  <a href="std_path.html" title="std.path"><span class="d_inlinecode donthyphenate notranslate">path</span></a></li><li>  <a href="std_process.html" title="std.process"><span class="d_inlinecode donthyphenate notranslate">process</span></a></li><li>  <a href="std_random.html" title="std.random"><span class="d_inlinecode donthyphenate notranslate">random</span></a></li><li>  <a href="std_range.html" title="std.range"><span class="d_inlinecode donthyphenate notranslate">range</span></a><ul><li>    <a href="std_range_interfaces.html" title="std.range.interfaces"><span class="d_inlinecode donthyphenate notranslate">interfaces</span></a></li><li>    <a href="std_range_primitives.html" title="std.range.primitives"><span class="d_inlinecode donthyphenate notranslate">primitives</span></a>
+  </li></ul></li><li>  <a href="std_regex.html" title="std.regex"><span class="d_inlinecode donthyphenate notranslate">regex</span></a></li><li>  <a href="std_signals.html" title="std.signals"><span class="d_inlinecode donthyphenate notranslate">signals</span></a></li><li>  <a href="std_socket.html" title="std.socket"><span class="d_inlinecode donthyphenate notranslate">socket</span></a></li><li>  <a href="std_socketstream.html" title="std.socketstream"><span class="d_inlinecode donthyphenate notranslate">socketstream</span></a></li><li>  <a href="std_stdint.html" title="std.stdint"><span class="d_inlinecode donthyphenate notranslate">stdint</span></a></li><li>  <a href="std_stdio.html" title="std.stdio"><span class="d_inlinecode donthyphenate notranslate">stdio</span></a></li><li>  <a href="std_stdiobase.html" title="std.stdiobase"><span class="d_inlinecode donthyphenate notranslate">stdiobase</span></a></li><li>  <a href="std_stream.html" title="std.stream"><span class="d_inlinecode donthyphenate notranslate">stream</span></a></li><li>  <a href="std_string.html" title="std.string"><span class="d_inlinecode donthyphenate notranslate">string</span></a></li><li>  <a href="std_syserror.html" title="std.syserror"><span class="d_inlinecode donthyphenate notranslate">syserror</span></a></li><li>  <a href="std_system.html" title="std.system"><span class="d_inlinecode donthyphenate notranslate">system</span></a></li><li>  <a href="std_traits.html" title="std.traits"><span class="d_inlinecode donthyphenate notranslate">traits</span></a></li><li>  <a href="std_typecons.html" title="std.typecons"><span class="d_inlinecode donthyphenate notranslate">typecons</span></a></li><li>  <a href="std_typetuple.html" title="std.typetuple"><span class="d_inlinecode donthyphenate notranslate">typetuple</span></a></li><li>  <a href="std_uni.html" title="std.uni"><span class="d_inlinecode donthyphenate notranslate">uni</span></a></li><li>  <a href="std_uri.html" title="std.uri"><span class="d_inlinecode donthyphenate notranslate">uri</span></a></li><li>  <a href="std_utf.html" title="std.utf"><span class="d_inlinecode donthyphenate notranslate">utf</span></a></li><li>  <a href="std_uuid.html" title="std.uuid"><span class="d_inlinecode donthyphenate notranslate">uuid</span></a></li><li>  <a href="std_variant.html" title="std.variant"><span class="d_inlinecode donthyphenate notranslate">variant</span></a></li><li>  <a href="std_xml.html" title="std.xml"><span class="d_inlinecode donthyphenate notranslate">xml</span></a></li><li>  <a href="std_zip.html" title="std.zip"><span class="d_inlinecode donthyphenate notranslate">zip</span></a></li><li>  <a href="std_zlib.html" title="std.zlib"><span class="d_inlinecode donthyphenate notranslate">zlib</span></a>
+</li></ul>
+<li class='has-sub'><a href='#'><span><em class="tt">etc</em></span></a>
+<ul><li>  <h7><span class="d_inlinecode donthyphenate notranslate">c</span></h7><ul><li>    <a href="etc_c_curl.html" title="etc.c.curl"><span class="d_inlinecode donthyphenate notranslate">curl</span></a></li><li>    <a href="etc_c_sqlite3.html" title="etc.c.sqlite3"><span class="d_inlinecode donthyphenate notranslate">sqlite3</span></a></li><li>    <a href="etc_c_zlib.html" title="etc.c.zlib"><span class="d_inlinecode donthyphenate notranslate">zlib</span></a>
+  </li></ul>
+</li></ul>
+<li class='has-sub'><a href='#'><span><em class="tt">core</em></span></a>
+<ul><li>  <a href="core_atomic.html" title="core.atomic"><span class="d_inlinecode donthyphenate notranslate">atomic</span></a></li><li>  <a href="core_bitop.html" title="core.bitop"><span class="d_inlinecode donthyphenate notranslate">bitop</span></a></li><li>  <a href="core_checkedint.html" title="core.checkedint"><span class="d_inlinecode donthyphenate notranslate">checkedint</span></a></li><li>  <a href="core_cpuid.html" title="core.cpuid"><span class="d_inlinecode donthyphenate notranslate">cpuid</span></a></li><li>  <a href="core_demangle.html" title="core.demangle"><span class="d_inlinecode donthyphenate notranslate">demangle</span></a></li><li>  <a href="core_exception.html" title="core.exception"><span class="d_inlinecode donthyphenate notranslate">exception</span></a></li><li>  <a href="core_math.html" title="core.math"><span class="d_inlinecode donthyphenate notranslate">math</span></a></li><li>  <a href="core_memory.html" title="core.memory"><span class="d_inlinecode donthyphenate notranslate">memory</span></a></li><li>  <a href="core_runtime.html" title="core.runtime"><span class="d_inlinecode donthyphenate notranslate">runtime</span></a></li><li>  <a href="core_simd.html" title="core.simd"><span class="d_inlinecode donthyphenate notranslate">simd</span></a></li><li>  <h7><span class="d_inlinecode donthyphenate notranslate">stdc</span></h7><ul><li>    <a href="core_stdc_complex.html" title="core.stdc.complex"><span class="d_inlinecode donthyphenate notranslate">complex</span></a></li><li>    <a href="core_stdc_ctype.html" title="core.stdc.ctype"><span class="d_inlinecode donthyphenate notranslate">ctype</span></a></li><li>    <a href="core_stdc_errno.html" title="core.stdc.errno"><span class="d_inlinecode donthyphenate notranslate">errno</span></a></li><li>    <a href="core_stdc_fenv.html" title="core.stdc.fenv"><span class="d_inlinecode donthyphenate notranslate">fenv</span></a></li><li>    <a href="core_stdc_float_.html" title="core.stdc.float_"><span class="d_inlinecode donthyphenate notranslate">float_</span></a></li><li>    <a href="core_stdc_inttypes.html" title="core.stdc.inttypes"><span class="d_inlinecode donthyphenate notranslate">inttypes</span></a></li><li>    <a href="core_stdc_limits.html" title="core.stdc.limits"><span class="d_inlinecode donthyphenate notranslate">limits</span></a></li><li>    <a href="core_stdc_locale.html" title="core.stdc.locale"><span class="d_inlinecode donthyphenate notranslate">locale</span></a></li><li>    <a href="core_stdc_math.html" title="core.stdc.math"><span class="d_inlinecode donthyphenate notranslate">math</span></a></li><li>    <a href="core_stdc_signal.html" title="core.stdc.signal"><span class="d_inlinecode donthyphenate notranslate">signal</span></a></li><li>    <a href="core_stdc_stdarg.html" title="core.stdc.stdarg"><span class="d_inlinecode donthyphenate notranslate">stdarg</span></a></li><li>    <a href="core_stdc_stddef.html" title="core.stdc.stddef"><span class="d_inlinecode donthyphenate notranslate">stddef</span></a></li><li>    <a href="core_stdc_stdint.html" title="core.stdc.stdint"><span class="d_inlinecode donthyphenate notranslate">stdint</span></a></li><li>    <a href="core_stdc_stdio.html" title="core.stdc.stdio"><span class="d_inlinecode donthyphenate notranslate">stdio</span></a></li><li>    <a href="core_stdc_stdlib.html" title="core.stdc.stdlib"><span class="d_inlinecode donthyphenate notranslate">stdlib</span></a></li><li>    <a href="core_stdc_string.html" title="core.stdc.string"><span class="d_inlinecode donthyphenate notranslate">string</span></a></li><li>    <a href="core_stdc_tgmath.html" title="core.stdc.tgmath"><span class="d_inlinecode donthyphenate notranslate">tgmath</span></a></li><li>    <a href="core_stdc_time.html" title="core.stdc.time"><span class="d_inlinecode donthyphenate notranslate">time</span></a></li><li>    <a href="core_stdc_wchar_.html" title="core.stdc.wchar_"><span class="d_inlinecode donthyphenate notranslate">wchar_</span></a></li><li>    <a href="core_stdc_wctype.html" title="core.stdc.wctype"><span class="d_inlinecode donthyphenate notranslate">wctype</span></a>
+  </li></ul></li><li>  <h7><span class="d_inlinecode donthyphenate notranslate">sync</span></h7><ul><li>    <a href="core_sync_barrier.html" title="core.sync.barrier"><span class="d_inlinecode donthyphenate notranslate">barrier</span></a></li><li>    <a href="core_sync_condition.html" title="core.sync.condition"><span class="d_inlinecode donthyphenate notranslate">condition</span></a></li><li>    <a href="core_sync_config.html" title="core.sync.config"><span class="d_inlinecode donthyphenate notranslate">config</span></a></li><li>    <a href="core_sync_exception.html" title="core.sync.exception"><span class="d_inlinecode donthyphenate notranslate">exception</span></a></li><li>    <a href="core_sync_mutex.html" title="core.sync.mutex"><span class="d_inlinecode donthyphenate notranslate">mutex</span></a></li><li>    <a href="core_sync_rwmutex.html" title="core.sync.rwmutex"><span class="d_inlinecode donthyphenate notranslate">rwmutex</span></a></li><li>    <a href="core_sync_semaphore.html" title="core.sync.semaphore"><span class="d_inlinecode donthyphenate notranslate">semaphore</span></a>
+  </li></ul></li><li>  <a href="core_thread.html" title="core.thread"><span class="d_inlinecode donthyphenate notranslate">thread</span></a></li><li>  <a href="core_time.html" title="core.time"><span class="d_inlinecode donthyphenate notranslate">time</span></a></li><li>  <a href="core_vararg.html" title="core.vararg"><span class="d_inlinecode donthyphenate notranslate">vararg</span></a>
+</li></ul>
+    <li><a href='http://code.dlang.org'><span>3rd Party Packages</span></a></li>
+</ul></div>
+</div>
+
+<div class="hyphenate" id="content">    
+<div id="tools">	<span class="tip">		<a href="https://github.com/D-Programming-Language/phobos/edit/master/std/experimental/safeint.d" class="button">Improve this page</a>
+		<span >			Quickly fork, edit online, and submit a pull request for this page.
+			Requires a signed-in GitHub account. This works well for small changes.
+			If you'd like to make larger changes you may want to consider using
+			local clone.
+		</span>
+	</span>
+	<span class="tip">		<a href="http://wiki.dlang.org/DocComments/std.experimental.safeint" class="button">Page wiki</a>
+		<span >			View or edit the community-maintained wiki page associated with this page.
+		</span>
+	</span>
+</div>
+    <h1>std.experimental.safeint</h1>
+    <div class="quickindex" id="quickindex"></div>
+    <!--Generated by Ddoc from std/experimental/safeint.d-->
+<div class="summary">This <span class="d_inlinecode donthyphenate notranslate">module</span> holds functions to safely compare integers of different
+sizes and signeness without any unwanted implicit casts.
+</div>
+<div class="description">Additionally, this <span class="d_inlinecode donthyphenate notranslate">module</span> implements a <span class="d_inlinecode donthyphenate notranslate">SafeInt!T</span> type.
+This type has an explicit <span class="d_inlinecode donthyphenate notranslate">nan</span> value, checks binary operation for over-
+and underflows, checks division by zero, and checks if values to assign can be
+represented by <span class="d_inlinecode donthyphenate notranslate">T</span> where <span class="d_inlinecode donthyphenate notranslate">T</span> is any integer type.</div>
+
+<dl><dt class="d_decl"><a name=".equal"></a><div class="quickindex" id="quickindex.equal"></div>nothrow @nogc bool <a name="equal"></a><span class="ddoc_psymbol">equal</span>(T, S)(in T <i>t</i>, in S <i>s</i>) if (isIntegral!T &amp;&amp; isIntegral!S);
+</dt>
+<dd><div class="summary">Compares two integer of arbitrary type for equality.
+</div>
+<div class="description">This function makes sure no implicit value propagation falsifies the result of
+the comparison.
+
+</div>
+<div class="keyval Parameters"><span class="key keyParameters">Parameters:</span> <div class="val valParameters"><table class=params><tr class="param"><td class="param_id">T <i>t</i></td>
+<td class="param_desc">an integer value</td></tr>
+<tr class="param"><td class="param_id">S <i>s</i></td>
+<td class="param_desc">an integer value</td></tr>
+</table></div></div>
+<div class="keyval Returns"><span class="key keyReturns">Returns:</span> <div class="val valReturns"><span class="d_inlinecode donthyphenate notranslate"><b>true</b></span> if the value of <span class="d_inlinecode donthyphenate notranslate"><i>t</i></span> is <a name="equal"></a><span class="ddoc_psymbol">equal</span> to the value of <span class="d_inlinecode donthyphenate notranslate"><i>s</i></span>,
+    <b>false</b> otherwise.</div></div>
+<div class="keyval Examples"><span class="key keyExamples">Examples:</span> <div class="val valExamples"><pre class="d_code notranslate">
+<span class="d_keyword">assert</span>(-1 == <span class="d_keyword">uint</span>.max); <span class="d_comment">// this should be false
+</span><span class="d_keyword">assert</span>(!<span class="d_psymbol">equal</span>(-1, <span class="d_keyword">uint</span>.max));
+</pre>
+</div></div>
+</dd>
+<dt class="d_decl"><a name=".notEqual"></a><div class="quickindex" id="quickindex.notEqual"></div>nothrow @nogc bool <a name="notEqual"></a><span class="ddoc_psymbol">notEqual</span>(T, S)(in T <i>t</i>, in S <i>s</i>) if (isIntegral!T &amp;&amp; isIntegral!S);
+</dt>
+<dd><div class="summary">Compares two integer of arbitrary type for no-equality.
+</div>
+<div class="description">This function makes sure no implicit value propagation falsifies the result of
+the comparison.
+
+</div>
+<div class="keyval Parameters"><span class="key keyParameters">Parameters:</span> <div class="val valParameters"><table class=params><tr class="param"><td class="param_id">T <i>t</i></td>
+<td class="param_desc">an integer value</td></tr>
+<tr class="param"><td class="param_id">S <i>s</i></td>
+<td class="param_desc">an integer value</td></tr>
+</table></div></div>
+<div class="keyval Returns"><span class="key keyReturns">Returns:</span> <div class="val valReturns"><span class="d_inlinecode donthyphenate notranslate"><b>true</b></span> if the value of <span class="d_inlinecode donthyphenate notranslate"><i>t</i></span> is not equal to the value of <span class="d_inlinecode donthyphenate notranslate"><i>s</i></span>,
+    <b>false</b> otherwise.</div></div>
+<div class="keyval Examples"><span class="key keyExamples">Examples:</span> <div class="val valExamples"><pre class="d_code notranslate">
+<span class="d_keyword">assert</span>(<span class="d_psymbol">notEqual</span>(-1, <span class="d_keyword">uint</span>.max));
+</pre>
+</div></div>
+</dd>
+<dt class="d_decl"><a name=".less"></a><div class="quickindex" id="quickindex.less"></div>nothrow @nogc bool <a name="less"></a><span class="ddoc_psymbol">less</span>(T, S)(in T <i>t</i>, in S <i>s</i>) if (isIntegral!T &amp;&amp; isIntegral!S);
+</dt>
+<dd><div class="summary">Checks if the value of the first parameter is smaller than
+the value of the second parameter.
+</div>
+<div class="description">This function makes sure no implicit value propagation falsifies the result of
+the comparison.
+
+</div>
+<div class="keyval Parameters"><span class="key keyParameters">Parameters:</span> <div class="val valParameters"><table class=params><tr class="param"><td class="param_id">T <i>t</i></td>
+<td class="param_desc">an integer value</td></tr>
+<tr class="param"><td class="param_id">S <i>s</i></td>
+<td class="param_desc">an integer value</td></tr>
+</table></div></div>
+<div class="keyval Returns"><span class="key keyReturns">Returns:</span> <div class="val valReturns"><span class="d_inlinecode donthyphenate notranslate"><b>true</b></span> if the value of <span class="d_inlinecode donthyphenate notranslate"><i>t</i></span> is smaller than the value of <span class="d_inlinecode donthyphenate notranslate"><i>s</i></span>,
+    <b>false</b> otherwise.</div></div>
+<div class="keyval Examples"><span class="key keyExamples">Examples:</span> <div class="val valExamples"><pre class="d_code notranslate">
+<span class="d_keyword">assert</span>(<span class="d_psymbol">less</span>(-1, <span class="d_keyword">uint</span>.max));
+</pre>
+</div></div>
+</dd>
+<dt class="d_decl"><a name=".lessEqual"></a><div class="quickindex" id="quickindex.lessEqual"></div>nothrow @nogc bool <a name="lessEqual"></a><span class="ddoc_psymbol">lessEqual</span>(T, S)(in T <i>t</i>, in S <i>s</i>) if (isIntegral!T &amp;&amp; isIntegral!S);
+</dt>
+<dd><div class="summary">Checks if the value of the first parameter is less or equal
+to the value of the second parameter.
+</div>
+<div class="description">This function makes sure no implicit value propagation falsifies the result of
+the comparison.
+
+</div>
+<div class="keyval Parameters"><span class="key keyParameters">Parameters:</span> <div class="val valParameters"><table class=params><tr class="param"><td class="param_id">T <i>t</i></td>
+<td class="param_desc">an integer value</td></tr>
+<tr class="param"><td class="param_id">S <i>s</i></td>
+<td class="param_desc">an integer value</td></tr>
+</table></div></div>
+<div class="keyval Returns"><span class="key keyReturns">Returns:</span> <div class="val valReturns"><span class="d_inlinecode donthyphenate notranslate"><b>true</b></span> if the value of <span class="d_inlinecode donthyphenate notranslate"><i>t</i></span> is smaller or equal than the value
+    of <span class="d_inlinecode donthyphenate notranslate"><i>s</i></span>, <b>false</b> otherwise.</div></div>
+<div class="keyval Examples"><span class="key keyExamples">Examples:</span> <div class="val valExamples"><pre class="d_code notranslate">
+<span class="d_keyword">assert</span>(<span class="d_psymbol">lessEqual</span>( 0, <span class="d_keyword">uint</span>.max));
+<span class="d_keyword">assert</span>(<span class="d_psymbol">lessEqual</span>(-1, <span class="d_keyword">ulong</span>.max));
+</pre>
+</div></div>
+</dd>
+<dt class="d_decl"><a name=".greater"></a><div class="quickindex" id="quickindex.greater"></div>nothrow @nogc bool <a name="greater"></a><span class="ddoc_psymbol">greater</span>(T, S)(in T <i>t</i>, in S <i>s</i>) if (isIntegral!T &amp;&amp; isIntegral!S);
+</dt>
+<dd><div class="summary">Checks if the value of the first parameter is <a name="greater"></a><span class="ddoc_psymbol">greater</span> than
+the value of the second parameter.
+</div>
+<div class="description">This function makes sure no implicit value propagation falsifies the result of
+the comparison.
+
+</div>
+<div class="keyval Parameters"><span class="key keyParameters">Parameters:</span> <div class="val valParameters"><table class=params><tr class="param"><td class="param_id">T <i>t</i></td>
+<td class="param_desc">an integer value</td></tr>
+<tr class="param"><td class="param_id">S <i>s</i></td>
+<td class="param_desc">an integer value</td></tr>
+</table></div></div>
+<div class="keyval Returns"><span class="key keyReturns">Returns:</span> <div class="val valReturns"><span class="d_inlinecode donthyphenate notranslate"><b>true</b></span> if the value of <span class="d_inlinecode donthyphenate notranslate"><i>t</i></span> is <a name="greater"></a><span class="ddoc_psymbol">greater</span> than the value of <span class="d_inlinecode donthyphenate notranslate"><i>s</i></span>,
+    <b>false</b> otherwise.</div></div>
+<div class="keyval Examples"><span class="key keyExamples">Examples:</span> <div class="val valExamples"><pre class="d_code notranslate">
+<span class="d_keyword">assert</span>(<span class="d_psymbol">greater</span>(<span class="d_keyword">ulong</span>.max, <span class="d_keyword">long</span>.min));
+</pre>
+</div></div>
+</dd>
+<dt class="d_decl"><a name=".greaterEqual"></a><div class="quickindex" id="quickindex.greaterEqual"></div>nothrow @nogc bool <a name="greaterEqual"></a><span class="ddoc_psymbol">greaterEqual</span>(T, S)(in T <i>t</i>, in S <i>s</i>) if (isIntegral!T &amp;&amp; isIntegral!S);
+</dt>
+<dd><div class="summary">Checks if the value of the first parameter is greater or equal
+to the value of the second parameter.
+</div>
+<div class="description">This function makes sure no implicit value propagation falsifies the result of
+the comparison.
+
+</div>
+<div class="keyval Parameters"><span class="key keyParameters">Parameters:</span> <div class="val valParameters"><table class=params><tr class="param"><td class="param_id">T <i>t</i></td>
+<td class="param_desc">an integer value</td></tr>
+<tr class="param"><td class="param_id">S <i>s</i></td>
+<td class="param_desc">an integer value</td></tr>
+</table></div></div>
+<div class="keyval Returns"><span class="key keyReturns">Returns:</span> <div class="val valReturns"><span class="d_inlinecode donthyphenate notranslate"><b>true</b></span> if the value of <span class="d_inlinecode donthyphenate notranslate"><i>t</i></span> is greater or equal than the value
+    of <span class="d_inlinecode donthyphenate notranslate"><i>s</i></span>, <b>false</b> otherwise.</div></div>
+<div class="keyval Examples"><span class="key keyExamples">Examples:</span> <div class="val valExamples"><pre class="d_code notranslate">
+<span class="d_keyword">assert</span>(<span class="d_psymbol">greaterEqual</span>(<span class="d_keyword">ulong</span>.max, <span class="d_keyword">long</span>.min));
+</pre>
+</div></div>
+</dd>
+<dt class="d_decl"><a name=".SafeIntType"></a><div class="quickindex" id="quickindex.SafeIntType"></div>template <a name="SafeIntType"></a><span class="ddoc_psymbol">SafeIntType</span>(T)</dt>
+<dd><div class="summary">Returns the integer type used by a <span class="d_inlinecode donthyphenate notranslate">SafeInt</span> to store the
+value.
+</div>
+<div class="description">If an integer type is passed this type will be returned.</div>
+<div class="keyval Examples"><span class="key keyExamples">Examples:</span> <div class="val valExamples"><pre class="d_code notranslate">
+<span class="d_keyword">static</span> <span class="d_keyword">assert</span>(<span class="d_keyword">is</span>(<span class="d_psymbol">SafeIntType</span>!(SafeInt!<span class="d_keyword">int</span>) == <span class="d_keyword">int</span>));
+<span class="d_keyword">static</span> <span class="d_keyword">assert</span>(<span class="d_keyword">is</span>(<span class="d_psymbol">SafeIntType</span>!<span class="d_keyword">int</span> == <span class="d_keyword">int</span>));
+</pre>
+</div></div>
+</dd>
+<dt class="d_decl"><a name=".isSafeInt"></a><div class="quickindex" id="quickindex.isSafeInt"></div>template <a name="isSafeInt"></a><span class="ddoc_psymbol">isSafeInt</span>(T)</dt>
+<dd><div class="summary">Checks if the passed type is a <span class="d_inlinecode donthyphenate notranslate">SafeInt</span>.
+</div>
+<div class="keyval Returns"><span class="key keyReturns">Returns:</span> <div class="val valReturns"><span class="d_inlinecode donthyphenate notranslate"><b>true</b></span> if the passed type <span class="d_inlinecode donthyphenate notranslate">T</span> is an <span class="d_inlinecode donthyphenate notranslate">SafeInt</span>, <b>false</b>
+    overwise.</div></div>
+<div class="keyval Examples"><span class="key keyExamples">Examples:</span> <div class="val valExamples"><pre class="d_code notranslate">
+<span class="d_keyword">static</span> <span class="d_keyword">assert</span>(<span class="d_psymbol">isSafeInt</span>!(SafeInt!<span class="d_keyword">int</span>));
+<span class="d_keyword">static</span> <span class="d_keyword">assert</span>(!<span class="d_psymbol">isSafeInt</span>!<span class="d_keyword">int</span>);
+</pre>
+</div></div>
+</dd>
+<dt class="d_decl"><a name=".SafeInt"></a><div class="quickindex" id="quickindex.SafeInt"></div>struct <a name="SafeInt"></a><span class="ddoc_psymbol">SafeInt</span>(T) if (isIntegral!T);
+</dt>
+<dd><div class="summary"><b><a name="SafeInt"></a><span class="ddoc_psymbol">SafeInt</span></b> implements a safe integer type.
+</div>
+<div class="description">Safe in the sense that:
+<ul>    <li>over and underflows are not ignored</li>
+    <li>no unchecked implicit casts are performed</li>
+    <li>assigned values are checked if they fit into the value range of the
+        underlaying type</li>
+    <li>default initialization to NaN</li>
+    <li>no bitwise operations are implemented.</li>
+</ul>
+<p></p>
+
+Every <a name="SafeInt"></a><span class="ddoc_psymbol">SafeInt</span> must be specialized with one integer type.
+The integer type also defines the NaN value.
+For unsigned integer <span class="d_inlinecode donthyphenate notranslate">U</span> the NaN value is <span class="d_inlinecode donthyphenate notranslate">U.max</span>.
+For signed integer <span class="d_inlinecode donthyphenate notranslate">S</span> the NaN value is <span class="d_inlinecode donthyphenate notranslate">U.min</span>.
+<p></p>
+
+This limits the value ranges of <span class="d_inlinecode donthyphenate notranslate"><a name="SafeInt"></a><span class="ddoc_psymbol">SafeInt</span>!U</span> where <span class="d_inlinecode donthyphenate notranslate">U</span> is an unsigned
+integer to <span class="d_inlinecode donthyphenate notranslate"><a name="SafeInt"></a><span class="ddoc_psymbol">SafeInt</span>!U &gt;= 0 &amp;&amp; <a name="SafeInt"></a><span class="ddoc_psymbol">SafeInt</span>!U &lt; U.max</span>.
+This limits the value ranges of <span class="d_inlinecode donthyphenate notranslate"><a name="SafeInt"></a><span class="ddoc_psymbol">SafeInt</span>!S</span> where <span class="d_inlinecode donthyphenate notranslate">S</span> is an signed
+integer to <span class="d_inlinecode donthyphenate notranslate"><a name="SafeInt"></a><span class="ddoc_psymbol">SafeInt</span>!S &gt; S.min &amp;&amp; <a name="SafeInt"></a><span class="ddoc_psymbol">SafeInt</span>!S &lt; S.max</span>.</div>
+<div class="keyval Examples"><span class="key keyExamples">Examples:</span> <div class="val valExamples"><pre class="d_code notranslate">
+<span class="d_psymbol">SafeInt</span>!<span class="d_keyword">uint</span> s0 = -1;
+<span class="d_keyword">assert</span>(s0.isNaN);
+
+<span class="d_psymbol">SafeInt</span>!<span class="d_keyword">int</span> s0_1 = s0 + 4;
+<span class="d_keyword">assert</span>(s0_1.isNaN);
+<span class="d_keyword">auto</span> s1 = <span class="d_psymbol">SafeInt</span>!<span class="d_keyword">int</span>(1);
+<span class="d_keyword">auto</span> s2 = s1 + 1;
+
+<span class="d_psymbol">SafeInt</span>!<span class="d_keyword">int</span> s2_1 = s0 = s2;
+<span class="d_keyword">assert</span>(!s2.isNaN);
+<span class="d_keyword">assert</span>(s2 == 2);
+<span class="d_keyword">assert</span>(s2 == 2);
+<span class="d_keyword">assert</span>(s2 == <span class="d_psymbol">SafeInt</span>!<span class="d_keyword">byte</span>(2));
+<span class="d_keyword">assert</span>(s2 &lt; <span class="d_psymbol">SafeInt</span>!<span class="d_keyword">byte</span>(3));
+<span class="d_keyword">assert</span>(s2 &gt; <span class="d_psymbol">SafeInt</span>!<span class="d_keyword">byte</span>(1));
+<span class="d_keyword">assert</span>(s2 &gt; 1.0);
+
+s2 += 1;
+<span class="d_keyword">assert</span>(s2 == 3);
+
+<span class="d_keyword">auto</span> s3 = <span class="d_psymbol">SafeInt</span>!<span class="d_keyword">int</span>(2);
+<span class="d_keyword">auto</span> s4 = s1 + s3;
+<span class="d_keyword">static</span> <span class="d_keyword">assert</span>(<span class="d_keyword">is</span>(<span class="d_keyword">typeof</span>(s4) == <span class="d_psymbol">SafeInt</span>!<span class="d_keyword">int</span>));
+<span class="d_keyword">assert</span>(!s4.isNaN);
+<span class="d_keyword">assert</span>(s4 == 3);
+
+<span class="d_keyword">assert</span>(<span class="d_psymbol">SafeInt</span>!<span class="d_keyword">int</span>(0) == 0.0);
+</pre>
+</div></div>
+<dl><dt class="d_decl"><a name=".SafeInt.this"></a><div class="quickindex" id="quickindex.SafeInt.this"></div>this(V)(in V <i>v</i>) if (isNumeric!V || is(V : SafeInt!S, S));
+</dt>
+<dd><div class="summary">The constructor for SafeInt.
+</div>
+<div class="description">The passed value must either be an basic numeric or another SafeInt value.
+    The value of the passed parameter must fit into the value range defined by
+    the template specialization of the SafeInt.
+
+</div>
+<div class="keyval Parameters"><span class="key keyParameters">Parameters:</span> <div class="val valParameters"><table class=params><tr class="param"><td class="param_id">V <i>v</i></td>
+<td class="param_desc">the value to construct the SafeInt from.</td></tr>
+</table></div></div>
+
+</dd>
+<dt class="d_decl"><a name=".SafeInt.isNaN"></a><div class="quickindex" id="quickindex.SafeInt.isNaN"></div>const @property bool <a name="isNaN"></a><span class="ddoc_psymbol">isNaN</span>();
+</dt>
+<dd><div class="summary">Check if this SafeInts value is NaN.
+</div>
+<div class="keyval Returns"><span class="key keyReturns">Returns:</span> <div class="val valReturns"><b>true</b> is value is NaN, <b>false</b> otherwise.</div></div>
+
+</dd>
+<dt class="d_decl"><a name=".SafeInt.opOpAssign"></a><div class="quickindex" id="quickindex.SafeInt.opOpAssign"></div>SafeInt!T <a name="opOpAssign"></a><span class="ddoc_psymbol">opOpAssign</span>(string op, V)(V <i>vIn</i>);
+</dt>
+<dd><div class="summary">This implements <span class="d_inlinecode donthyphenate notranslate">+=, -=, %=, /=, *=</span> for this SafeInt.
+</div>
+<div class="keyval Returns"><span class="key keyReturns">Returns:</span> <div class="val valReturns">a copy of this SafeInt.</div></div>
+
+</dd>
+<dt class="d_decl"><a name=".SafeInt.opBinary"></a><div class="quickindex" id="quickindex.SafeInt.opBinary"></div>const SafeInt!T <a name="opBinary"></a><span class="ddoc_psymbol">opBinary</span>(string op, V)(V <i>vIn</i>);
+</dt>
+<dd><div class="summary">This implements <span class="d_inlinecode donthyphenate notranslate">+, -, %, /, *</span> for this SafeInt.
+</div>
+<div class="description">If the result of the operation can not be stored by the SafeInt!T,
+    the resulting value is nan.
+
+</div>
+<div class="keyval Returns"><span class="key keyReturns">Returns:</span> <div class="val valReturns">a new SafeInt!T with the result of the operation.</div></div>
+
+</dd>
+<dt class="d_decl"><a name=".SafeInt.opAssign"></a><div class="quickindex" id="quickindex.SafeInt.opAssign"></div>SafeInt!T <a name="opAssign"></a><span class="ddoc_psymbol">opAssign</span>(V)(V <i>vIn</i>) if (isNumeric!T &amp;&amp; is(V : SafeInt!S, S));
+</dt>
+<dd><div class="summary">Implements the assignment operation for the SafeInt type.
+</div>
+<div class="description">Every numeric value and every SafeInt can be assigned.
+    If the passed value can not be stored by the SafeInt, the value of the
+    SafeInt will be set to NaN.
+
+</div>
+<div class="keyval Parameters"><span class="key keyParameters">Parameters:</span> <div class="val valParameters"><table class=params><tr class="param"><td class="param_id">V <i>vIn</i></td>
+<td class="param_desc">the value to assign</td></tr>
+</table></div></div>
+<div class="keyval Returns"><span class="key keyReturns">Returns:</span> <div class="val valReturns">a copy of this SafeInt.</div></div>
+
+</dd>
+<dt class="d_decl"><a name=".SafeInt.opEquals"></a><div class="quickindex" id="quickindex.SafeInt.opEquals"></div>const bool <a name="opEquals"></a><span class="ddoc_psymbol">opEquals</span>(V)(auto ref V <i>vIn</i>);
+</dt>
+<dd><div class="summary">Implements the equality comparison function for the SafeInt type.
+</div>
+<div class="keyval Parameters"><span class="key keyParameters">Parameters:</span> <div class="val valParameters"><table class=params><tr class="param"><td class="param_id">V <i>vIn</i></td>
+<td class="param_desc">the value to compare the SafeInt with</td></tr>
+</table></div></div>
+<div class="keyval Returns"><span class="key keyReturns">Returns:</span> <div class="val valReturns"><span class="d_inlinecode donthyphenate notranslate"><b>true</b></span> if the passed value is equal to the value stored in the
+        SafeInt, <b>false</b> otherwise.</div></div>
+
+</dd>
+<dt class="d_decl"><a name=".SafeInt.opCmp"></a><div class="quickindex" id="quickindex.SafeInt.opCmp"></div>const int <a name="opCmp"></a><span class="ddoc_psymbol">opCmp</span>(V)(auto ref V <i>vIn</i>);
+</dt>
+<dd><div class="summary">Implements the comparison function for the SafeInt type.
+</div>
+<div class="keyval Parameters"><span class="key keyParameters">Parameters:</span> <div class="val valParameters"><table class=params><tr class="param"><td class="param_id">V <i>vIn</i></td>
+<td class="param_desc">the value to compare the SafeInt with</td></tr>
+</table></div></div>
+<div class="keyval Returns"><span class="key keyReturns">Returns:</span> <div class="val valReturns">        -1 if the SafeInt is less than <span class="d_inlinecode donthyphenate notranslate"><i>vIn</i></span>, 1 if the SafeInt is greater
+        than <span class="d_inlinecode donthyphenate notranslate"><i>vIn</i></span>, 0 otherwise.</div></div>
+
+</dd>
+</dl>
+</dd>
+</dl>
+
+</div>
+<div id="copyright">Copyright &copy; 1999-2015 by Digital Mars &reg;, All Rights Reserved | Page generated by <a href="http://dlang.org/ddoc.html">Ddoc</a> on Mon Jun  8 15:03:21 2015
+</div>
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript">window.jQuery || document.write('<script src="../js/jquery-1.7.2.min.js">\x3C/script>')</script>
+    <script type="text/javascript" src="../js/codemirror-compressed.js"></script>
+    <script type="text/javascript" src="../js/run.js"></script>
+    <script type="text/javascript" src="../js/cssmenu.js"></script>
+
+<script type="text/javascript" src="../js/listanchors.js"></script>
+<script type="text/javascript">jQuery(document).ready(listanchors);</script>
+</body>
+</html>
