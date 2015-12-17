@@ -3380,3 +3380,123 @@ version(unittest)
         return "0123456789ABCDEF"[n & 0xF];
     }
 }
+
+import std.typecons : tuple, Tuple;
+import std.conv : to;
+
+/** Definitions of common Byte Order Marks
+*/
+enum BOM {
+    utf32be   = 0,  /// [0x00, 0x00, 0xFE, 0xFF]
+    utf32le   = 1,  /// [0xFF, 0xFE, 0x00, 0x00]
+    utf7      = 2,  /*  [0x2B, 0x2F, 0x76, 0x38]
+                        [0x2B, 0x2F, 0x76, 0x39],
+                        [0x2B, 0x2F, 0x76, 0x2B],
+                        [0x2B, 0x2F, 0x76, 0x2F],
+                        [0x2B, 0x2F, 0x76, 0x38, 0x2D]
+                    */
+    utf1      = 7,  /// [0xF7, 0x64, 0x4C]
+    utfebcdic = 8,  /// [0xDD, 0x73, 0x66, 0x73]
+    scsu      = 9,  /// [0x0E, 0xFE, 0xFF]
+    bocu1     = 10, /// [0xFB, 0xEE, 0x28]
+    gb18030   = 11, /// [0x84, 0x31, 0x95, 0x33]
+    utf8      = 12, /// [0xEF, 0xBB, 0xBF]
+    utf16be   = 13, /// [0xFE, 0xFF]
+    utf16le   = 14, /// [0xFF, 0xFE]
+    invalid   = 15  /// no BOM was found
+}
+
+/** Mapping of a byte sequence to $(B Byte Order Mark (BOM))
+*/
+enum bomEntries = [
+        tuple(BOM.utf32be, to!(ubyte[])([0x00, 0x00, 0xFE, 0xFF])),
+        tuple(BOM.utf32le, to!(ubyte[])([0xFF, 0xFE, 0x00, 0x00])),
+        tuple(BOM.utf7, to!(ubyte[])([0x2B, 0x2F, 0x76, 0x39])),
+        tuple(BOM.utf7, to!(ubyte[])([0x2B, 0x2F, 0x76, 0x2B])),
+        tuple(BOM.utf7, to!(ubyte[])([0x2B, 0x2F, 0x76, 0x2F])),
+        tuple(BOM.utf7, to!(ubyte[])([0x2B, 0x2F, 0x76, 0x38, 0x2D])),
+        tuple(BOM.utf7, to!(ubyte[])([0x2B, 0x2F, 0x76, 0x38])),
+        tuple(BOM.utf1, to!(ubyte[])([0xF7, 0x64, 0x4C])),
+        tuple(BOM.utfebcdic, to!(ubyte[])([0xDD, 0x73, 0x66, 0x73])),
+        tuple(BOM.scsu, to!(ubyte[])([0x0E, 0xFE, 0xFF])),
+        tuple(BOM.bocu1, to!(ubyte[])([0xFB, 0xEE, 0x28])),
+        tuple(BOM.gb18030, to!(ubyte[])([0x84, 0x31, 0x95, 0x33])),
+        tuple(BOM.utf8, to!(ubyte[])([0xEF, 0xBB, 0xBF])),
+        tuple(BOM.utf16be, to!(ubyte[])([0xFE, 0xFF])),
+        tuple(BOM.utf16le, to!(ubyte[])([0xFF, 0xFE])),
+        tuple(BOM.invalid, new ubyte[0])
+];
+
+/** Returns the index of the $(D Tuple!(BOM,ubyte[])) into $(D bomEntries).
+
+Params:
+    input = The sequence to check for the $(D BOM)
+
+Returns:
+    the index of the found $(D Tuple!(BOM,ubyte[])) or
+    $(D bomEntries[1].length - 1)
+*/
+size_t getBOMTableIndex(Range)(Range input)
+        if(isInputRange!Range)
+{
+    import std.algorithm.searching : startsWith;
+    foreach (idx, it; bomEntries)
+    {
+        if (startsWith(input, it[1]))
+        {
+            return idx;
+        }
+    }
+
+    assert(false, "This can never happen, unless startsWith consider an empty"
+            ~ " needle as a hit"
+    );
+}
+
+/** Returns the $(D BOM) for a given $(D input).
+If no $(D BOM) can be matched the $(D input) $(D BOM.invalid) is returned.
+
+Params:
+    input = The sequence to check for the $(D BOM)
+
+Returns:
+    the found $(D BOM) or $(D BOM.invalid).
+*/
+BOM getBOM(Range)(Range input)
+        if(isInputRange!Range)
+{
+    immutable idx = getBOMTableIndex(input);
+    return bomEntries[idx][0];
+}
+
+///
+unittest
+{
+    import std.format : format;
+
+    auto ts = cast(ubyte[])"";
+    auto idx = getBOMTableIndex(ts);
+    assert(getBOM(ts) == BOM.invalid);
+
+    assert(idx == bomEntries.length-1);
+}
+
+unittest
+{
+    import std.format : format;
+
+    foreach (idx, it; bomEntries)
+    {
+        auto s = it[1] ~ cast(ubyte[])"hello world";
+        auto i = getBOMTableIndex(s);
+        assert(idx == i, format("%s %s %s", idx, i, bomEntries[i]));
+        assert(getBOM(s) == bomEntries[idx][0]);
+
+        if (idx < 3 || idx > 6) // get around the multipl utf7 bom's
+        {
+            assert(getBOM(s) == BOM.init + idx,
+                 format("%s %s", getBOM(s), BOM.init + idx)
+            );
+        }
+    }
+}
