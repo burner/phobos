@@ -436,6 +436,114 @@ unittest
     static assert(__traits(compiles, readText(TestAliasedString(null))));
 }
 
+private void wstringLEtoBE(ushort[] arr) {
+    wstringEndian!(0xDC00, 0xDFFF)(arr);
+}
+
+private void wstringBEtoLE(ushort[] arr) {
+    wstringEndian!(0xD800, 0xDBFF)(arr);
+}
+
+private void wstringEndian(int l, int h)(ushort[] arr) {
+    for(size_t i = 0; i < arr.length - 1;) {
+        if(arr[i] > l && arr[i] < h) {
+            auto t = arr[i];
+            arr[i] = arr[i + 1];
+            arr[i + 1] = t;
+            i += 2;
+        } else {
+            ++i;
+        }
+    }
+}
+
+private void dstringToOtherEndian(uint[] arr) {
+    import core.bitop : bswap;
+    for(size_t i = 0; i < arr.length; ++i) {
+        arr[i] = bswap(arr[i]);
+    }
+}
+
+S readTextWithBOM(S = string, R)(R name)
+    if (isSomeString!S &&
+        (isInputRange!R && isSomeChar!(ElementEncodingType!R) || isSomeString!R) &&
+        !isConvertibleToString!R)
+{
+    import std.utf : validate;
+    import std.file : read;
+    import std.encoding : getBOM, BOM;
+    static auto trustedCast(T,R)(R buf) @trusted { return cast(T)buf; }
+    ubyte[] asUbytes = trustedCast!(ubyte[])(read(name));
+
+    auto bom = getBOM(asUbytes[]);
+    S ret;
+
+    switch(bom.schema)
+    {
+        case BOM.none:
+            ret = to!(S)(
+                trustedCast!(string)(asUbytes)
+            );
+            break;
+        case BOM.utf8:
+            ret = to!(S)(
+                trustedCast!(string)(asUbytes[bom.sequence.length ..  $])
+            );
+            break;
+        case BOM.utf16le:
+        {
+            auto t = asUbytes[bom.sequence.length .. $];
+            version(BigEndian) {
+                wstringLEtoBE(trustedCast!(ushort[])(t));
+            }
+            ret = to!S(trustedCast!(wstring)(t));
+            break;
+        }
+        case BOM.utf16be:
+        {
+            auto t = asUbytes[bom.sequence.length .. $];
+            version(LittleEndian) {
+                wstringBEtoLE(trustedCast!(ushort[])(t));
+            }
+            ret = to!S(trustedCast!(wstring)(t));
+            break;
+        }
+        case BOM.utf32le:
+        {
+            auto t = asUbytes[bom.sequence.length .. $];
+            version(BigEndian) {
+                dstringToOtherEndian(trustedCast!(uint[])(t));
+            }
+            ret = to!S(trustedCast!(dstring)(t));
+            break;
+        }
+        case BOM.utf32be:
+        {
+            auto t = asUbytes[bom.sequence.length .. $];
+            version(LittleEndian) {
+                dstringToOtherEndian(trustedCast!(uint[])(t));
+            }
+            ret = to!S(trustedCast!(dstring)(t));
+            break;
+        }
+        default:
+            assert(false);
+    }
+    validate(ret);
+    return ret;
+}
+
+///
+unittest
+{
+    string filename = "readtextwithbom_testfile";
+    string s = "hello world";
+    write(filename, s);
+
+    string sb = readTextWithBOM(filename);
+    assert(s == sb);
+}
+
 /*********************************************
 Write $(D buffer) to file $(D name).
 
