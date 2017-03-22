@@ -140,7 +140,7 @@ $(I FormatString):
     $(I FormatStringItem)*
 $(I FormatStringItem):
     $(B '%%')
-    $(B '%') $(I Position) $(I Flags) $(I Width) $(I Precision) $(I FormatChar)
+    $(B '%') $(I Position) $(I Flags) $(I Width) $(I Precision) $(I Underscore) $(I FormatChar)
     $(B '%$(LPAREN)') $(I FormatString) $(B '%$(RPAREN)')
     $(I OtherCharacterExceptPercent)
 $(I Position):
@@ -162,6 +162,11 @@ $(I Precision):
     $(B '.')
     $(B '.') $(I Integer)
     $(B '.*')
+$(I Underscore):
+    $(I empty)
+    $(B '__')
+    $(B '__') $(I SeperationChar) $(I Integer)
+    $(B '__') $(I SeperationChar) $(B '*')
 $(I Integer):
     $(I Digit)
     $(I Digit) $(I Integer)
@@ -169,6 +174,10 @@ $(I Digit):
     $(B '0')|$(B '1')|$(B '2')|$(B '3')|$(B '4')|$(B '5')|$(B '6')|$(B '7')|$(B '8')|$(B '9')
 $(I FormatChar):
     $(B 's')|$(B 'c')|$(B 'b')|$(B 'd')|$(B 'o')|$(B 'x')|$(B 'X')|$(B 'e')|$(B 'E')|$(B 'f')|$(B 'F')|$(B 'g')|$(B 'G')|$(B 'a')|$(B 'A')|$(B '|')
+$(I SeperationChar):
+    $(I empty)
+    $(I ASCIICharacterExceptFormatChar)
+    $(I ASCIIPunctationCharsExceptStarAndPercentAndDot)
 )
 
     $(BOOKTABLE Flags affect formatting depending on the specifier as
@@ -214,6 +223,15 @@ $(I FormatChar):
         If the precision is a $(B *), an additional argument of type $(B int),
         preceding the actual argument, is taken as the precision.
         If it is negative, it is as if there was no $(I Precision) specifier.)
+
+        $(DT $(I Underscore))
+        $(DD Inserts the underscores symbols '__' every X digits, from right
+        to left, into numeric values to increase readability.
+        The fractional part of floating point values inserts the underscores
+        from left to right.
+        If the underscore value is a $(B *), an additional argument of type $(B int),
+        preceding the actual argument, is taken as X.
+        By default the value of X is 3.)
 
         $(DT $(I FormatChar))
         $(DD
@@ -417,6 +435,13 @@ My friends are ["John", "Nancy"].
 My friends are "John", "Nancy".
 My friends are John, Nancy.
 )
+
+An Example with $(I Underscores).
+-------------------------
+    assert(format("%_d", 1000) == "1_000");
+    assert(format("%_f", 1234567.891011) == "1_234_567.891_011");
+    assert(format("%_=d", 1000) == "1=000");
+-------------------------
  */
 uint formattedWrite(alias fmt, Writer, A...)(Writer w, A args)
 if (isSomeString!(typeof(fmt)))
@@ -478,6 +503,7 @@ uint formattedWrite(Writer, Char, A...)(Writer w, in Char[] fmt, A args)
                 text("Orphan format specifier: %", spec.spec));
             break;
         }
+
         if (spec.width == spec.DYNAMIC)
         {
             auto width = to!(typeof(spec.width))(getNthInt(currentArg, args));
@@ -503,6 +529,7 @@ uint formattedWrite(Writer, Char, A...)(Writer w, in Char[] fmt, A args)
             }
             spec.width = width;
         }
+
         if (spec.precision == spec.DYNAMIC)
         {
             auto precision = to!(typeof(spec.precision))(
@@ -524,6 +551,26 @@ uint formattedWrite(Writer, Char, A...)(Writer w, in Char[] fmt, A args)
             // else negative precision is same as no precision
             else spec.precision = spec.UNSPECIFIED;
         }
+
+        if (spec.breaks == spec.DYNAMIC)
+        {
+            auto breaks = to!(typeof(spec.width))(getNthInt(currentArg, args));
+            spec.breaks = breaks;
+            ++currentArg;
+        }
+        else if (spec.breaks < 0)
+        {
+            // means: get precision as a positional parameter
+            auto index = cast(uint) -spec.breaks;
+            assert(index > 0);
+            auto breaks = to!(typeof(spec.breaks))(
+                getNthInt(index- 1, args));
+            if (currentArg < index) currentArg = index;
+            if (breaks >= 0) spec.breaks = breaks;
+            // else negative precision is same as no precision
+            else spec.breaks = spec.UNSPECIFIED;
+        }
+
         // Format!
         if (spec.indexStart > 0)
         {
@@ -941,7 +988,7 @@ if (!is(Unqual!Char == Char))
 struct FormatSpec(Char)
 if (is(Unqual!Char == Char))
 {
-    import std.ascii : isDigit;
+    import std.ascii : isDigit, isPunctuation, isAlpha;
     import std.algorithm.searching : startsWith;
     import std.conv : parse, text, to;
 
@@ -956,6 +1003,17 @@ if (is(Unqual!Char == Char))
        decimals printed.
      */
     int precision = UNSPECIFIED;
+
+    /**
+       Breaks. Its value defines how many digits are printed between
+       $(D BreakChar).
+    */
+    int breaks = UNSPECIFIED;
+
+    /**
+       BreakChar. The character that is inserted every $(D breaks) character.
+    */
+    char breakChar = '_';
 
     /**
        Special value for width and precision. $(D DYNAMIC) width or
@@ -1019,6 +1077,11 @@ if (is(Unqual!Char == Char))
          */
         bool flHash;
 
+        /**
+         The format specifier contained a $(D '_')
+         */
+        bool flUnderscore;
+
         // Fake field to allow compilation
         ubyte allFlags;
     }
@@ -1033,7 +1096,8 @@ if (is(Unqual!Char == Char))
                         bool, "flSpace", 1,
                         bool, "flPlus", 1,
                         bool, "flHash", 1,
-                        ubyte, "", 3));
+                        bool, "flUnderscore", 1,
+                        ubyte, "", 2));
             ubyte allFlags;
         }
     }
@@ -1154,6 +1218,22 @@ if (is(Unqual!Char == Char))
 
     private void fillUp()
     {
+        bool isUnderscoreChar(Char)(Char c)
+                if(isSomeChar!Char)
+        {
+            auto not = ['*', 's', 'c', 'b', 'd', 'o', 'x', 'X', 'e', 'E', 'f',
+                 'F', 'g', 'G', 'a', 'A', '.', '%'];
+
+            foreach (it; not)
+            {
+                if (c == it)
+                {
+                    return false;
+                }
+            }
+            return isPunctuation(c) || isAlpha(c);
+        }
+
         // Reset content
         if (__ctfe)
         {
@@ -1162,6 +1242,7 @@ if (is(Unqual!Char == Char))
             flSpace = false;
             flPlus = false;
             flHash = false;
+            flUnderscore = false;
         }
         else
         {
@@ -1294,6 +1375,46 @@ if (is(Unqual!Char == Char))
                     width = to!int(widthOrArgIndex);
                 }
                 break;
+            case '_':
+                // Precision
+                ++i;
+                flUnderscore = true;
+                if (isUnderscoreChar(trailing[i]))
+                {
+                    breakChar = cast(char)trailing[i];
+                    ++i;
+                }
+
+                if (trailing[i] == '*')
+                {
+                    if (isDigit(trailing[++i]))
+                    {
+                        // a '_*' followed by digits and '$' is a
+                        // positional precision
+                        trailing = trailing[i .. $];
+                        i = 0;
+                        breaks = -parse!int(trailing);
+                        enforceFmt(trailing[i++] == '$',
+                            "$ expected");
+                    }
+                    else
+                    {
+                        // read result
+                        breaks = DYNAMIC;
+                    }
+                }
+                else if (isDigit(trailing[i]))
+                {
+                    auto tmp = trailing[i .. $];
+                    breaks = parse!int(tmp);
+                    i = arrayPtrDiff(tmp, trailing);
+                }
+                else
+                {
+                    // "." was specified, but nothing after it
+                    breaks = 3;
+                }
+                break;
             case '.':
                 // Precision
                 if (trailing[++i] == '*')
@@ -1358,6 +1479,7 @@ if (is(Unqual!Char == Char))
             flSpace = false;
             flPlus = false;
             flHash = false;
+            flUnderscore = false;
         }
         else
         {
@@ -1430,6 +1552,7 @@ if (is(Unqual!Char == Char))
         if (flSpace) put(w, ' ');
         if (flPlus)  put(w, '+');
         if (flHash)  put(w, '#');
+        if (flUnderscore)  put(w, '_');
         if (width != 0)
             formatValue(w, width, f);
         if (precision != FormatSpec!Char.UNSPECIFIED)
@@ -1493,6 +1616,7 @@ if (is(Unqual!Char == Char))
                 "\nflSpace = ", flSpace,
                 "\nflPlus = ", flPlus,
                 "\nflHash = ", flHash,
+                "\nflUnderscore = ", flUnderscore,
                 "\nnested = ", nested,
                 "\ntrailing = ", trailing, "\n");
     }
@@ -1532,6 +1656,32 @@ if (is(Unqual!Char == Char))
 
     f = FormatSpec!char("%(%-"); // %)")
     assertThrown(f.writeUpToNextSpec(a));
+}
+
+@safe unittest
+{
+    import std.array : appender;
+    auto a = appender!(string)();
+
+    auto f = FormatSpec!char("%_d");
+    f.writeUpToNextSpec(a);
+
+    assert(f.spec == 'd', format("%s", f.spec));
+    assert(f.precision == FormatSpec!char.UNSPECIFIED);
+    assert(f.breaks == 3);
+
+    f = FormatSpec!char("%5_10f");
+    f.writeUpToNextSpec(a);
+    assert(f.spec == 'f', format("%s", f.spec));
+    assert(f.breaks == 10);
+    assert(f.width == 5);
+
+    f = FormatSpec!char("%5_10.4f");
+    f.writeUpToNextSpec(a);
+    assert(f.spec == 'f', format("%s", f.spec));
+    assert(f.breaks == 10);
+    assert(f.width == 5);
+    assert(f.precision == 4);
 }
 
 /**
@@ -1853,7 +2003,14 @@ private void formatUnsigned(Writer, T, Char)(Writer w, T arg, const ref FormatSp
     size_t leftpad = 0;
     size_t rightpad = 0;
 
-    immutable ptrdiff_t spacesToPrint = fs.width - ((prefix1 != 0) + (prefix2 != 0) + zerofill + digits.length);
+    immutable ptrdiff_t spacesToPrint =
+        fs.width - (
+              (prefix1 != 0)
+            + (prefix2 != 0)
+            + zerofill
+            + digits.length
+            + ((fs.flUnderscore != 0) * (digits.length / fs.breaks))
+        );
     if (spacesToPrint > 0) // need to do some padding
     {
         if (padChar == '0')
@@ -1874,7 +2031,21 @@ private void formatUnsigned(Writer, T, Char)(Writer w, T arg, const ref FormatSp
     foreach (i ; 0 .. zerofill)
         put(w, '0');
 
-    put(w, digits);
+    if (fs.flUnderscore)
+    {
+        for (size_t i = 0; i < digits.length; ++i)
+        {
+            if ((digits.length - i) % fs.breaks == 0)
+            {
+                put(w, fs.breakChar);
+            }
+            put(w, digits[i]);
+        }
+    }
+    else
+    {
+        put(w, digits);
+    }
 
     foreach (i ; 0 .. rightpad)
         put(w, ' ');
@@ -2062,7 +2233,78 @@ if (is(FloatingPointTypeOf!T) && !is(T == enum) && !hasToString!(T, Char))
 
     enforceFmt(n >= 0,
         "floating point formatting failure");
-    put(w, buf[0 .. min(n, buf.length-1)]);
+
+    auto len = min(n, buf.length-1);
+    if (fs.flUnderscore)
+    {
+        size_t firstDigit = size_t.max;
+        size_t dot = size_t.max;
+        size_t j;
+        for (j = 0; j < len; ++j)
+        {
+            import std.ascii : isDigit;
+            if (firstDigit == size_t.max && isDigit(buf[j]))
+            {
+                firstDigit = j;
+            }
+            if (dot == size_t.max && buf[j] == '.')
+            {
+                dot = j;
+                break;  // nothing of interest comes after the '.'
+            }
+        }
+
+        assert(firstDigit != size_t.max);
+        assert(dot != size_t.max);
+        assert(firstDigit < dot);
+
+        ptrdiff_t firstLen = dot - firstDigit;
+
+        size_t underScoreCnt;
+        for (j = 0; j < firstLen; ++j)
+        {
+            if (j > 0 && (firstLen - j) % fs.breaks == 0)
+            {
+                ++underScoreCnt;
+            }
+        }
+        for (j = dot + 1; j < len; ++j)
+        {
+            auto realJ = (j - (dot + 1));
+            if (realJ != 0 && realJ % fs.breaks == 0)
+            {
+                ++underScoreCnt;
+            }
+        }
+
+        for (j = 0; j < underScoreCnt && buf[j] == ' '; ++j)
+        {
+        }
+        put(w, buf[j .. firstDigit]);
+
+        for (j = 0; j < firstLen; ++j)
+        {
+            if (j > 0 && (firstLen - j) % fs.breaks == 0)
+            {
+                put(w, fs.breakChar);
+            }
+            put(w, buf[j + firstDigit]);
+        }
+        put(w, '.');
+        for (j = dot + 1; j < len; ++j)
+        {
+            auto realJ = (j - (dot + 1));
+            if (realJ != 0 && realJ % fs.breaks == 0)
+            {
+                put(w, fs.breakChar);
+            }
+            put(w, buf[j]);
+        }
+    }
+    else
+    {
+        put(w, buf[0 .. len]);
+    }
 }
 
 ///
@@ -5692,4 +5934,136 @@ char[] sformat(Char, Args...)(char[] buf, in Char[] fmt, Args args)
     ptrdiff_t arrayPtrDiff(T)(const T[] array1, const T[] array2)
 {
     return array1.ptr - array2.ptr;
+}
+
+@safe unittest
+{
+    assertCTFEable!(
+    {
+    auto tmp = format("%_d", 1000);
+    assert(tmp == "1_000", tmp);
+
+    tmp = format("%_,d", 1234567);
+    assert(tmp == "1,234,567", tmp);
+
+    tmp = format("%_d", 1234567);
+    assert(tmp == "1_234_567", tmp);
+
+    tmp = format("%_Zd", 1234567);
+    assert(tmp == "1Z234Z567", tmp);
+
+    tmp = format("%_\"d", 1234567);
+    assert(tmp == "1\"234\"567", tmp);
+
+    tmp = format("%_d", 12345);
+    assert(tmp == "12_345", tmp);
+
+    tmp = format("%_4d", 12345);
+    assert(tmp == "1_2345", tmp);
+
+    tmp = format("%10_*d", 4, 12345);
+    assert(tmp == "    1_2345", "'" ~ tmp ~ "'");
+
+    tmp = format("%9_*d", 4, 12345);
+    assert(tmp == "   1_2345", "'" ~ tmp ~ "'");
+
+    tmp = format("%2$s%1$_d", 12345, "");
+    assert(tmp == "12_345", "'" ~ tmp ~ "'");
+
+    tmp = format("%2$s%1$_2d", 12345, "");
+    assert(tmp == "1_23_45", "'" ~ tmp ~ "'");
+
+    tmp = format("%_*2$1$d", 12345, 4);
+    assert(tmp == "1_2345", tmp);
+
+    tmp = format("%_d", -1000);
+    assert(tmp == "-1_000", tmp);
+
+    tmp = format("%_d", -1234567);
+    assert(tmp == "-1_234_567", tmp);
+
+    tmp = format("%_d", -12345);
+    assert(tmp == "-12_345", tmp);
+
+    tmp = format("%_4d", -12345);
+    assert(tmp == "-1_2345", tmp);
+
+    tmp = format("%10_*d", 4, -12345);
+    assert(tmp == "   -1_2345", "'" ~ tmp ~ "'");
+
+    tmp = format("%9_*d", 4, -12345);
+    assert(tmp == "  -1_2345", "'" ~ tmp ~ "'");
+
+    tmp = format("%9_*d", 3, -12345);
+    assert(tmp == "  -12_345", "'" ~ tmp ~ "'");
+
+    tmp = format("%_*d", 8, -12345);
+    assert(tmp == "-12345", "'" ~ tmp ~ "'");
+
+    tmp = format("%2$s%1$_d", -12345, "");
+    assert(tmp == "-12_345", "'" ~ tmp ~ "'");
+
+    tmp = format("%2$s%1$_2d", -12345, "");
+    assert(tmp == "-1_23_45", "'" ~ tmp ~ "'");
+
+    tmp = format("%_*2$1$d", -12345, 4);
+    assert(tmp == "-1_2345", tmp);
+    });
+}
+
+@safe unittest
+{
+    auto tmp = format("%_f", 1000.0);
+    assert(tmp == "1_000.000_000", tmp);
+
+    tmp = format("%_f", 1234567.891011);
+    assert(tmp == "1_234_567.891_011", tmp);
+
+    tmp = format("%_!f", 1234567.891011);
+    assert(tmp == "1!234!567.891!011", tmp);
+
+    tmp = format("%_4f", 1234567.891011);
+    assert(tmp == "123_4567.8910_11", tmp);
+
+    tmp = format("%_*f", 4, 1234567.891011);
+    assert(tmp == "123_4567.8910_11", "'" ~ tmp ~ "'");
+
+    tmp = format("%_]*f", 4, 1234567.891011);
+    assert(tmp == "123]4567.8910]11", "'" ~ tmp ~ "'");
+
+    tmp = format("%17_*f", 4, 1234567.891011);
+    assert(tmp == " 123_4567.8910_11", "'" ~ tmp ~ "'");
+
+    tmp = format("%17_{*f", 4, 1234567.891011);
+    assert(tmp == " 123{4567.8910{11", "'" ~ tmp ~ "'");
+
+    tmp = format("%20_*f", 4, 1234567.891011);
+    assert(tmp == "    123_4567.8910_11", "'" ~ tmp ~ "'");
+
+    tmp = format("%20_*f", 4, -1234567.891011);
+    assert(tmp == "   -123_4567.8910_11", "'" ~ tmp ~ "'");
+
+    tmp = format("%10_*f", 4, 1234567.891011);
+    assert(tmp == "123_4567.8910_11", "'" ~ tmp ~ "'");
+
+    tmp = format("%10_*f", 4, -1234567.891011);
+    assert(tmp == "-123_4567.8910_11", "'" ~ tmp ~ "'");
+
+    tmp = format("%10_*.2f", 4, 12345.6789);
+    assert(tmp == " 1_2345.68", "'" ~ tmp ~ "'");
+
+    tmp = format("%2$s%1$_.4f", 12345.6789, "");
+    assert(tmp == "12_345.678_9", "'" ~ tmp ~ "'");
+
+    tmp = format("%3$s%2$_*1$.4f", 2, 12345.6789, "");
+    assert(tmp == "1_23_45.67_89", "'" ~ tmp ~ "'");
+
+    tmp = format("%3$s%2$_j*1$.4f", 2, 12345.6789, "");
+    assert(tmp == "1j23j45.67j89", "'" ~ tmp ~ "'");
+
+    tmp = format("%3$s%2$_*1$.4f", 2, -12345.6789, "");
+    assert(tmp == "-1_23_45.67_89", "'" ~ tmp ~ "'");
+
+    tmp = format("%3$s%2$.4_*1$f", 2, -12345.6789, "");
+    assert(tmp == "-1_23_45.67_89", "'" ~ tmp ~ "'");
 }
