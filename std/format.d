@@ -2354,7 +2354,8 @@ private void formatUnsigned(Writer, T, Char)
             + (prefix2 != 0)
             + zerofill
             + digits.length
-            + ((fs.flSeparator != 0) * ((digits.length - 1) / fs.separators))
+            + ((fs.flSeparator != 0) *
+                ((digits.length > 1 ? digits.length - 1 : 1) / fs.separators))
         );
     if (spacesToPrint > 0) // need to do some padding
     {
@@ -6500,6 +6501,21 @@ char[] sformat(Char, Args...)(return scope char[] buf, scope const(Char)[] fmt, 
 
     tmp = format("%11,2d", 1234567);
     assert(tmp == " 1,23,45,67", "'" ~ tmp ~ "'");
+    });
+}
+
+// Issue 18838
+@safe unittest
+{
+    assertCTFEable!({
+    auto tmp = format("%3,d", 0);
+    assert(tmp == "  0", "'" ~ tmp ~ "'");
+
+    tmp = format("%03,d", 0);
+    assert(tmp == "000", "'" ~ tmp ~ "'");
+
+    tmp = format("%04,d", 0);
+    assert(tmp == "0,000", "'" ~ tmp ~ "'");
     });
 }
 
