@@ -6514,8 +6514,11 @@ char[] sformat(Char, Args...)(return scope char[] buf, scope const(Char)[] fmt, 
     tmp = format("%03,d", 0);
     assert(tmp == "000", "'" ~ tmp ~ "'");
 
+    tmp = format("%04d", 0);
+    assert(tmp == "0000", "'" ~ tmp ~ "'");
+
     tmp = format("%04,d", 0);
-    assert(tmp == "0,000", "'" ~ tmp ~ "'");
+    assert(tmp == "0,00", "'" ~ tmp ~ "'");
     });
 }
 
