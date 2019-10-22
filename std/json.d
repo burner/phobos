@@ -1287,10 +1287,17 @@ If `pretty` is false no whitespaces are generated.
 If `pretty` is true serialized string is formatted to be human-readable.
 Set the $(LREF JSONOptions.specialFloatLiterals) flag is set in `options` to encode NaN/Infinity as strings.
 */
-string toJSON(const ref JSONValue root, in bool pretty = false, in JSONOptions options = JSONOptions.none) @safe
+string toJSON(const ref JSONValue root, in bool pretty = false,
+        in JSONOptions options = JSONOptions.none) @safe
 {
     auto json = appender!string();
+    toJSON(json, root, pretty, options);
+    return json.data;
+}
 
+string toJSON(Out)(auto ref Out json, const ref JSONValue root,
+        in bool pretty = false, in JSONOptions options = JSONOptions.none)
+{
     void toStringImpl(Char)(string str) @safe
     {
         json.put('"');
@@ -1495,12 +1502,12 @@ string toJSON(const ref JSONValue root, in bool pretty = false, in JSONOptions o
                 }
                 else
                 {
-                    import std.format : format;
+                    import std.format : format, formattedWrite;
                     // The correct formula for the number of decimal digits needed for lossless round
                     // trips is actually:
                     //     ceil(log(pow(2.0, double.mant_dig - 1)) / log(10.0) + 1) == (double.dig + 2)
                     // Anything less will round off (1 + double.epsilon)
-                    json.put("%.18g".format(val));
+                    formattedWrite(json, "%.18g", val);
                 }
                 break;
 
