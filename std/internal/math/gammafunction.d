@@ -678,6 +678,7 @@ real sgnGamma(in real x)
     assert(sgnGamma(5.0) == 1.0);
     assert(isNaN(sgnGamma(-3.0)));
     assert(sgnGamma(-0.1) == -1.0);
+    assert(sgnGamma(-0.5) == -1.0);
     assert(sgnGamma(-0.6) == -1.0);
     assert(sgnGamma(-55.1) == 1.0);
     assert(isNaN(sgnGamma(-real.infinity)));
