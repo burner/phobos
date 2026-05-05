@@ -3389,14 +3389,10 @@ private:
             free(_dataMem);
     }
 
-    void enforceSize(R)(R range) const
+    void enforceSize(R)(R range) const nothrow @nogc
     {
-        debug
-        {
-            import std.conv : text;
-            assert(range.length <= size, text(
-                "FFT size mismatch.  Expected ", size, ", got ", range.length));
-        }
+        assert(range.length <= size,
+            "FFT size mismatch");
     }
 
     void fftImpl(Ret, R)(Stride!R range, Ret buf) const
@@ -3698,7 +3694,7 @@ public:
         this(memSpace);
     }
 
-    @property size_t size() const
+    @property size_t size() const nothrow @nogc
     {
         return (negSinLookup is null) ? 0 : negSinLookup[$ - 1].length;
     }
