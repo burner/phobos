@@ -7887,7 +7887,7 @@ if (!is(T == class) && !(is(T == interface)))
             _store._count = 1;
         }
 
-        private void move(ref T source) nothrow pure
+        private void move(scope ref T source) nothrow pure
         {
             import std.algorithm.mutation : moveEmplace;
 
@@ -8528,6 +8528,13 @@ template borrow(alias fun)
  *   $(LREF refCounted)
  *   $(HTTP en.cppreference.com/w/cpp/memory/shared_ptr/make_shared, C++'s make_shared)
  */
+// https://github.com/dlang/phobos/issues/10837
+@safe unittest
+{
+    auto rc = SafeRefCounted!int(5);
+    assert(rc.refCountedStore.refCount == 1);
+}
+
 SafeRefCounted!(T, RefCountedAutoInitialize.no) safeRefCounted(T)(T val)
 {
     typeof(return) res;
@@ -11386,7 +11393,7 @@ struct RefCounted(T, RefCountedAutoInitialize autoInit =
             _store._count = 1;
         }
 
-        private void move(ref T source) nothrow pure
+        private void move(scope ref T source) nothrow pure
         {
             import std.algorithm.mutation : moveEmplace;
 
