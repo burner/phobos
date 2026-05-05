@@ -807,10 +807,19 @@ if (isInputRange!R && !isInfinite!R)
     - `needle` is the index into `needles` which matched.
     - Both are `-1` if there was no match.
 
-    Warning: Due to $(LINK2 https://tour.dlang.org/tour/en/gems/unicode,
-    auto-decoding), the return value of this function may $(I not) correspond
-    to the array index for strings.  To find the index of an element matching
-    the predicate in a string, use $(REF indexOf, std,string) instead.
+    $(B Counts are not indexes.) $(D countUntil) returns the number of
+    $(I elements) consumed from the range, not an array index. Due to
+    $(LINK2 https://tour.dlang.org/tour/en/gems/unicode, auto-decoding),
+    iterating a $(D string) by $(D char) produces $(D dchar) code points,
+    so the count may differ from the byte offset. For example,
+    $(D "foö".countUntil('ö')) returns $(D 2) (two code points), but
+    $(D 'ö') is at byte index $(D 3). Similarly, passing a range that
+    has already been partially consumed (e.g. after $(D filter) or
+    $(D drop)) means the count is relative to the current position, not
+    the original start.
+
+    To find the byte offset of a substring in a $(D string), use
+    $(REF indexOf, std,string) instead.
 
     See_Also: $(REF indexOf, std,string)
   +/
