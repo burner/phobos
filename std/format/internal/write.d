@@ -2549,14 +2549,13 @@ if ((is(T == struct) || is(T == union)) && (hasToString!(T, Char) || !is(Builtin
             /* https://github.com/dlang/phobos/issues/10840
              * handle possible bitfields by doing overlap comparisons
              * using bit counts rather than byte counts.
-             * However, the overlap
-             * check in general does not take into account staggered unions.
-             * This can be fixed using the correct algorithm implemented in
-             * the compiler function dmd.declaration.isOverlappedWith().
-             * For the moment we will not change to that because the `#(overlap ...)` output
-             * needs to be re-thought, as it was never correct.
+             * Bitfields at the same offset are distinct fields, not
+             * overlapping union members, so they are excluded from
+             * overlap detection.
              */
             else static if (0 < i &&
+                            !__traits(isBitfield, T.tupleof[i]) &&
+                            !__traits(isBitfield, T.tupleof[i-1]) &&
                             T.tupleof[i-1].offsetof * 8 + __traits(getBitfieldOffset,T.tupleof[i-1]) ==
                             T.tupleof[i  ].offsetof * 8 + __traits(getBitfieldOffset,T.tupleof[i  ]))
             {
@@ -2574,6 +2573,8 @@ if ((is(T == struct) || is(T == union)) && (hasToString!(T, Char) || !is(Builtin
                 }
             }
             else static if (i+1 < T.tupleof.length &&
+                            !__traits(isBitfield, T.tupleof[i]) &&
+                            !__traits(isBitfield, T.tupleof[i+1]) &&
                             T.tupleof[i  ].offsetof * 8 + __traits(getBitfieldOffset,T.tupleof[i  ]) ==
                             T.tupleof[i+1].offsetof * 8 + __traits(getBitfieldOffset,T.tupleof[i+1]))
             {
@@ -2721,6 +2722,25 @@ if ((is(T == struct) || is(T == union)) && (hasToString!(T, Char) || !is(Builtin
     auto w = appender!(char[])();
     formatValue(w, bug, f);
     assert(w.data == `Bug7230("hello", #{overlap a, b, c}, 10)`);
+}
+
+// https://github.com/dlang/phobos/issues/10840
+@safe unittest
+{
+    import std.array : appender;
+    import std.format : formatValue;
+
+    static struct S
+    {
+        ubyte a : 4;
+        ubyte b : 4;
+    }
+
+    auto s = S(8, 15);
+    FormatSpec!char f;
+    auto w = appender!(char[])();
+    formatValue(w, s, f);
+    assert(w.data == `S(8, 15)`);
 }
 
 @safe unittest
