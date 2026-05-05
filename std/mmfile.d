@@ -414,7 +414,14 @@ class MmFile
         }
     }
 
-    /* Flush any pending output.
+    /** Flush any pending output.
+     *
+     * On Windows, this calls both $(HTTP msdn.microsoft.com/en-us/library/windows/desktop/aa366564.aspx, FlushViewOfFile)
+     * and $(HTTP msdn.microsoft.com/en-us/library/windows/desktop/aa364439.aspx, FlushFileBuffers)
+     * to ensure data and file metadata are physically written to disk.
+     *
+     * On Posix, this calls $(HTTPS man7.org/linux/man-pages/man2/msync.2.html, msync)
+     * with $(TT MS_SYNC).
      */
     void flush()
     {
