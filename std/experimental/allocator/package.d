@@ -1180,7 +1180,18 @@ auto make(T, Allocator, A...)(auto ref Allocator alloc, auto ref A args)
         import core.internal.lifetime : emplaceRef;
         import core.lifetime : emplace;
 
-        auto m = alloc.allocate(max(stateSize!T, 1));
+        static if (is(T == class))
+            enum uint tAlignment = __traits(classInstanceAlignment, T);
+        else
+            enum uint tAlignment = T.alignof;
+
+        void[] m;
+        static if (__traits(compiles, alloc.alignedAllocate(size_t.max, uint.max)))
+        {
+            m = alloc.alignedAllocate(max(stateSize!T, 1), tAlignment);
+        }
+        if (!m.ptr)
+            m = alloc.allocate(max(stateSize!T, 1));
         if (!m.ptr) return null;
 
         // make can only be @safe if emplace or emplaceRef is `pure`
@@ -1327,6 +1338,19 @@ auto make(T, Allocator, A...)(auto ref Allocator alloc, auto ref A args)
     import std.experimental.allocator.gc_allocator : GCAllocator;
     test(GCAllocator.instance);
     test(theAllocator);
+}
+
+// https://github.com/dlang/phobos/issues/10847
+@system unittest
+{
+    import std.experimental.allocator.building_blocks.bitmapped_block : BitmappedBlock;
+
+    class S {}
+    auto alloc = BitmappedBlock!(17, 1)(new ubyte[](256));
+    auto a = alloc.make!S();
+    assert(a !is null);
+    auto b = alloc.make!S();
+    assert(b !is null);
 }
 
 // Attribute propagation
