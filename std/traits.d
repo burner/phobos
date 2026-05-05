@@ -2656,6 +2656,54 @@ template hasNested(T)
     static assert(!hasNested!A);
 }
 
+/**
+Returns `true` if and only if `T` is a struct that contains at least one
+bitfield member.
+
+Params:
+    T = The type to test.
+
+See_Also:
+$(LINK2 https://dlang.org/spec/struct.html#bitfields, $(D std.bitmanip.bitfields))
+*/
+template hasBitfields(T)
+{
+    static if (is(T == struct))
+    {
+        enum bool hasBitfields = ()
+        {
+            bool result = false;
+            static foreach (A; T.tupleof)
+            {
+                static if (__traits(isBitfield, A))
+                    result = true;
+            }
+            return result;
+        }();
+    }
+    else
+        enum bool hasBitfields = false;
+}
+
+///
+@safe unittest
+{
+    struct Bitfields
+    {
+        bool flag:1;
+        uint value:31;
+    }
+    struct NoBitfields
+    {
+        bool flag;
+        uint value;
+    }
+
+    static assert( hasBitfields!Bitfields);
+    static assert(!hasBitfields!NoBitfields);
+    static assert(!hasBitfields!int);
+    static assert(!hasBitfields!(int*));
+}
 
 /***
  * Get as a tuple the types of the fields of a struct, class, or union.
