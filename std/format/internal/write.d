@@ -2512,6 +2512,34 @@ if (is(T == interface) && (hasToString!(T, Char) || !is(BuiltinTypeOf!T)) && !is
     }
 }
 
+private template formatFieldOverlap_(T, size_t i, size_t j)
+{
+    enum a0 = T.tupleof[i].offsetof * 8 + __traits(getBitfieldOffset, T.tupleof[i]);
+    enum a1 = a0 + typeof(T.tupleof[i]).sizeof * 8;
+    enum b0 = T.tupleof[j].offsetof * 8 + __traits(getBitfieldOffset, T.tupleof[j]);
+    enum b1 = b0 + typeof(T.tupleof[j]).sizeof * 8;
+    enum bool formatFieldOverlap_ = a0 < b1 && b0 < a1;
+}
+
+private template formatFieldOverlapsAny_(T, size_t i, size_t lo, size_t hi)
+{
+    static if (lo > hi)
+        enum bool formatFieldOverlapsAny_ = false;
+    else static if (lo == i)
+        enum bool formatFieldOverlapsAny_ = formatFieldOverlapsAny_!(T, i, lo + 1, hi);
+    else
+        enum bool formatFieldOverlapsAny_ = formatFieldOverlap_!(T, i, lo) ||
+                                             formatFieldOverlapsAny_!(T, i, lo + 1, hi);
+}
+
+private template formatFieldHasOverlap_(T, size_t i)
+{
+    static if (T.tupleof.length <= 1)
+        enum bool formatFieldHasOverlap_ = false;
+    else
+        enum bool formatFieldHasOverlap_ = formatFieldOverlapsAny_!(T, i, 0, T.tupleof.length - 1);
+}
+
 // Maybe T is noncopyable struct, so receive it by 'auto ref'.
 void formatValueImpl(Writer, T, Char)(auto ref Writer w, auto ref T val,
     scope const ref FormatSpec!Char f)
@@ -2544,45 +2572,60 @@ if ((is(T == struct) || is(T == union)) && (hasToString!(T, Char) || !is(Builtin
         {{
             static if (__traits(identifier, val.tupleof[i]) == "this")
             {
-                // ignore hidden context pointer
             }
-            /* https://github.com/dlang/phobos/issues/10840
-             * handle possible bitfields by doing overlap comparisons
-             * using bit counts rather than byte counts.
-             * However, the overlap
-             * check in general does not take into account staggered unions.
-             * This can be fixed using the correct algorithm implemented in
-             * the compiler function dmd.declaration.isOverlappedWith().
-             * For the moment we will not change to that because the `#(overlap ...)` output
-             * needs to be re-thought, as it was never correct.
-             */
-            else static if (0 < i &&
-                            T.tupleof[i-1].offsetof * 8 + __traits(getBitfieldOffset,T.tupleof[i-1]) ==
-                            T.tupleof[i  ].offsetof * 8 + __traits(getBitfieldOffset,T.tupleof[i  ]))
+            else static if (T.tupleof.length > 1 &&
+                            formatFieldHasOverlap_!(T, i))
             {
-                static if (i == T.tupleof.length - 1 ||
-                            T.tupleof[i  ].offsetof * 8 + __traits(getBitfieldOffset,T.tupleof[i  ]) !=
-                            T.tupleof[i+1].offsetof * 8 + __traits(getBitfieldOffset,T.tupleof[i+1]))
-                {
-                    enum el = separator ~ __traits(identifier, T.tupleof[i]) ~ "}";
-                    put(w, el);
-                }
+                static if (i > 0)
+                    enum bool prevHasOverlap = formatFieldHasOverlap_!(T, i - 1);
                 else
+                    enum bool prevHasOverlap = false;
+                static if (i > 0)
+                    enum bool iOverlapsPrev = formatFieldOverlap_!(T, i, i - 1);
+                else
+                    enum bool iOverlapsPrev = false;
+                static if (i > 1)
+                    enum bool prevGroupStillOpen = formatFieldHasOverlap_!(T, i - 1) &&
+                        !formatFieldOverlap_!(T, i, i - 1);
+                else
+                    enum bool prevGroupStillOpen = false;
+                static if (i + 1 < T.tupleof.length)
+                    enum bool nextHasOverlap = formatFieldHasOverlap_!(T, i + 1);
+                else
+                    enum bool nextHasOverlap = false;
+
+                static if (iOverlapsPrev || prevHasOverlap)
                 {
                     enum el = separator ~ __traits(identifier, T.tupleof[i]);
                     put(w, el);
                 }
-            }
-            else static if (i+1 < T.tupleof.length &&
-                            T.tupleof[i  ].offsetof * 8 + __traits(getBitfieldOffset,T.tupleof[i  ]) ==
-                            T.tupleof[i+1].offsetof * 8 + __traits(getBitfieldOffset,T.tupleof[i+1]))
-            {
-                enum el = (i > 0 ? separator : "") ~ "#{overlap " ~ __traits(identifier, T.tupleof[i]);
-                put(w, el);
+                else
+                {
+                    static if (prevGroupStillOpen)
+                        put(w, "}, ");
+                    else static if (i > 0)
+                        put(w, separator);
+                    enum el = "#{overlap " ~ __traits(identifier, T.tupleof[i]);
+                    put(w, el);
+                }
+                static if (!nextHasOverlap)
+                {
+                    put(w, "}");
+                }
             }
             else
             {
                 static if (i > 0)
+                {
+                    enum bool prevHadOverlap = formatFieldHasOverlap_!(T, i - 1);
+                }
+                else
+                {
+                    enum bool prevHadOverlap = false;
+                }
+                static if (prevHadOverlap && i > 0)
+                    put(w, ", ");
+                else static if (i > 0)
                     put(w, separator);
                 formatElement(w, val.tupleof[i], f);
             }
@@ -2721,6 +2764,32 @@ if ((is(T == struct) || is(T == union)) && (hasToString!(T, Char) || !is(Builtin
     auto w = appender!(char[])();
     formatValue(w, bug, f);
     assert(w.data == `Bug7230("hello", #{overlap a, b, c}, 10)`);
+}
+
+// https://github.com/dlang/phobos/issues/10844
+@safe unittest
+{
+    import std.array : appender;
+    import std.format : formatValue;
+
+    static struct Bug7230Variant
+    {
+        union
+        {
+            struct
+            {
+                int a;
+                int b;
+            }
+            string c;
+        }
+    }
+
+    auto s = Bug7230Variant(b: 123);
+    FormatSpec!char f;
+    auto w = appender!(char[])();
+    formatValue(w, s, f);
+    assert(w.data == `Bug7230Variant(#{overlap a, b, c})`);
 }
 
 @safe unittest
