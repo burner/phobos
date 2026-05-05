@@ -2041,16 +2041,41 @@ public:
         enum defaultTZDatabaseDir = "";
     }
 
-    private static string getDefaultTZDatabaseDir() @trusted
+    private static string getDefaultTZDatabaseDir() @trusted nothrow
     {
         import core.stdc.stdlib : getenv;
+        import std.path : dirSeparator;
         import std.string : fromStringz;
 
         auto dir = getenv("TZDIR");
         if (dir)
-            return fromStringz(dir).idup;
+        {
+            auto result = fromStringz(dir).idup;
+            if (result.length && result[$ - 1] != dirSeparator[0])
+                result ~= dirSeparator[0];
+            return result;
+        }
 
         return defaultTZDatabaseDir;
+    }
+
+    // Verify getDefaultTZDatabaseDir normalizes trailing separator
+    version (Posix) @system unittest
+    {
+        import core.sys.posix.stdlib : setenv, unsetenv;
+        import std.path : dirSeparator;
+
+        setenv("TZDIR", "/tmp/test_zoneinfo", 1);
+        auto dir = PosixTimeZone.getDefaultTZDatabaseDir();
+        assert(dir == "/tmp/test_zoneinfo" ~ dirSeparator,
+            "TZDIR should get trailing separator: " ~ dir);
+
+        setenv("TZDIR", "/tmp/test_zoneinfo/", 1);
+        dir = PosixTimeZone.getDefaultTZDatabaseDir();
+        assert(dir == "/tmp/test_zoneinfo/",
+            "TZDIR with trailing separator should be unchanged: " ~ dir);
+
+        unsetenv("TZDIR");
     }
 
 
@@ -3329,7 +3354,7 @@ else version (Posix)
         version (Android)
             auto value = asNormalizedPath(tzDatabaseName);
         else
-            auto value = asNormalizedPath(chainPath(PosixTimeZone.defaultTZDatabaseDir, tzDatabaseName));
+            auto value = asNormalizedPath(chainPath(PosixTimeZone.getDefaultTZDatabaseDir(), tzDatabaseName));
         setenv("TZ", value.tempCString(), 1);
         tzset();
     }
