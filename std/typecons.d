@@ -3907,7 +3907,7 @@ struct Nullable(T)
                 return _isNull ? 0 : .hashOf(_value.payload);
             else
                 // Workaround for when .hashOf is not both @safe and nothrow.
-                return _isNull ? 0 : typeid(T).getHash(&_value.payload);
+                return _isNull ? 0 : typeid(T).getHash(cast(const(void*)) &_value.payload);
         }
     }
 
