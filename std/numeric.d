@@ -3374,16 +3374,29 @@ final class Fft
 {
     import core.bitop : bsf;
     import std.algorithm.iteration : map;
-    import std.array : uninitializedArray;
 
 private:
     immutable lookup_t[][] negSinLookup;
+    void* _tableMem;
+    void* _dataMem;
+
+    ~this()
+    {
+        import core.stdc.stdlib : free;
+        if (_tableMem)
+            free(_tableMem);
+        if (_dataMem)
+            free(_dataMem);
+    }
 
     void enforceSize(R)(R range) const
     {
-        import std.conv : text;
-        assert(range.length <= size, text(
-            "FFT size mismatch.  Expected ", size, ", got ", range.length));
+        debug
+        {
+            import std.conv : text;
+            assert(range.length <= size, text(
+                "FFT size mismatch.  Expected ", size, ", got ", range.length));
+        }
     }
 
     void fftImpl(Ret, R)(Stride!R range, Ret buf) const
@@ -3609,13 +3622,11 @@ private:
     // Public b/c of https://issues.dlang.org/show_bug.cgi?id=4636.
     public this(lookup_t[] memSpace)
     {
+        import core.stdc.stdlib : malloc;
+        import core.exception : onOutOfMemoryError;
+
         immutable size = memSpace.length / 2;
 
-        /* Create a lookup table of all negative sine values at a resolution of
-         * size and all smaller power of two resolutions.  This may seem
-         * inefficient, but having all the lookups be next to each other in
-         * memory at every level of iteration is a huge win performance-wise.
-         */
         if (size == 0)
         {
             return;
@@ -3624,7 +3635,12 @@ private:
         assert(isPowerOf2(size),
             "Can only do FFTs on ranges with a size that is a power of two.");
 
-        auto table = new lookup_t[][bsf(size) + 1];
+        immutable tableLen = bsf(size) + 1;
+        auto tableMem = malloc(lookup_t[].sizeof * tableLen);
+        if (!tableMem)
+            onOutOfMemoryError();
+        _tableMem = tableMem;
+        auto table = (cast(lookup_t[]*) tableMem)[0 .. tableLen];
 
         table[$ - 1] = memSpace[$ - size..$];
         memSpace = memSpace[0 .. size];
@@ -3671,9 +3687,14 @@ public:
      */
     this(size_t size)
     {
-        // Allocate all twiddle factor buffers in one contiguous block so that,
-        // when one is done being used, the next one is next in cache.
-        auto memSpace = uninitializedArray!(lookup_t[])(2 * size);
+        import core.stdc.stdlib : malloc;
+        import core.exception : onOutOfMemoryError;
+
+        auto memSpace = (cast(lookup_t*) malloc(2 * size * lookup_t.sizeof))
+                        [0 .. 2 * size];
+        if (!memSpace.ptr)
+            onOutOfMemoryError();
+        _dataMem = memSpace.ptr;
         this(memSpace);
     }
 
@@ -3701,6 +3722,7 @@ public:
     Complex!F[] fft(F = double, R)(R range) const
     if (isFloatingPoint!F && isRandomAccessRange!R)
     {
+        import std.array : uninitializedArray;
         enforceSize(range);
         Complex!F[] ret;
         if (range.length == 0)
@@ -3708,7 +3730,6 @@ public:
             return ret;
         }
 
-        // Don't waste time initializing the memory for ret.
         ret = uninitializedArray!(Complex!F[])(range.length);
 
         fft(range,  ret);
@@ -3782,6 +3803,7 @@ public:
     Complex!F[] inverseFft(F = double, R)(R range) const
     if (isRandomAccessRange!R && isComplexLike!(ElementType!R) && isFloatingPoint!F)
     {
+        import std.array : uninitializedArray;
         enforceSize(range);
         Complex!F[] ret;
         if (range.length == 0)
@@ -3789,7 +3811,6 @@ public:
             return ret;
         }
 
-        // Don't waste time initializing the memory for ret.
         ret = uninitializedArray!(Complex!F[])(range.length);
 
         inverseFft(range, ret);
@@ -3958,6 +3979,23 @@ void inverseFft(Ret, R)(R range, Ret buf)
     auto inv = inverseFft(fft1[]);
     assert(isClose(inv[].map!"a.re", arr[], 1e-6));
     assert(inv[].map!"a.im".maxElement < 1e-10);
+}
+
+// https://github.com/dlang/phobos/issues/10798
+// Verify buffer-accepting Fft methods work in @nogc context
+unittest
+{
+    import std.complex : Complex;
+
+    auto fftObj = new Fft(4);
+
+    () @nogc @system {
+        double[4] arr = [1, 2, 3, 4];
+        Complex!double[4] buf;
+
+        fftObj.fft(arr[], buf[]);
+        fftObj.inverseFft(buf[], buf[]);
+    }();
 }
 
 // Swaps the real and imaginary parts of a complex number.  This is useful
