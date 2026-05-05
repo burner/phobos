@@ -959,6 +959,29 @@ real beta(in real x, in real y)
     assert(beta(nextDown(nextDown(-2.0L)), nextUp(-2.0L)) >= 0);
 }
 
+// https://github.com/dlang/phobos/issues/10812
+// B(x,y) = 0 when x+y is a non-positive integer and neither x nor y is one.
+@safe unittest
+{
+    // sum = -1 (odd negative integer)
+    assert(beta(-1.5, 0.5) == 0);
+    assert(beta(-0.9, -0.1) == 0);
+
+    // sum = -2 (even negative integer)
+    assert(beta(-2.5, 0.5) is -0.0L);
+    assert(beta(-3.5, 1.5) == 0);
+
+    // sum = -3 (odd negative integer)
+    assert(beta(-1.5, -1.5) == 0);
+    assert(beta(-2.3, -0.7) == 0);
+
+    // sum = -6 (even negative integer)
+    assert(beta(-5.2, -0.8) is -0.0L);
+
+    // sum = 0 (already handled, verify regression)
+    assert(beta(-0.5, 0.5) is -0.0L);
+}
+
 
 /* This is the natural logarithm of the absolute value of the beta function. It
  * tries to eliminate reduce the loss of precision that happens when subtracting
