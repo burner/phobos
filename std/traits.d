@@ -7605,7 +7605,10 @@ enum bool isSomeFunction(alias T) =
 Detect whether `callable` is a callable object, which can be called with the
 function call operator `$(LPAREN)...$(RPAREN)`.
 
-$(NOTE Implicit Function Template Instantiation is *not* attempted - see below.)
+$(NOTE Implicit Function Template Instantiation is *not* attempted for
+templates without runtime parameters. However, if a template function's
+type parameters can be deduced from a sample runtime argument (e.g. `int`),
+`isCallable` will return `true`.)
  */
 template isCallable(alias callable)
 {
@@ -7622,6 +7625,11 @@ template isCallable(alias callable)
     else static if (is(typeof(&callable!()) TemplateInstanceType))
     {
         enum bool isCallable = isCallable!TemplateInstanceType;
+    }
+    else static if (__traits(isTemplate, callable) &&
+                     __traits(compiles, callable(int.init)))
+    {
+        enum bool isCallable = true;
     }
     else
     {
@@ -7665,6 +7673,8 @@ template isCallable(alias callable)
 }
 
 /// Template functions are only detected if they are instantiable with `!()`.
+/// Template functions whose parameters can be deduced from runtime arguments
+/// are also detected.
 @safe unittest
 {
     void f()() { }
@@ -7679,7 +7689,7 @@ template isCallable(alias callable)
     static assert( isCallable!S1);
     static assert( isCallable!S2);
 
-    static assert(!isCallable!((x) {}));
+    static assert( isCallable!((x) {}));
 }
 
 /// Overloaded functions and function templates instantiable with `!()`.
@@ -7696,6 +7706,13 @@ template isCallable(alias callable)
 
     static assert(isCallable!(Wrapper.f));
     static assert(isCallable!(Wrapper.g));
+}
+
+// https://github.com/dlang/phobos/issues/10814
+@safe unittest
+{
+    T identity(T)(T t) => t;
+    static assert(isCallable!identity);
 }
 
 
