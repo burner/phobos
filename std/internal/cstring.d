@@ -38,6 +38,17 @@ module std.internal.cstring;
     }
 }
 
+// https://github.com/dlang/phobos/issues/10836
+nothrow @nogc @system unittest
+{
+    import core.stdc.string : strlen;
+
+    // Strings without embedded NULs should still work correctly
+    assert(strlen("abc".tempCString()) == 3);
+    assert(strlen("".tempCString()) == 0);
+    assert(strlen("hello world".tempCString()) == 11);
+}
+
 import std.range;
 import std.traits;
 
@@ -100,8 +111,19 @@ if (isSomeChar!To && (isInputRange!From || isSomeString!From) &&
     {
         if (str.length < res._buff.length)
         {
-            res._buff[0 .. str.length] = str[];
-            res._buff[str.length] = 0;
+            static if (is(To == char))
+            {
+                import core.stdc.string : strncpy;
+                () @trusted { strncpy(cast(char*)res._buff.ptr, cast(const(char)*)str.ptr, str.length); }();
+                res._buff[str.length] = 0;
+                assert(str.length == 0 || res._buff[str.length - 1] != 0,
+                    "tempCString: input contains embedded NUL characters");
+            }
+            else
+            {
+                res._buff[0 .. str.length] = str[];
+                res._buff[str.length] = 0;
+            }
             res._ptr = res.useStack;
         }
         else
@@ -116,8 +138,19 @@ if (isSomeChar!To && (isInputRange!From || isSomeString!From) &&
             }
             res._ptr = () @trusted {
                 auto p = cast(CF*) enforceMalloc((str.length + 1) * CF.sizeof);
-                p[0 .. str.length] = str[];
-                p[str.length] = 0;
+                static if (is(To == char))
+                {
+                    import core.stdc.string : strncpy;
+                    strncpy(cast(char*)p, cast(const(char)*)str.ptr, str.length);
+                    p[str.length] = 0;
+                    assert(str.length == 0 || p[str.length - 1] != 0,
+                        "tempCString: input contains embedded NUL characters");
+                }
+                else
+                {
+                    p[0 .. str.length] = str[];
+                    p[str.length] = 0;
+                }
                 return cast(To*) p;
             }();
         }
