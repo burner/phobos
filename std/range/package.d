@@ -8296,16 +8296,20 @@ if (isForwardRange!RangeOfRanges &&
     isInputRange!(ElementType!RangeOfRanges) &&
     hasAssignableElements!RangeOfRanges)
 {
+    alias SubRange = ElementType!RangeOfRanges;
+
     this(RangeOfRanges input)
     {
-        this._input = input;
+        import std.array : array;
+
+        _rows = input.array;
         static if (opt == TransverseOptions.enforceNotJagged)
         {
             import std.exception : enforce;
 
             if (empty) return;
-            immutable commonLength = _input.front.length;
-            foreach (e; _input)
+            immutable commonLength = _rows[0].length;
+            foreach (e; _rows)
             {
                 enforce(e.length == commonLength);
             }
@@ -8315,40 +8319,31 @@ if (isForwardRange!RangeOfRanges &&
     @property auto front()
     {
         import std.algorithm.iteration : filter, map;
-        return _input.save
+        return _rows[]
                      .filter!(a => !a.empty)
                      .map!(a => a.front);
     }
 
     void popFront()
     {
-        // Advance the position of each subrange.
-        auto r = _input.save;
-        while (!r.empty)
+        foreach (ref row; _rows)
         {
-            auto e = r.front;
-            if (!e.empty)
-            {
-                e.popFront();
-                r.front = e;
-            }
-
-            r.popFront();
+            if (!row.empty)
+                row.popFront();
         }
     }
 
-    static if (isRandomAccessRange!(ElementType!RangeOfRanges))
+    static if (isRandomAccessRange!SubRange)
     {
         auto ref opIndex(size_t n)
         {
-            return transversal!opt(_input, n);
+            return transversal!opt(_rows, n);
         }
     }
 
     @property bool empty()
     {
-        if (_input.empty) return true;
-        foreach (e; _input.save)
+        foreach (ref e; _rows)
         {
             if (!e.empty) return false;
         }
@@ -8358,7 +8353,7 @@ if (isForwardRange!RangeOfRanges &&
     auto opSlice() { return this; }
 
 private:
-    RangeOfRanges _input;
+    SubRange[] _rows;
 }
 
 @safe unittest
@@ -8368,6 +8363,46 @@ private:
     assert(transposed(ror).empty);
 }
 
+
+// https://github.com/dlang/phobos/issues/10766
+@safe unittest
+{
+    import std.algorithm.comparison : equal;
+    import std.array : array;
+
+    // only + transposed should not cause infinite loop
+    {
+        auto r = only("abc").transposed;
+        size_t count;
+        foreach (col; r)
+        {
+            assert(count < 10);
+            count++;
+        }
+        assert(count == 3);
+    }
+
+    // Verify correctness with only + transposed
+    {
+        int[] a = [1, 2, 3];
+        int[] b = [4, 5, 6];
+        auto r = only(a, b).transposed;
+        int[][] result;
+        foreach (col; r)
+            result ~= col.array;
+        assert(equal!equal(result, [[1, 4], [2, 5], [3, 6]]));
+    }
+
+    // Single row
+    {
+        int[] a = [1, 2, 3];
+        auto r = only(a).transposed;
+        int[][] result;
+        foreach (col; r)
+            result ~= col.array;
+        assert(equal!equal(result, [[1], [2], [3]]));
+    }
+}
 // https://issues.dlang.org/show_bug.cgi?id=9507
 @safe unittest
 {
