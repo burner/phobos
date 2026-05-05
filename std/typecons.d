@@ -3901,7 +3901,7 @@ struct Nullable(T)
 
     static if (!isAggregateType!T || hasMember!(T, "toHash"))
     {
-        size_t toHash() const @safe nothrow
+        size_t toHash() const nothrow
         {
             static if (__traits(compiles, .hashOf(_value.payload)))
                 return _isNull ? 0 : .hashOf(_value.payload);
@@ -4740,6 +4740,39 @@ auto nullable(T)(T t)
 
     assert(typeid(Nullable!S).getHash(&s1) == 5);
     assert(typeid(Nullable!S).getHash(&s2) == 0);
+}
+
+// https://github.com/dlang/phobos/issues/10809
+// Nullable.toHash should infer attributes, not be explicitly @safe
+unittest
+{
+    // Verify Nullable can be instantiated with a struct containing a union
+    static struct S
+    {
+        union
+        {
+            long foo;
+            int bar;
+        }
+    }
+
+    Nullable!S s;
+    assert(s.isNull);
+}
+
+// Verify Nullable.toHash is inferred @safe when the contained type allows it
+@safe unittest
+{
+    static struct S
+    {
+        int x;
+        size_t toHash() const nothrow @safe { return cast(size_t) x; }
+    }
+
+    Nullable!S s1 = S(42);
+    Nullable!S s2;
+    assert(s1.toHash() != 0);
+    assert(s2.toHash() == 0);
 }
 
 // https://issues.dlang.org/show_bug.cgi?id=21704
