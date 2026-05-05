@@ -6347,14 +6347,20 @@ Params:
         split.
     isTerminator = A $(REF_ALTTEXT unary, unaryFun, std,functional) predicate for
         deciding where to split the range.
+    keepSeparators = When set to $(REF_ALTTEXT Yes, Yes, std,typecons), the separators
+        are included as separate elements in the output range.
 
 Returns:
     A forward range of slices of the original range split by whitespace.
+    If `keepSeparators` is equal to `Yes.keepSeparators` the output will also contain
+    the separators.
  +/
-auto splitter(alias isTerminator, Range)(Range r)
+auto splitter(alias isTerminator,
+              Flag!"keepSeparators" keepSeparators = No.keepSeparators,
+              Range)(Range r)
 if (isForwardRange!Range && is(typeof(unaryFun!isTerminator(r.front))))
 {
-    return SplitterResult!(unaryFun!isTerminator, Range)(r);
+    return SplitterResult!(unaryFun!isTerminator, Range, keepSeparators)(r);
 }
 
 ///
@@ -6391,7 +6397,38 @@ if (isForwardRange!Range && is(typeof(unaryFun!isTerminator(r.front))))
     assert(equal(splitter!(a => a.front == 1)(w), [ [[0]], [[2]] ]));
 }
 
-private struct SplitterResult(alias isTerminator, Range)
+// https://github.com/dlang/phobos/issues/10761
+@safe unittest
+{
+    import std.algorithm.comparison : equal;
+    import std.algorithm.searching : canFind;
+    import std.typecons : Yes;
+
+    auto r1 = "16x16+0-2".splitter!(a => "x+-".canFind(a), Yes.keepSeparators)();
+    assert(equal(r1, ["16", "x", "16", "+", "0", "-", "2"]));
+
+    auto r2 = "a|b".splitter!(a => a == '|', Yes.keepSeparators)();
+    assert(equal(r2, ["a", "|", "b"]));
+
+    auto r3 = "|ab".splitter!(a => a == '|', Yes.keepSeparators)();
+    assert(equal(r3, ["", "|", "ab"]));
+
+    auto r4 = "ab|".splitter!(a => a == '|', Yes.keepSeparators)();
+    assert(equal(r4, ["ab", "|"]));
+
+    auto r5 = "a||b".splitter!(a => a == '|', Yes.keepSeparators)();
+    assert(equal(r5, ["a", "|", "", "|", "b"]));
+
+    auto r6 = "abc".splitter!(a => a == '|', Yes.keepSeparators)();
+    assert(equal(r6, ["abc"]));
+
+    auto r7 = "|".splitter!(a => a == '|', Yes.keepSeparators)();
+    assert(equal(r7, ["", "|"]));
+
+    assert("".splitter!(a => a == '|', Yes.keepSeparators)().empty);
+}
+
+private struct SplitterResult(alias isTerminator, Range, Flag!"keepSeparators" keepSeparators = No.keepSeparators)
 {
     import std.algorithm.searching : find;
     enum fullSlicing = (hasLength!Range && hasSlicing!Range) || isSomeString!Range;
@@ -6400,6 +6437,12 @@ private struct SplitterResult(alias isTerminator, Range)
     private size_t _end = 0;
     static if (!fullSlicing)
         private Range _next;
+
+    static if (keepSeparators)
+    {
+        private bool _wasSeparator = false;
+        private size_t _sepEnd = 0;
+    }
 
     private void findTerminator()
     {
@@ -6415,6 +6458,8 @@ private struct SplitterResult(alias isTerminator, Range)
                     break;
                 ++_end;
             }
+        static if (keepSeparators)
+            _sepEnd = _end + 1;
     }
 
     this(Range input)
@@ -6449,13 +6494,16 @@ private struct SplitterResult(alias isTerminator, Range)
 
     static if (isInfinite!Range)
     {
-        enum bool empty = false;  // Propagate infiniteness.
+        enum bool empty = false;
     }
     else
     {
         @property bool empty()
         {
-            return _end == size_t.max;
+            static if (keepSeparators)
+                return _end == size_t.max && !_wasSeparator;
+            else
+                return _end == size_t.max;
         }
     }
 
@@ -6467,12 +6515,33 @@ private struct SplitterResult(alias isTerminator, Range)
             if (empty)
                 throw new RangeError();
         }
-        static if (fullSlicing)
-            return _input[0 .. _end];
+        static if (keepSeparators)
+        {
+            static if (fullSlicing)
+            {
+                if (_wasSeparator)
+                    return _input[_end .. _sepEnd];
+                else
+                    return _input[0 .. _end];
+            }
+            else
+            {
+                import std.range : takeExactly;
+                if (_wasSeparator)
+                    return _input.takeExactly(_sepEnd - _end);
+                else
+                    return _input.takeExactly(_end);
+            }
+        }
         else
         {
-            import std.range : takeExactly;
-            return _input.takeExactly(_end);
+            static if (fullSlicing)
+                return _input[0 .. _end];
+            else
+            {
+                import std.range : takeExactly;
+                return _input.takeExactly(_end);
+            }
         }
     }
 
@@ -6485,36 +6554,108 @@ private struct SplitterResult(alias isTerminator, Range)
                 throw new RangeError();
         }
 
-        static if (fullSlicing)
+        static if (keepSeparators)
         {
-            _input = _input[_end .. _input.length];
-            if (_input.empty)
+            if (_wasSeparator)
             {
-                _end = size_t.max;
-                return;
+                _wasSeparator = false;
+                static if (fullSlicing)
+                {
+                    _input = _input[_sepEnd .. _input.length];
+                    if (_input.empty)
+                    {
+                        _end = size_t.max;
+                        return;
+                    }
+                }
+                else
+                {
+                    if (!_next.empty)
+                        _next.popFront();
+                    _input = _next.save;
+                    if (_input.empty)
+                    {
+                        _end = size_t.max;
+                        return;
+                    }
+                }
+                _end = 0;
+                findTerminator();
             }
-            _input.popFront();
+            else
+            {
+                static if (fullSlicing)
+                {
+                    if (_end == _input.length)
+                    {
+                        _end = size_t.max;
+                        return;
+                    }
+                }
+                else
+                {
+                    if (_next.empty)
+                    {
+                        _end = size_t.max;
+                        return;
+                    }
+                }
+                _wasSeparator = true;
+            }
         }
         else
         {
-            if (_next.empty)
+            static if (fullSlicing)
             {
-                _input = _next;
-                _end = size_t.max;
-                return;
+                _input = _input[_end .. _input.length];
+                if (_input.empty)
+                {
+                    _end = size_t.max;
+                    return;
+                }
+                _input.popFront();
             }
-            _next.popFront();
-            _input = _next.save;
+            else
+            {
+                if (_next.empty)
+                {
+                    _input = _next;
+                    _end = size_t.max;
+                    return;
+                }
+                _next.popFront();
+                _input = _next.save;
+            }
+            findTerminator();
         }
-        findTerminator();
     }
 
     @property typeof(this) save()
     {
-        static if (fullSlicing)
-            return SplitterResult(_input.save, _end);
+        static if (keepSeparators)
+        {
+            static if (fullSlicing)
+            {
+                auto ret = SplitterResult(_input.save, _end);
+                ret._wasSeparator = _wasSeparator;
+                ret._sepEnd = _sepEnd;
+                return ret;
+            }
+            else
+            {
+                auto ret = SplitterResult(_input.save, _end, _next.save);
+                ret._wasSeparator = _wasSeparator;
+                ret._sepEnd = _sepEnd;
+                return ret;
+            }
+        }
         else
-            return SplitterResult(_input.save, _end, _next.save);
+        {
+            static if (fullSlicing)
+                return SplitterResult(_input.save, _end);
+            else
+                return SplitterResult(_input.save, _end, _next.save);
+        }
     }
 }
 
