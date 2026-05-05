@@ -1744,7 +1744,7 @@ public:
     /***************************************
      * Supports comparison operators for `BitArray`.
      */
-    int opCmp(BitArray a2) const @nogc pure nothrow
+    int opCmp(const BitArray a2) const @nogc pure nothrow
     {
         const lesser = this.length < a2.length ? &this : &a2;
         immutable fullWords = lesser.fullWords;
@@ -2214,7 +2214,7 @@ public:
     /***************************************
      * ditto
      */
-    BitArray opOpAssign(string op)(BitArray b) pure nothrow return scope
+    BitArray opOpAssign(string op)(const BitArray b) pure nothrow return scope
     if (op == "~")
     {
         auto istart = _len;
@@ -2273,7 +2273,7 @@ public:
     }
 
     /** ditto */
-    BitArray opBinary(string op)(BitArray b) const pure nothrow
+    BitArray opBinary(string op)(const BitArray b) const pure nothrow
     if (op == "~")
     {
         BitArray r;
@@ -2312,6 +2312,20 @@ public:
         assert(c[0] == 0);
         assert(c[1] == 1);
         assert(c[2] == 0);
+
+        const BitArray ca = BitArray([0,1,1]);
+        const BitArray cb = BitArray([1,0]);
+
+        auto d = BitArray([1,0,1]);
+        d ~= ca;
+        auto expected1 = BitArray([1,0,1,0,1,1]);
+        assert(d == expected1);
+
+        auto e = ca ~ cb;
+        auto expected2 = BitArray([0,1,1,1,0]);
+        assert(e == expected2);
+
+        assert(ca.opCmp(cb) < 0);
     }
 
     // Rolls double word (upper, lower) to the right by n bits and returns the
