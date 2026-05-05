@@ -3828,6 +3828,50 @@ else
     static assert( hasElaborateMove!S10);
 }
 
+private template anyFieldIsBitfieldImpl(T, size_t i)
+{
+    static if (i >= T.tupleof.length)
+        enum bool anyFieldIsBitfieldImpl = false;
+    else
+        enum bool anyFieldIsBitfieldImpl = __traits(isBitfield, T.tupleof[i]) ||
+                                            anyFieldIsBitfieldImpl!(T, i + 1);
+}
+
+private template hasBitfieldsImpl(T)
+{
+    static if (is(T == struct) || is(T == union))
+        enum bool hasBitfieldsImpl = anyFieldIsBitfieldImpl!(T, 0);
+    else
+        enum bool hasBitfieldsImpl = false;
+}
+
+/**
+   Returns `true` if and only if `T` is a struct or union that has at
+   least one bitfield member.
+
+   Params:
+       T = a type to check
+ */
+enum bool hasBitfields(T) = hasBitfieldsImpl!T;
+
+///
+@safe unittest
+{
+    struct HasBitfields
+    {
+        bool iscircle:1;
+        uint rest:31;
+    }
+    struct NoBitfields
+    {
+        bool iscircle;
+        uint rest;
+    }
+    static assert(hasBitfields!HasBitfields);
+    static assert(!hasBitfields!NoBitfields);
+    static assert(!hasBitfields!int);
+}
+
 package alias Identity(alias A) = A;
 
 /**
