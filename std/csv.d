@@ -147,10 +147,17 @@ class CSVException : Exception
         this.col = col;
     }
 
+    override void toString(scope void delegate(in char[]) sink) const
+    {
+        import std.conv : text;
+        sink(text("(Row: ", row, ", Col: ", col, ") "));
+        super.toString(sink);
+    }
+
     override string toString() @safe pure const
     {
-        return "(Row: " ~ to!string(row) ~
-              ", Col: " ~ to!string(col) ~ ") " ~ msg;
+        import std.conv : text;
+        return text("(Row: ", row, ", Col: ", col, ") ", msg);
     }
 }
 
@@ -202,6 +209,20 @@ class CSVException : Exception
     auto em = e3.toString();
     assert(em.indexOf("13") != -1);
     assert(em.indexOf("37") != -1);
+}
+
+// https://github.com/dlang/phobos/issues/10806
+// Verify sink-based toString includes row/col info and delegates to super
+unittest
+{
+    import std.string : indexOf;
+    string collected;
+    void sink(in char[] s) { collected ~= s; }
+    auto e = new CSVException("test msg", 5, 10);
+    e.toString(&sink);
+    assert(collected.length > 0 && collected[0] == '(');
+    assert(indexOf(collected, "(Row: 5, Col: 10)") >= 0, collected);
+    assert(indexOf(collected, "test msg") >= 0, collected);
 }
 
 /**
