@@ -1,8 +1,9 @@
-Interval.fromISOString parses ISO 8601 interval strings
+Interval.fromISOString and Interval.fromISOExtString parse ISO 8601 interval strings
 
-std.datetime.interval.Interval.fromISOString now parses ISO 8601 interval
-strings in both basic and extended formats. It supports intervals specified
-as start/end time points or start/duration (and duration/end).
+std.datetime.interval.Interval.fromISOString and
+Interval.fromISOExtString now parse ISO 8601 interval strings in the basic
+and the extended format respectively. They support intervals specified as
+start/end time points or start/duration (and duration/end).
 
 As with the date and time types in std.datetime, each value in a duration
 must be within the range which its unit can hold (e.g. hours are at most
@@ -17,7 +18,7 @@ import std.datetime.interval;
 auto i = Interval!Date.fromISOString("20030115/P1M");
 assert(i == Interval!Date(Date(2003, 1, 15), Date(2003, 2, 15)));
 
-auto j = Interval!DateTime.fromISOString("2003-01-15T12:00:00/PT1M");
+auto j = Interval!DateTime.fromISOExtString("2003-01-15T12:00:00/PT1M");
 assert(j == Interval!DateTime(DateTime(2003, 1, 15, 12, 0),
                               DateTime(2003, 1, 15, 12, 1)));
 
