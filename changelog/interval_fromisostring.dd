@@ -1,17 +1,14 @@
 Interval, PosInfInterval and NegInfInterval ISO 8601 string support
 
-std.datetime.interval.Interval.fromISOString and Interval.fromISOExtString
-now parse ISO 8601 interval strings in the basic and the extended format
-respectively. They support intervals specified as start/end time points or
-start/duration (and duration/end).
-
-The reverse conversions Interval.toISOString and Interval.toISOExtString
-emit the begin and end time points separated by a slash, and PosInfInterval
-and NegInfInterval omit the end and begin point respectively, since per
-ISO 8601 an omitted time point means that it is unknown, e.g.
-PosInfInterval.toISOString gives $(D "20030115/"). The corresponding
-PosInfInterval.fromISOString and NegInfInterval.fromISOString parse those
-strings back.
+std.datetime.interval.Interval gained fromISOString, fromISOExtString,
+toISOString and toISOExtString, with PosInfInterval and NegInfInterval
+gaining the same for their open-ended forms. The strings hold two time
+points or a time point and a duration separated by a slash, e.g.
+$(D "20030115/P1M"), where per ISO 8601 an omitted side means that it is
+unknown: Interval then extends to the smallest or largest time point which
+the time point type can represent, whereas PosInfInterval and
+NegInfInterval represent true infinity, e.g. $(D "20030115/") and
+$(D "/20030215").
 
 As with the date and time types in std.datetime, each value in a duration
 must be within the range which its unit can hold (e.g. hours are at most
@@ -29,7 +26,9 @@ assert(i == Interval!Date(Date(2003, 1, 15), Date(2003, 2, 15)));
 // Round trip: parse, write, parse again, and compare.
 assert(Interval!Date.fromISOString(i.toISOString()) == i);
 
+// An omitted side means that the interval extends as far as the time
+// point type can represent.
+assert(Interval!Date.fromISOString("20030115/") ==
+       Interval!Date(Date(2003, 1, 15), Date.max));
 assert(PosInfInterval!Date(Date(2003, 1, 15)).toISOString() == "20030115/");
-assert(NegInfInterval!Date(Date(2003, 2, 15)).toISOString() == "/20030215");
 -------
-

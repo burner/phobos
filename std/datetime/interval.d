@@ -1572,8 +1572,10 @@ public:
     /++
         Converts this $(LREF Interval) to a string consisting of the begin
         and end time points in the basic ISO 8601 format separated by a
-        slash, e.g. $(D "20030115/20030215"). The string can be parsed back
-        with $(LREF fromISOString).
+        slash, e.g. $(D "20030115/20030215"). Per ISO 8601, the begin or end
+        point is omitted if it is the smallest or largest time point which
+        $(D_PARAM TP) can represent, e.g. $(D "20030115/"). The string can
+        be parsed back with $(LREF fromISOString).
 
         Params:
             writer = A `char` accepting
@@ -1597,9 +1599,11 @@ public:
     if (isOutputRange!(Writer, char))
     {
         import std.range.primitives : put;
-        _begin.toISOString(w);
+        if (_begin != TP.min)
+            _begin.toISOString(w);
         put(w, '/');
-        _end.toISOString(w);
+        if (_end != TP.max)
+            _end.toISOString(w);
     }
 
     ///
@@ -1614,8 +1618,10 @@ public:
     /++
         Converts this $(LREF Interval) to a string consisting of the begin
         and end time points in the extended ISO 8601 format separated by a
-        slash, e.g. $(D "2003-01-15/2003-02-15"). The string can be parsed
-        back with $(LREF fromISOExtString).
+        slash, e.g. $(D "2003-01-15/2003-02-15"). Per ISO 8601, the begin or
+        end point is omitted if it is the smallest or largest time point
+        which $(D_PARAM TP) can represent, e.g. $(D "2003-01-15/"). The
+        string can be parsed back with $(LREF fromISOExtString).
 
         Params:
             writer = A `char` accepting
@@ -1639,9 +1645,11 @@ public:
     if (isOutputRange!(Writer, char))
     {
         import std.range.primitives : put;
-        _begin.toISOExtString(w);
+        if (_begin != TP.min)
+            _begin.toISOExtString(w);
         put(w, '/');
-        _end.toISOExtString(w);
+        if (_end != TP.max)
+            _end.toISOExtString(w);
     }
 
     ///
@@ -1662,7 +1670,12 @@ public:
         duration separated by a slash, where the duration may be on either
         side of the slash. If the duration is on the left, then the interval
         ends at the time point on the right, e.g. $(D "P1M/20030215")
-        represents the month which precedes February 15th, 2003. Each value
+        represents the month which precedes February 15th, 2003. Per
+        ISO 8601, either side may be omitted to indicate that it is unknown,
+        in which case the interval begins at the smallest time point which
+        $(D_PARAM TP) can represent or ends at the largest one, e.g.
+        $(D "20030115/"); unlike $(LREF PosInfInterval) and
+        $(LREF NegInfInterval), the interval remains finite. Each value
         in a duration must be within the range which its unit can hold
         (e.g. hours are at most 23), so a larger span must be expressed with
         the next larger designator, e.g. $(D "P1DT12H") rather than
@@ -1673,7 +1686,8 @@ public:
 
         Throws:
             $(REF DateTimeException,std,datetime,date) if
-            $(D_PARAM isoString) is not a valid ISO 8601 interval, or if the
+            $(D_PARAM isoString) is not a valid ISO 8601 interval, e.g. a
+            duration combined with an omitted time point, or if the
             resulting interval would have an end point which precedes its
             begin point.
       +/
@@ -1690,6 +1704,11 @@ public:
 
         auto interval = Interval!Date.fromISOString("20030115/P1M");
         assert(interval == Interval!Date(Date(2003, 1, 15), Date(2003, 2, 15)));
+
+        // An omitted side means that it is unknown and extends as far as
+        // the time point can represent.
+        auto open = Interval!Date.fromISOString("20030115/");
+        assert(open == Interval!Date(Date(2003, 1, 15), Date.max));
     }
 
     /++
@@ -1701,7 +1720,12 @@ public:
         duration separated by a slash, where the duration may be on either
         side of the slash. If the duration is on the left, then the interval
         ends at the time point on the right, e.g. $(D "P1M/2003-02-15")
-        represents the month which precedes February 15th, 2003. Each value
+        represents the month which precedes February 15th, 2003. Per
+        ISO 8601, either side may be omitted to indicate that it is unknown,
+        in which case the interval begins at the smallest time point which
+        $(D_PARAM TP) can represent or ends at the largest one, e.g.
+        $(D "2003-01-15/"); unlike $(LREF PosInfInterval) and
+        $(LREF NegInfInterval), the interval remains finite. Each value
         in a duration must be within the range which its unit can hold
         (e.g. hours are at most 23), so a larger span must be expressed with
         the next larger designator, e.g. $(D "P1DT12H") rather than
@@ -1712,7 +1736,8 @@ public:
 
         Throws:
             $(REF DateTimeException,std,datetime,date) if
-            $(D_PARAM isoString) is not a valid ISO 8601 interval, or if the
+            $(D_PARAM isoString) is not a valid ISO 8601 interval, e.g. a
+            duration combined with an omitted time point, or if the
             resulting interval would have an end point which precedes its
             begin point.
       +/
@@ -1729,6 +1754,9 @@ public:
 
         auto interval = Interval!Date.fromISOExtString("2003-01-15/P1M");
         assert(interval == Interval!Date(Date(2003, 1, 15), Date(2003, 2, 15)));
+
+        auto open = Interval!Date.fromISOExtString("2003-01-15/");
+        assert(open == Interval!Date(Date(2003, 1, 15), Date.max));
     }
 
 private:
@@ -1759,29 +1787,40 @@ private:
         enforce!DateTimeException(slash != -1,
             text("Invalid format for ", funcName, ": ", isoString,
                  "; it contains no '/' separating the begin and end points."));
-        enforce!DateTimeException(slash > 0,
-            text("Invalid format for ", funcName, ": ", isoString,
-                 "; it has no begin point before the '/'."));
-        enforce!DateTimeException(slash < str.length - 1,
-            text("Invalid format for ", funcName, ": ", isoString,
-                 "; it has no end point after the '/'."));
 
         auto lhs = str[0 .. slash];
         auto rhs = str[slash + 1 .. $];
 
         // A duration may be on either side of the slash but not on both,
-        // since two durations do not identify an interval.
-        if (lhs[0] == 'P')
+        // since two durations do not identify an interval, and neither may
+        // it be combined with an omitted side, since there is no time point
+        // to which it could be applied.
+        if (lhs.length > 0 && lhs[0] == 'P')
         {
+            enforce!DateTimeException(rhs.length > 0,
+                text("Invalid format for ", funcName, ": ", isoString,
+                     "; a duration cannot be combined with an omitted end point."));
+
             immutable end = parseTimePoint(rhs);
             return Interval(applyISODuration(end, parseISODuration(lhs), true), end);
         }
 
-        immutable begin = parseTimePoint(lhs);
+        if (rhs.length > 0 && rhs[0] == 'P')
+        {
+            enforce!DateTimeException(lhs.length > 0,
+                text("Invalid format for ", funcName, ": ", isoString,
+                     "; a duration cannot be combined with an omitted begin point."));
 
-        return rhs[0] == 'P'
-            ? Interval(begin, applyISODuration(begin, parseISODuration(rhs)))
-            : Interval(begin, parseTimePoint(rhs));
+            immutable begin = parseTimePoint(lhs);
+            return Interval(begin, applyISODuration(begin, parseISODuration(rhs)));
+        }
+
+        // Per ISO 8601, an omitted side means that it is unknown; it is
+        // represented by the smallest or largest time point which TP can
+        // represent, so that the interval extends as far as it can.
+        immutable begin = lhs.length == 0 ? TP.min : parseTimePoint(lhs);
+        immutable end = rhs.length == 0 ? TP.max : parseTimePoint(rhs);
+        return Interval(begin, end);
     }
 
     /+
@@ -3436,11 +3475,26 @@ private:
                             SysTime(DateTime(2003, 1, 16, 12, 0),
                                     new immutable SimpleTimeZone(dur!"hours"(5)))));
 
+    // Per ISO 8601, an omitted side means that it is unknown; the interval
+    // extends to the smallest or largest time point which TP can represent.
+    assert(Interval!Date.fromISOString("20030115/") ==
+           Interval!Date(Date(2003, 1, 15), Date.max));
+    assert(Interval!Date.fromISOExtString("2003-01-15/") ==
+           Interval!Date(Date(2003, 1, 15), Date.max));
+    assert(Interval!Date.fromISOString("/20030215") ==
+           Interval!Date(Date.min, Date(2003, 2, 15)));
+    assert(Interval!Date.fromISOExtString("/2003-02-15") ==
+           Interval!Date(Date.min, Date(2003, 2, 15)));
+    assert(Interval!Date.fromISOString("/") ==
+           Interval!Date(Date.min, Date.max));
+    assert(Interval!DateTime.fromISOExtString("/") ==
+           Interval!DateTime(DateTime.min, DateTime.max));
+
     // Invalid strings.
     assertThrown!DateTimeException(Interval!Date.fromISOString(""));
     assertThrown!DateTimeException(Interval!Date.fromISOString("20030115"));
     assertThrown!DateTimeException(Interval!Date.fromISOString("/P1M"));
-    assertThrown!DateTimeException(Interval!Date.fromISOString("20030115/"));
+    assertThrown!DateTimeException(Interval!Date.fromISOString("P1M/"));
     assertThrown!DateTimeException(Interval!Date.fromISOString("x/P1M"));
     assertThrown!DateTimeException(Interval!Date.fromISOString("P1M/P2M"));
     assertThrown!DateTimeException(Interval!Date.fromISOString("20030115/PX"));
@@ -3777,9 +3831,9 @@ private TP applyISODuration(TP)(return scope const TP tp,
            " no '/' separating the begin and end points.");
 
     assert(collectExceptionMsg!DateTimeException(
-               Interval!Date.fromISOString("20030115/")) ==
-           "Invalid format for Interval.fromISOString: 20030115/; it has no" ~
-           " end point after the '/'.");
+               Interval!Date.fromISOString("P1M/")) ==
+           "Invalid format for Interval.fromISOString: P1M/; a duration" ~
+            " cannot be combined with an omitted end point.");
 
     // applyISODuration adds or subtracts the parsed duration.
     assert(applyISODuration(Date(2003, 1, 15), parseISODuration("P1M")) ==
@@ -3884,12 +3938,36 @@ private TP applyISODuration(TP)(return scope const TP tp,
     assert(cInterval.toISOString() == "20030115/20030215");
     assert(iInterval.toISOExtString() == "2003-01-15/2003-02-15");
 
-    // Round-trip: parse, write, parse again, and compare.
+    // Per ISO 8601, a begin or end point at TP.min or TP.max is omitted.
+    assert(Interval!Date(Date(2003, 1, 15), Date.max).toISOString() == "20030115/");
+    assert(Interval!Date(Date.min, Date(2003, 2, 15)).toISOString() == "/20030215");
+    assert(Interval!Date(Date.min, Date.max).toISOString() == "/");
+    assert(Interval!Date(Date(2003, 1, 15), Date.max).toISOExtString() == "2003-01-15/");
+    assert(Interval!Date(Date.min, Date(2003, 2, 15)).toISOExtString() == "/2003-02-15");
+    assert(Interval!Date(Date.min, Date.max).toISOExtString() == "/");
+
+    // Round-trip: parse, write, parse again, and compare. The open forms
+    // also round trip on the string level.
     foreach (str; ["20030115/20030215", "P1M/20030215", "20030115/P1M",
                    "20030115/20030315"])
     {
         auto interval = Interval!Date.fromISOString(str);
         assert(Interval!Date.fromISOString(interval.toISOString()) == interval, str);
+    }
+
+    foreach (str; ["20030115/", "/20030215", "/"])
+    {
+        auto interval = Interval!Date.fromISOString(str);
+        assert(interval.toISOString() == str, str);
+        assert(Interval!Date.fromISOString(interval.toISOString()) == interval, str);
+    }
+
+    foreach (str; ["2003-01-15/", "/2003-02-15", "/"])
+    {
+        auto interval = Interval!Date.fromISOExtString(str);
+        assert(interval.toISOExtString() == str, str);
+        assert(Interval!Date.fromISOExtString(interval.toISOExtString()) == interval,
+               str);
     }
 
     foreach (str; ["2003-01-15/2003-02-15", "P1M/2003-02-15", "2003-01-15/P1M"])
