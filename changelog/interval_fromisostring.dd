@@ -1,9 +1,17 @@
-Interval.fromISOString and Interval.fromISOExtString parse ISO 8601 interval strings
+Interval, PosInfInterval and NegInfInterval ISO 8601 string support
 
-std.datetime.interval.Interval.fromISOString and
-Interval.fromISOExtString now parse ISO 8601 interval strings in the basic
-and the extended format respectively. They support intervals specified as
-start/end time points or start/duration (and duration/end).
+std.datetime.interval.Interval.fromISOString and Interval.fromISOExtString
+now parse ISO 8601 interval strings in the basic and the extended format
+respectively. They support intervals specified as start/end time points or
+start/duration (and duration/end).
+
+The reverse conversions Interval.toISOString and Interval.toISOExtString
+emit the begin and end time points separated by a slash, and PosInfInterval
+and NegInfInterval omit the end and begin point respectively, since per
+ISO 8601 an omitted time point means that it is unknown, e.g.
+PosInfInterval.toISOString gives $(D "20030115/"). The corresponding
+PosInfInterval.fromISOString and NegInfInterval.fromISOString parse those
+strings back.
 
 As with the date and time types in std.datetime, each value in a duration
 must be within the range which its unit can hold (e.g. hours are at most
@@ -18,11 +26,10 @@ import std.datetime.interval;
 auto i = Interval!Date.fromISOString("20030115/P1M");
 assert(i == Interval!Date(Date(2003, 1, 15), Date(2003, 2, 15)));
 
-auto j = Interval!DateTime.fromISOExtString("2003-01-15T12:00:00/PT1M");
-assert(j == Interval!DateTime(DateTime(2003, 1, 15, 12, 0),
-                              DateTime(2003, 1, 15, 12, 1)));
+// Round trip: parse, write, parse again, and compare.
+assert(Interval!Date.fromISOString(i.toISOString()) == i);
 
-assert(Interval!Date.fromISOString("P1M/20030215") ==
-       Interval!Date(Date(2003, 1, 15), Date(2003, 2, 15)));
+assert(PosInfInterval!Date(Date(2003, 1, 15)).toISOString() == "20030115/");
+assert(NegInfInterval!Date(Date(2003, 2, 15)).toISOString() == "/20030215");
 -------
 
