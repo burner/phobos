@@ -1583,18 +1583,6 @@ public:
         Returns:
             A `string` when not using an output range; `void` otherwise.
       +/
-    string toISOString() const @safe nothrow
-    {
-        import std.array : appender;
-        auto w = appender!string();
-        try
-            toISOString(w);
-        catch (Exception e)
-            assert(0, "toISOString() threw.");
-        return w.data;
-    }
-
-    /// ditto
     void toISOString(Writer)(ref Writer w) const
     if (isOutputRange!(Writer, char))
     {
@@ -1604,6 +1592,18 @@ public:
         put(w, '/');
         if (_end != TP.max)
             _end.toISOString(w);
+    }
+
+    /// ditto
+    string toISOString() const @safe nothrow
+    {
+        import std.array : appender;
+        auto w = appender!string();
+        try
+            toISOString(w);
+        catch (Exception e)
+            assert(0, "toISOString() threw.");
+        return w.data;
     }
 
     ///
@@ -1629,18 +1629,6 @@ public:
         Returns:
             A `string` when not using an output range; `void` otherwise.
       +/
-    string toISOExtString() const @safe nothrow
-    {
-        import std.array : appender;
-        auto w = appender!string();
-        try
-            toISOExtString(w);
-        catch (Exception e)
-            assert(0, "toISOExtString() threw.");
-        return w.data;
-    }
-
-    /// ditto
     void toISOExtString(Writer)(ref Writer w) const
     if (isOutputRange!(Writer, char))
     {
@@ -1650,6 +1638,18 @@ public:
         put(w, '/');
         if (_end != TP.max)
             _end.toISOExtString(w);
+    }
+
+    /// ditto
+    string toISOExtString() const @safe nothrow
+    {
+        import std.array : appender;
+        auto w = appender!string();
+        try
+            toISOExtString(w);
+        catch (Exception e)
+            assert(0, "toISOExtString() threw.");
+        return w.data;
     }
 
     ///
